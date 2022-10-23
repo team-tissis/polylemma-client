@@ -6,12 +6,18 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import Chip from '@mui/material/Chip';
 
 export default function Header() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Polylemma
+          </Typography>
+          <Chip label="100 Token" style={{fontSize: 20, backgroundColor: 'white', margin: 15, padding: 10}} variant="outlined" />
+          {/* <Button color="inherit">100 Token</Button> */}
           <IconButton
             size="large"
             edge="start"
@@ -21,10 +27,6 @@ export default function Header() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            News
-          </Typography>
-          <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>
     </Box>
