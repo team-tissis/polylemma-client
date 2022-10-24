@@ -83,18 +83,19 @@ export default function GachaGacha(){
             </DialogTitle>
             <DialogContent>
             <DialogContentText id="alert-dialog-description">
-            <div  onClick={() => setIsOpened(true)} >
-                <Lottie options={isOpened ? openedOptions : defaultOptions}height={400} width={400} />
-            </div>
+                <div  onClick={() => setIsOpened(true)} >
+                    <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} style={{backgroundColor: 'grey'}} />
+                    {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
+                        ここにキャラのカードを表示
+                    </div> */}
+                </div>
 
-                Let Google help apps determine location. This means sending anonymous
-                location data to Google, even when no apps are running.
+                
             </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button onClick={handleClose}>Disagree</Button>
             <Button onClick={handleClose} autoFocus>
-                Agree
+                戻る
             </Button>
             </DialogActions>
         </Dialog>

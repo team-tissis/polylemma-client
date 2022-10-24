@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -85,12 +86,13 @@ function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}
 }
 
 export default function Battle() {
-    // const selectedData = [0,1,2,3];
     const initData = [0,1,2,3,4,5,6,7,8,9,10];
     const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
     const [selectedData, setSelectedData] = useState([0,1,2,3]);
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
+    const navigate = useNavigate();
+    
 
     useEffect(() => {
         /* 第1引数には実行させたい副作用関数を記述*/
@@ -133,7 +135,7 @@ export default function Battle() {
         }
 
         </Box>
-        <Button variant="contained" size="large" style={ style() } disabled={isChanging}>
+        <Button variant="contained" size="large" style={ style() } onClick={() => navigate('/battle_main')} disabled={isChanging}>
           バトルへ
         </Button>
     </>)

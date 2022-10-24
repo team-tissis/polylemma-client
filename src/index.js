@@ -34,7 +34,8 @@ root.render(
   {/* <PersistGate loading={null} persistor={persistor}> */}
     {/* <Router> */}
       <Header />
-      <RouterConfig style={{ marginTop: 80}}/>
+      <div style={{height: 70}}/>
+      <RouterConfig/>
       <Footer />
     {/* </Router> */}
   {/* </PersistGate> */}

@@ -62,10 +62,8 @@ function App() {
   return (<>
       <Paper
         elevation={0}
-        style={{marginTop: 80}}
-        sx={{ display: 'flex',
-          border: (theme) => `1px solid ${theme.palette.divider}`,
-          flexWrap: 'wrap'}}
+        // style={{marginTop: 80}}
+        sx={{ display: 'flex', border: (theme) => `1px solid ${theme.palette.divider}`, flexWrap: 'wrap'}}
       >
         <StyledToggleButtonGroup
           size="small"
