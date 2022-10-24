@@ -7,6 +7,7 @@ import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Battle from './components/home/battle';
 import ModelTraining from './components/home/training';
+import GachaGacha from './components/home/gacha';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
@@ -26,12 +27,7 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 
 function App() {
   const [value, setValue] = useState(0);
-
-  // const handleChange = (event, newValue) => {
-  //   setValue(newValue);
-  // };
-  
-  const [alignment, setAlignment] = React.useState('web');
+  const [alignment, setAlignment] = React.useState('battle');
 
   const handleChange = (event,newAlignment) => {
     setAlignment(newAlignment);
@@ -58,6 +54,7 @@ function App() {
     }else if(alignment == "training"){
       return <ModelTraining/>
     }else if(alignment == "gacha"){
+      return <GachaGacha/>
     }else if(alignment == "pictorial_book"){
     }
   }
@@ -65,6 +62,7 @@ function App() {
   return (<>
       <Paper
         elevation={0}
+        style={{marginTop: 80}}
         sx={{ display: 'flex',
           border: (theme) => `1px solid ${theme.palette.divider}`,
           flexWrap: 'wrap'}}

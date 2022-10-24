@@ -8,9 +8,19 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Chip from '@mui/material/Chip';
 
+function headerStyle() {
+  return {
+      position: 'fixed',
+      top: 0,
+      width: '100%',
+      height: 80,
+      zIndex: 999
+  }
+}
+
 export default function Header() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1 }} style={headerStyle()}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

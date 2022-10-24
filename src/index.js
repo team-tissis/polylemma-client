@@ -3,18 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-// import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk'
 import { PersistGate } from 'redux-persist/integration/react';
 import { composeWithDevTools } from "redux-devtools-extension";
-// import RouterConfig from './Routes.tsx';
 import { RouterConfig } from "./Routes.tsx";
 import { createStore, applyMiddleware } from 'redux'
 import Header from './components/applications/header';
 import Footer from './components/applications/footer';
-// import { store, persistor } from './store';
 import axios from 'axios';
 import { SnackbarProvider } from 'notistack';
 
@@ -37,7 +34,7 @@ root.render(
   {/* <PersistGate loading={null} persistor={persistor}> */}
     {/* <Router> */}
       <Header />
-      <RouterConfig />
+      <RouterConfig style={{ marginTop: 80}}/>
       <Footer />
     {/* </Router> */}
   {/* </PersistGate> */}
