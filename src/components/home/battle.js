@@ -44,7 +44,6 @@ function editButtonstyle() {
 const selectedNum = 4;
 
 function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}){
-    console.log({selectedData: selectedData, param: id})
     var color = 'white'
     if( isChanging && selectedData.includes(id)){
         color = '#CCFFFF'
@@ -95,7 +94,7 @@ export default function Battle() {
     
     useEffect(() => {
         /* 第1引数には実行させたい副作用関数を記述*/
-        console.log('副作用関数が実行されました！')
+        console.log('')
     },[stateChange])
 
     function handleUpdate(){
