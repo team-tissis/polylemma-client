@@ -8,6 +8,26 @@ import { CardActionArea } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import MailIcon from '@mui/icons-material/Mail';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import FilledInput from '@mui/material/FilledInput';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 function bottomBoxstyle() {
     return {
@@ -32,6 +52,7 @@ export default function ModelTraining(){
     const [selectedNFT, setSelectedNFT] = useState();
     const [selectedId, setSelectedId] = useState(null)
     const [isOpened, setIsOpened] = useState(false)
+    const [tokenAmount, setTokenAmount] = useState(0)
 
     // トークンを使用してレベルアップさせる
     function handleLevelUp(){
@@ -47,28 +68,82 @@ export default function ModelTraining(){
         {id: 7, title: "タイトル7", subtitle: "サブタイトル7"},
         {id: 8, title: "タイトル8", subtitle: "サブタイトル8"}
     ]
+    const [state, setState] = useState({
+        top: false,
+        left: false,
+        bottom: false,
+        right: false,
+    });
+    const toggleDrawer = (anchor, open) => (event) => {
+      if ( event && event.type === 'keydown' && ((event).key === 'Tab' || (event).key === 'Shift')) {
+        return;
+      }
+      setState({ ...state, [anchor]: open });
+    };
+    // 画面サイズを取得
+    var windowWidth = window.innerWidth;
 
     return(<>
         <h1>キャラ一覧</h1>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {initData.map((id, index) => (
-                    <Grid item xs={3} sm={3} md={3} key={index}>
-                        <Card style={{backgroundColor: (id==selectedNFT) ? '#CCFFFF' : 'white'}} onClick={ () => setSelectedNFT(id) }>
-                            <CardActionArea>
-                                <CardMedia component="img" height="200"
-                                    image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
-                                <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">キャラ{id}</Typography>
-                                <Typography variant="body1" color="text.primary">レア度: AA</Typography>
-                                <Typography variant="body1" color="text.primary">属性: AA</Typography>
-                                <Typography variant="body1" color="text.primary">レベル: AA</Typography>
-                                <Typography variant="body1" color="text.primary">特性: AA</Typography>
-                                </CardContent>
-                            </CardActionArea>
-                        </Card>
+                <Grid item xs={3} sm={3} md={3} key={index}>
+                    <Card style={{backgroundColor: (id==selectedNFT) ? '#CCFFFF' : 'white'}} onClick={ () => setSelectedNFT(id) }>
+                        <CardActionArea>
+                            <CardMedia component="img" height="200"
+                                image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
+                            <CardContent>
+                            <Typography gutterBottom variant="h5" component="div">キャラ{id}</Typography>
+                            <Typography variant="body1" color="text.primary">レア度: AA</Typography>
+                            <Typography variant="body1" color="text.primary">属性: AA</Typography>
+                            <Typography variant="body1" color="text.primary">レベル: AA</Typography>
+                            <Typography variant="body1" color="text.primary">特性: AA</Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                </Grid>
+            ))}
+
+            <SwipeableDrawer
+                style={{maxWidth: windowWidth*0.1}}
+                anchor={'right'}
+                open={state['right']}
+                onClose={toggleDrawer('right', false)}
+                onOpen={toggleDrawer('right', true)}
+            >
+                <Grid container style={{padding: 20}}>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <h1>現在の所持トークン: 100TOKEN</h1>
                     </Grid>
-                ))}
+                    <Grid item xs={12} sm={12} md={12}>
+                        <p>新しくトークンを追加で購入しますか？</p>
+                    </Grid>
+                    <Grid item={12}>
+                        <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+                        <OutlinedInput
+                            id="outlined-adornment-weight"
+                            value={tokenAmount}
+                            type="number"
+                            onChange={(e) => setTokenAmount(e.target.value)}
+                            endAdornment={<InputAdornment position="end">TOKEN</InputAdornment>}
+                            aria-describedby="outlined-weight-helper-text"
+                            inputProps={{
+                            'aria-label': 'weight',
+                            }}
+                        />
+                        <FormHelperText id="outlined-weight-helper-text">TOKEN</FormHelperText>
+                        ※ ここに円計算の大体の値段を動的に表示できると👍
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
+                        <Button variant="contained" disableElevation style={{width: '60%'}}>
+                            購入する
+                        </Button>
+                    </Grid>
+                </Grid>
+            </SwipeableDrawer>
+
         </Grid>
         </Box>
         {selectedNFT &&
@@ -105,7 +180,7 @@ export default function ModelTraining(){
 
                     <Grid item xs={1} sm={0} md={0}/>
                     <Grid item xs={10} sm={2.5} md={2.5}>
-                        <Button variant="contained" style={{width: '95%', height: 60, fontSize: 25, marginRight: '5%'}}>
+                        <Button variant="contained" onClick={toggleDrawer('right', true)} style={{width: '95%', height: 60, fontSize: 25, marginRight: '5%'}}>
                         トークンを購入
                         </Button>
                     </Grid>
