@@ -93,7 +93,6 @@ export default function Battle() {
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
     
-
     useEffect(() => {
         /* 第1引数には実行させたい副作用関数を記述*/
         console.log('副作用関数が実行されました！')
