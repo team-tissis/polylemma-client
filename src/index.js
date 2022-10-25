@@ -15,8 +15,6 @@ import Footer from './components/applications/footer';
 import { SnackbarProvider } from 'notistack';
 import { store, persistor } from './store.ts';
 
-// const enhancer = process.env.NODE_ENV === 'development' ? composeWithDevTools(applyMiddleware(thunk)) : applyMiddleware(thunk)
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
