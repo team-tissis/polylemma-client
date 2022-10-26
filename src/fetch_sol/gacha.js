@@ -3,7 +3,7 @@ import artifact from "../abi/PLMGacha.sol/PLMGacha.json";
 // スマコンのアドレスを定義
 const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
 
-async function takeGacha() {
+async function playGacha() {
     const provider = new ethers.providers.JsonRpcProvider();
     const signer = provider.getSigner();
     const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
@@ -14,4 +14,4 @@ async function takeGacha() {
     console.log({テスト: messsage})
 }
 
-export { takeGacha }
+export { playGacha }

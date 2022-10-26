@@ -19,7 +19,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { takeGacha } from '../../fetch_sol/gacha.js'
+import { playGacha } from '../../fetch_sol/gacha.js'
 
 const questionOption = {
     loop: true,
@@ -107,7 +107,7 @@ export default function GachaGacha(){
                     </CardContent>
                 </Card>
                 {/* <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button> */}
-                <Button variant="contained" onClick={() => takeGacha()} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                <Button variant="contained" onClick={() => playGacha()} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <h2>ここに説明文</h2><hr/>
