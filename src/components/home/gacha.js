@@ -10,13 +10,7 @@ import * as animationData from '../../animations/gift.json';
 import * as unOpenAnimationData from '../../animations/gift-unopen.json';
 import * as questionAnimationData from '../../animations/question.json';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-// import Skeleton from '@mui/material/Skeleton';
 import { Skeleton } from 'react-skeleton-generator';
 import Container from '@mui/material/Container';
 import Chip from '@mui/material/Chip';
@@ -25,23 +19,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-
-import { ethers } from "ethers";
-import artifact from "../../abi/PLMGacha.sol/PLMGacha.json";
-// スマコンのアドレスを定義
-const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
-
-function inqueryExample () {
-
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
-    const contractWithSigner = contract.connect(signer);
-    // taskCount, tasks, createTask, toggleIsCompleted はスマコンで定義されている関数だとする
-    const { gacha } = contractWithSigner.functions
-    console.log({テスト: "hello"})
-    return null
-}
+import { takeGacha } from '../../fetch_sol/gacha.js'
 
 const questionOption = {
     loop: true,
@@ -129,7 +107,7 @@ export default function GachaGacha(){
                     </CardContent>
                 </Card>
                 {/* <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button> */}
-                <Button variant="contained" onClick={() => inqueryExample()} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                <Button variant="contained" onClick={() => takeGacha()} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <h2>ここに説明文</h2><hr/>
