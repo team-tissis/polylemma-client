@@ -1,43 +1,40 @@
 import { ethers } from "ethers";
-import artifact from "../abi/PLMGacha.sol/PLMGacha.json";
-import contractFunctions from "../broadcast/PLMGachaScript.s.sol/31337/run-latest.json";
+import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
+import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
+import { getContractAddress, getBalance, getTotalSupply } from "./utils.js";
 
-// スマコンのアドレスを定義
-async function getContractAddress (contractName) {
-    const contractAddress = contractFunctions.transactions.find((v) => v.contractName == contractName).contractAddress;
-    return contractAddress;
+const provider = new ethers.providers.JsonRpcProvider();
+const signer = provider.getSigner();
+
+async function mintCoin() {
+    const coinContractAddress = getContractAddress("PLMCoin");
+    const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    const { mint } = contractWithSigner.functions;
+    const message = await mint();
+    console.log({mint: message});
+    return {new_coin: await getBalance()};
 }
 
-async function mint() {
-    const gachaContractAddress = getContractAddress("PLMCoin");
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
+async function handleApprove(gachaContractAddress) {
+    const coinContractAddress = getContractAddress("PLMCoin");
+    const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
-    const { mint } = contractWithSigner.functions
-}
-
-async function approve() {
-    const gachaContractAddress = getContractAddress("PLMCoin");
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
-    const contractWithSigner = contract.connect(signer);
-    const { approve } = contractWithSigner.functions
+    const { approve } = contractWithSigner.functions;
+    const gachaCoin = 10000;
+    const message = await approve(gachaContractAddress, gachaCoin);
+    console.log({approve: message});
 }
 
 async function playGacha () {
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner();
     const gachaContractAddress = getContractAddress("PLMGacha");
-    console.log(gachaContractAddress);
-    const contract = new ethers.Contract(gachaContractAddress, artifact.abi, provider);
+    await handleApprove(gachaContractAddress);
+    const contract = new ethers.Contract(gachaContractAddress, gachaArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
-    // taskCount, tasks, createTask, toggleIsCompleted はスマコンで定義されている関数だとする
-    const { gacha } = contractWithSigner.functions
+    const { gacha } = contractWithSigner.functions;
     const message = await gacha();
-    console.log({テスト: message});
-    return null
+    console.log({gacha: message});
+    return {new_coin: await getBalance(), new_token: await getTotalSupply()};
 }
 
-export { playGacha }
+export { mintCoin, playGacha };

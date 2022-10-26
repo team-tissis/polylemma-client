@@ -19,14 +19,15 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { playGacha } from '../../fetch_sol/gacha.js'
+import { getBalance, getTotalSupply } from '../../fetch_sol/utils.js'
+import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
 
 const questionOption = {
     loop: true,
     autoplay: true,
     animationData: questionAnimationData,
     rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
+        preserveAspectRatio: 'xMidYMid slice'
     }
 };
 
@@ -35,7 +36,7 @@ const openedOptions = {
     autoplay: true,
     animationData: animationData,
     rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
+        preserveAspectRatio: 'xMidYMid slice'
     }
 };
 
@@ -44,7 +45,7 @@ const defaultOptions = {
     autoplay: true,
     animationData: unOpenAnimationData,
     rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
+        preserveAspectRatio: 'xMidYMid slice'
     }
 };
 
@@ -54,14 +55,29 @@ export default function GachaGacha(){
     const [selectedId, setSelectedId] = useState(null)
     const [isOpened, setIsOpened] = useState(false)
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [coin, setCoin] = useState(0);
+    const [token, setToken] = useState(0);
 
-    const handleClickOpen = () => {
-      setOpen(true);
+    useEffect(() => {(async function() {
+        setCoin(await getBalance());
+        setToken(await getTotalSupply());
+    })();}, []);
+
+    const handleClickOpen = async () => {
+        setOpen(true);
+        const { new_coin, new_token } = await playGacha();
+        setCoin(new_coin);
+        setToken(new_token);
+    };
+
+    const handleClickMint = async () => {
+        const { new_coin } = await mintCoin();
+        setCoin(new_coin);
     };
 
     const handleClose = () => {
-      setOpen(false);
+        setOpen(false);
     };
 
     return(<>
@@ -77,16 +93,17 @@ export default function GachaGacha(){
             ギフトボックスをクリックしてキャラクターを確認しよう
             </DialogTitle>
             <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-                <div  onClick={() => setIsOpened(true)} >
+            {/* <p> の中に <div> を入れられないっていうエラーが出るから DialogContentText は消した (橋本) */}
+            {/* <DialogContentText id="alert-dialog-description"> */}
+                <span  onClick={() => setIsOpened(true)} >
                     <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} style={{backgroundColor: 'grey'}} />
                     {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
                         ここにキャラのカードを表示
                     </div> */}
-                </div>
+                </span>
 
 
-            </DialogContentText>
+            {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
             <Button onClick={handleClose} autoFocus>
@@ -106,10 +123,13 @@ export default function GachaGacha(){
                     <Chip label="30 トークン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
-                {/* <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button> */}
-                <Button variant="contained" onClick={() => playGacha()} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                {/* <Button variant="contained" onClick={playGacha} style={{margin: 10, width: 345}}>ガチャを1回引く</Button> */}
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
+                <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>ミントする</Button>
+                <div>コイン: {coin}</div>
+                <div>トークン: {token}</div>
                 <h2>ここに説明文</h2><hr/>
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
