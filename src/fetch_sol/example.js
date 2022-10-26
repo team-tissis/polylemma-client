@@ -6,6 +6,26 @@ import artifact from "./abi/TodoList.json";
 // スマコンのアドレスを定義
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
+// export function fetchAllCard(){
+//   return []Card一覧
+// }
+
+// export function selctedCard(カード番号, 追加ポイント){
+//   return true とか　false
+// }
+
+// トークンの購入関数
+
+// // ガチャの購入の関数
+// export function gachaCard(カード番号, 追加ポイント){
+//   return true とか　false
+// }
+
+// // 育成の関数
+// export function trainingCard(カード番号, 追加ポイント){
+//   return true とか　false
+// }
+
 export default function inqueryExample(){
     const provider = new ethers.providers.JsonRpcProvider();
     const signer = provider.getSigner();
@@ -13,6 +33,7 @@ export default function inqueryExample(){
     const contractWithSigner = contract.connect(signer);
     // taskCount, tasks, createTask, toggleIsCompleted はスマコンで定義されている関数だとする
     const { taskCount, tasks, createTask, toggleIsCompleted } = contractWithSigner.functions
+
     const [taskCountValue, setTaskCountValue] = useState("");
     const [taskContent, setTaskContent] = useState("");
     const [tasksValue, setTasksValue] = useState([]);

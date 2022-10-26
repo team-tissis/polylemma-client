@@ -7,8 +7,6 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Chip from '@mui/material/Chip';
-import detectEthereumProvider from '@metamask/detect-provider';
-import Web3 from 'web3';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
 
