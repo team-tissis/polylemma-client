@@ -8,6 +8,24 @@ async function getContractAddress (contractName) {
     return contractAddress;
 }
 
+async function mint() {
+    const gachaContractAddress = getContractAddress("PLMCoin");
+    const provider = new ethers.providers.JsonRpcProvider();
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    const { mint } = contractWithSigner.functions
+}
+
+async function approve() {
+    const gachaContractAddress = getContractAddress("PLMCoin");
+    const provider = new ethers.providers.JsonRpcProvider();
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    const { approve } = contractWithSigner.functions
+}
+
 async function playGacha () {
     const provider = new ethers.providers.JsonRpcProvider();
     const signer = provider.getSigner();
