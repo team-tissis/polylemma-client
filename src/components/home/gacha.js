@@ -10,13 +10,7 @@ import * as animationData from '../../animations/gift.json';
 import * as unOpenAnimationData from '../../animations/gift-unopen.json';
 import * as questionAnimationData from '../../animations/question.json';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-// import Skeleton from '@mui/material/Skeleton';
 import { Skeleton } from 'react-skeleton-generator';
 import Container from '@mui/material/Container';
 import Chip from '@mui/material/Chip';
@@ -25,13 +19,15 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { getBalance, getTotalSupply } from '../../fetch_sol/utils.js'
+import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
 
 const questionOption = {
     loop: true,
     autoplay: true,
     animationData: questionAnimationData,
     rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
+        preserveAspectRatio: 'xMidYMid slice'
     }
 };
 
@@ -40,7 +36,7 @@ const openedOptions = {
     autoplay: true,
     animationData: animationData,
     rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
+        preserveAspectRatio: 'xMidYMid slice'
     }
 };
 
@@ -49,24 +45,41 @@ const defaultOptions = {
     autoplay: true,
     animationData: unOpenAnimationData,
     rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice'
+        preserveAspectRatio: 'xMidYMid slice'
     }
 };
 
 export default function GachaGacha(){
     const initData = [0,1,2,3,4,5,6,7,8,9,10];
     const [selectedNFT, setSelectedNFT] = useState();
-    const [selectedId, setSelectedId] = useState(null)
-    const [isOpened, setIsOpened] = useState(false)
+    const [selectedId, setSelectedId] = useState(null);
+    const [isOpened, setIsOpened] = useState(false);
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [coin, setCoin] = useState(0);
+    const [token, setToken] = useState(0);
+    const [tokenId, setTokenId] = useState(0);
 
-    const handleClickOpen = () => {
-      setOpen(true);
+    useEffect(() => {(async function() {
+        setCoin(await getBalance());
+        setToken(await getTotalSupply());
+    })();}, []);
+
+    const handleClickOpen = async () => {
+        setOpen(true);
+        const { newCoin, newToken, newTokenId } = await playGacha();
+        setCoin(newCoin);
+        setToken(newToken);
+        setTokenId(newTokenId);
     };
-  
+
+    const handleClickMint = async () => {
+        const { newCoin } = await mintCoin();
+        setCoin(newCoin);
+    };
+
     const handleClose = () => {
-      setOpen(false);
+        setOpen(false);
     };
 
     return(<>
@@ -82,18 +95,20 @@ export default function GachaGacha(){
             ギフトボックスをクリックしてキャラクターを確認しよう
             </DialogTitle>
             <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-                <div  onClick={() => setIsOpened(true)} >
+            {/* <p> の中に <div> を入れられないっていうエラーが出るから DialogContentText は消した (橋本) */}
+            {/* <DialogContentText id="alert-dialog-description"> */}
+                <div onClick={() => setIsOpened(true)} >
                     <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} style={{backgroundColor: 'grey'}} />
                     {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
                         ここにキャラのカードを表示
                     </div> */}
                 </div>
 
-                
-            </DialogContentText>
+
+            {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
+            <div>トークンID: {tokenId}</div>
             <Button onClick={handleClose} autoFocus>
                 戻る
             </Button>
@@ -108,12 +123,15 @@ export default function GachaGacha(){
                     <Skeleton.SkeletonThemeProvider>
                         <Skeleton count={3} widthMultiple={['100%', '50%', '75%']} heightMultiple={['30px', '30px', '30px']} />
                     </Skeleton.SkeletonThemeProvider>
-                    <Chip label="30 トークン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
+                    <Chip label="5 コイン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
                 <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
+                <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>100 コインミントする</Button>
+                <div>コイン: {coin}</div>
+                <div>トークン: {token}</div>
                 <h2>ここに説明文</h2><hr/>
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
