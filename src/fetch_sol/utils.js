@@ -13,23 +13,24 @@ async function getContractAddress (contractName) {
 const provider = new ethers.providers.JsonRpcProvider();
 const signer = provider.getSigner();
 
-async function getBalance() {
+async function getBalance () {
     const coinContractAddress = getContractAddress("PLMCoin");
     const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
     const { balanceOf } = contractWithSigner.functions;
-    const message = await balanceOf(signer.getAddress());
-    console.log({balanceOf: message});
+    const myAddress = await signer.getAddress();
+    const message = await balanceOf(myAddress);
+    console.log({ balanceOf: message });
     return message.toString();
 }
 
-async function getTotalSupply() {
+async function getTotalSupply () {
     const tokenContractAddress = getContractAddress("PLMToken");
     const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
     const { totalSupply } = contractWithSigner.functions;
     const message = await totalSupply();
-    console.log({totalSupply: message});
+    console.log({ totalSupply: message });
     return message.toString();
 }
 

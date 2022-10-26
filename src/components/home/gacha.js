@@ -52,12 +52,13 @@ const defaultOptions = {
 export default function GachaGacha(){
     const initData = [0,1,2,3,4,5,6,7,8,9,10];
     const [selectedNFT, setSelectedNFT] = useState();
-    const [selectedId, setSelectedId] = useState(null)
-    const [isOpened, setIsOpened] = useState(false)
+    const [selectedId, setSelectedId] = useState(null);
+    const [isOpened, setIsOpened] = useState(false);
 
     const [open, setOpen] = useState(false);
     const [coin, setCoin] = useState(0);
     const [token, setToken] = useState(0);
+    const [tokenId, setTokenId] = useState(0);
 
     useEffect(() => {(async function() {
         setCoin(await getBalance());
@@ -66,14 +67,15 @@ export default function GachaGacha(){
 
     const handleClickOpen = async () => {
         setOpen(true);
-        const { new_coin, new_token } = await playGacha();
-        setCoin(new_coin);
-        setToken(new_token);
+        const { newCoin, newToken, newTokenId } = await playGacha();
+        setCoin(newCoin);
+        setToken(newToken);
+        setTokenId(newTokenId);
     };
 
     const handleClickMint = async () => {
-        const { new_coin } = await mintCoin();
-        setCoin(new_coin);
+        const { newCoin } = await mintCoin();
+        setCoin(newCoin);
     };
 
     const handleClose = () => {
@@ -95,17 +97,18 @@ export default function GachaGacha(){
             <DialogContent>
             {/* <p> の中に <div> を入れられないっていうエラーが出るから DialogContentText は消した (橋本) */}
             {/* <DialogContentText id="alert-dialog-description"> */}
-                <span  onClick={() => setIsOpened(true)} >
+                <div onClick={() => setIsOpened(true)} >
                     <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} style={{backgroundColor: 'grey'}} />
                     {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
                         ここにキャラのカードを表示
                     </div> */}
-                </span>
+                </div>
 
 
             {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
+            <div>トークンID: {tokenId}</div>
             <Button onClick={handleClose} autoFocus>
                 戻る
             </Button>
@@ -124,7 +127,6 @@ export default function GachaGacha(){
                     </CardContent>
                 </Card>
                 <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
-                {/* <Button variant="contained" onClick={playGacha} style={{margin: 10, width: 345}}>ガチャを1回引く</Button> */}
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>ミントする</Button>
