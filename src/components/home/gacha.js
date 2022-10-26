@@ -26,6 +26,23 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { ethers } from "ethers";
+import artifact from "../../abi/PLMGacha.sol/PLMGacha.json";
+// スマコンのアドレスを定義
+const contractAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+
+function inqueryExample () {
+
+    const provider = new ethers.providers.JsonRpcProvider();
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, artifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    // taskCount, tasks, createTask, toggleIsCompleted はスマコンで定義されている関数だとする
+    const { gacha } = contractWithSigner.functions
+    console.log({テスト: "hello"})
+    return null
+}
+
 const questionOption = {
     loop: true,
     autoplay: true,
@@ -64,7 +81,7 @@ export default function GachaGacha(){
     const handleClickOpen = () => {
       setOpen(true);
     };
-  
+
     const handleClose = () => {
       setOpen(false);
     };
@@ -90,7 +107,7 @@ export default function GachaGacha(){
                     </div> */}
                 </div>
 
-                
+
             </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -111,7 +128,8 @@ export default function GachaGacha(){
                     <Chip label="30 トークン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
-                <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                {/* <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button> */}
+                <Button variant="contained" onClick={() => inqueryExample()} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <h2>ここに説明文</h2><hr/>
