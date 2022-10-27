@@ -123,13 +123,13 @@ export default function GachaGacha(){
                     <Skeleton.SkeletonThemeProvider>
                         <Skeleton count={3} widthMultiple={['100%', '50%', '75%']} heightMultiple={['30px', '30px', '30px']} />
                     </Skeleton.SkeletonThemeProvider>
-                    <Chip label="30 トークン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
+                    <Chip label="5 コイン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
                 <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
-                <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>ミントする</Button>
+                <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>100 コインミントする</Button>
                 <div>コイン: {coin}</div>
                 <div>トークン: {token}</div>
                 <h2>ここに説明文</h2><hr/>

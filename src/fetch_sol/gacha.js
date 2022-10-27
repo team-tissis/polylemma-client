@@ -11,13 +11,13 @@ async function mintCoin () {
     const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
     const { mint } = contractWithSigner.functions;
-    const message = await mint(0);
+    const message = await mint(100); // 100 コインミントする
 
     const myAddress = await signer.getAddress();
 
     // event の listen v1
     // 本当はこのやり方でやりたいがなぜか動かない (.on の中身が実行されている様子がない)
-    // const filter = contract.filters.MintDebug(null, myAddress);
+    // const filter = contract.filters.mintDebug(null, myAddress);
     // contract.on(filter, (amount, user) => {
     //     console.log(`${user} got ${amount}.`);
     // });
@@ -25,9 +25,11 @@ async function mintCoin () {
     // event の listen v2
     // 一応これで動くが、あまり綺麗じゃない
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'MintDebug' && event.args.user == myAddress);
-    const [ amount, user ] = event.args;
-    console.log(`${user} got ${amount.toString()}.`);
+    const event = rc.events.find(event => event.event === 'mintDebug' && event.args.user == myAddress);
+    if (event != undefined) {
+        const [ amount, user ] = event.args;
+        console.log(`${user} got ${amount.toString()}.`);
+    }
     // event の listen 終了
 
     console.log({ mint: message });
