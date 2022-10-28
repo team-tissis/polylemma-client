@@ -15,8 +15,6 @@ function getAbi (contractName) {
     else if (contractName == "PLMToken") return tokenArtifact.abi;
     else if (contractName == "PLMGacha") return gachaArtifact.abi;
 }
-const provider = new ethers.providers.JsonRpcProvider();
-const signer = provider.getSigner(1);
 
 function getSigner() {
     // (多分) MetaMask を経由しないで使う方法
@@ -38,21 +36,12 @@ function getContract(contractName) {
 }
 
 async function handleApprove (contractAddress, approvedCoin) {
-    // const coinContractAddress = getContractAddress("PLMCoin");
-    // const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, signer);
-    // const contractWithSigner = contract.connect(signer);
-    // const { approve } = contractWithSigner.functions;
     const { contract } = getContract("PLMCoin");
     const message = await contract.approve(contractAddress, approvedCoin);
     console.log({ approve: message });
 }
 
 async function getBalance () {
-    // const coinContractAddress = getContractAddress("PLMCoin");
-    // const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
-    // const contractWithSigner = contract.connect(signer);
-    // const { balanceOf } = contractWithSigner.functions;
-
     const { signer, contract } = getContract("PLMCoin");
     const myAddress = await signer.getAddress();
     const message = await contract.balanceOf(myAddress);
@@ -61,10 +50,6 @@ async function getBalance () {
 }
 
 async function getTotalSupply () {
-    // const tokenContractAddress = getContractAddress("PLMToken");
-    // const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
-    // const contractWithSigner = contract.connect(signer);
-    // const { totalSupply } = contractWithSigner.functions;
     const { contract } = getContract("PLMToken");
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
@@ -72,10 +57,6 @@ async function getTotalSupply () {
 }
 
 async function firstCharacterInfo() {
-    // const tokenContractAddress = getContractAddress("PLMToken");
-    // const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
-    // const contractWithSigner = contract.connect(signer);
-    // const { tokenOfOwnerByIndex } = contractWithSigner.functions;
     const { signer, contract } = getContract("PLMToken");
     const myAddress = await signer.getAddress();
     const message = await contract.tokenOfOwnerByIndex(myAddress, 0);
@@ -84,14 +65,9 @@ async function firstCharacterInfo() {
 }
 
 async function allCharacterInfo() {
-    // const tokenContractAddress = getContractAddress("PLMToken");
-    // const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
-    // const contractWithSigner = contract.connect(signer);
-    // const { getAllCharacterInfo } = contractWithSigner.functions;
     const { contract } = getContract("PLMToken");
     const message = await contract.getAllCharacterInfo();
     console.log({ getAllCharacterInfo: message });
-    // return message.toString();
 }
 
 export { getContract, handleApprove, getBalance, getTotalSupply, firstCharacterInfo, allCharacterInfo };
