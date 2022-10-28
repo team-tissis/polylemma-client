@@ -87,10 +87,10 @@ export default function ModelTraining(){
         right: false,
     });
     const toggleDrawer = (anchor, open) => (event) => {
-      if ( event && event.type === 'keydown' && ((event).key === 'Tab' || (event).key === 'Shift')) {
-        return;
-      }
-      setState({ ...state, [anchor]: open });
+        if ( event && event.type === 'keydown' && ((event).key === 'Tab' || (event).key === 'Shift')) {
+            return;
+        }
+        setState({ ...state, [anchor]: open });
     };
     // 画面サイズを取得
     var windowWidth = window.innerWidth;
