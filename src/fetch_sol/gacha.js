@@ -1,11 +1,12 @@
 import { ethers } from "ethers";
 import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
-import { getContractAddress, getBalance, getTotalSupply } from "./utils.js";
+import { handleApprove, getContractAddress, getBalance, getTotalSupply } from "./utils.js";
 
-// const provider = new ethers.providers.JsonRpcProvider();
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
+const provider = new ethers.providers.JsonRpcProvider();
+const signer = provider.getSigner(1);
+// const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
+// const signer = provider.getSigner();
 
 async function mintCoin () {
     const coinContractAddress = getContractAddress("PLMCoin");
@@ -37,22 +38,13 @@ async function mintCoin () {
     return { newCoin: await getBalance() };
 }
 
-async function handleApprove (gachaContractAddress) {
-    const coinContractAddress = getContractAddress("PLMCoin");
-    const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
-    const contractWithSigner = contract.connect(signer);
-    const { approve } = contractWithSigner.functions;
-    const gachaCoin = 10000;
-    const message = await approve(gachaContractAddress, gachaCoin);
-    console.log({ approve: message });
-}
-
 async function playGacha () {
     const gachaContractAddress = getContractAddress("PLMGacha");
-    await handleApprove(gachaContractAddress);
     const contract = new ethers.Contract(gachaContractAddress, gachaArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
     const { gacha } = contractWithSigner.functions;
+
+    await handleApprove(gachaContractAddress, 5);
     const message = await gacha();
 
     // スマコンの実装待ち

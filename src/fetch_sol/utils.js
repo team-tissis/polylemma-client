@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import contractFunctions from "../broadcast/PLMGachaScript.s.sol/31337/run-latest.json";
-import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 
@@ -10,9 +9,21 @@ async function getContractAddress (contractName) {
     return contractAddress;
 }
 
-// const provider = new ethers.providers.JsonRpcProvider();
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
+// (多分) MetaMask を経由しないで使う方法
+const provider = new ethers.providers.JsonRpcProvider();
+const signer = provider.getSigner(1);
+// MetaMask を使う方法 (うまくいかない)
+// const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
+// const signer = provider.getSigner();
+
+async function handleApprove (contractAddress, approvedCoin) {
+    const coinContractAddress = getContractAddress("PLMCoin");
+    const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    const { approve } = contractWithSigner.functions;
+    const message = await approve(contractAddress, approvedCoin);
+    console.log({ approve: message });
+}
 
 async function getBalance () {
     const coinContractAddress = getContractAddress("PLMCoin");
@@ -56,4 +67,4 @@ async function allCharacterInfo() {
     // return message.toString();
 }
 
-export { getContractAddress, getBalance, getTotalSupply, firstCharacterInfo, allCharacterInfo };
+export { handleApprove, getContractAddress, getBalance, getTotalSupply, firstCharacterInfo, allCharacterInfo };
