@@ -68,6 +68,7 @@ async function allCharacterInfo() {
     const { contract } = getContract("PLMToken");
     const message = await contract.getAllCharacterInfo();
     console.log({ getAllCharacterInfo: message });
+    return message;
 }
 
 export { getContract, handleApprove, getBalance, getTotalSupply, firstCharacterInfo, allCharacterInfo };

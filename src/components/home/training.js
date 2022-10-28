@@ -51,8 +51,7 @@ function bottomBoxstyle() {
 
 export default function ModelTraining(){
     const initData = [0,1,2,3,4,5,6,7,8,9,10];
-    const [selectedNFT, setSelectedNFT] = useState();
-    const [selectedId, setSelectedId] = useState(null);
+    const [selectedTokenId, setSelectedTokenId] = useState();
     const [isOpened, setIsOpened] = useState(false);
     const [coinToBuy, setCoinToBuy] = useState(0);
 
@@ -64,9 +63,13 @@ export default function ModelTraining(){
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
-        await allCharacterInfo();
-        const firstTokenId = await firstCharacterInfo();
-        await handleLevelUp(firstTokenId); // TODO: debug
+        await firstCharacterInfo();
+        const characterBefore = await allCharacterInfo();
+        const levelBefore = characterBefore[selectedTokenId].level;
+        await handleLevelUp(selectedTokenId); // TODO: debug
+        const characterAfter = await allCharacterInfo();
+        const levelAfter = characterAfter[selectedTokenId].level;
+        console.log({ tokenId: selectedTokenId, levelBefore: levelBefore, levelAfter: levelAfter });
     }
 
     const items = [
@@ -100,7 +103,7 @@ export default function ModelTraining(){
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {initData.map((id, index) => (
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <Card style={{backgroundColor: (id==selectedNFT) ? '#CCFFFF' : 'white'}} onClick={ () => setSelectedNFT(id) }>
+                    <Card style={{backgroundColor: (id==selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => setSelectedTokenId(id) }>
                         <CardActionArea>
                             <CardMedia component="img" height="200"
                                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
@@ -157,11 +160,11 @@ export default function ModelTraining(){
 
         </Grid>
         </Box>
-        {selectedNFT &&
+        {selectedTokenId &&
             <Box style={ bottomBoxstyle() }>
                 <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
                     <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={11} sm={2} md={2}>キャラ{selectedNFT}</Grid>
+                    <Grid item xs={11} sm={2} md={2}>キャラ{selectedTokenId}</Grid>
                     <Grid item xs={1} sm={6} md={6}/>
 
                     <Grid item xs={1} sm={3} md={3}/>
