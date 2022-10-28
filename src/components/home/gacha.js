@@ -19,12 +19,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { ethers } from "ethers";
-import coinArtifact from "../../abi/PLMCoin.sol/PLMCoin.json";
-// import { getBalance, getTotalSupply } from '../../fetch_sol/utils.js'
-import { getContractAddress, getBalance, getTotalSupply } from '../../fetch_sol/utils.js'
-// import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
-import { mintEvent, playGacha, mintCoin } from '../../fetch_sol/gacha.js'
+import { getBalance, getTotalSupply } from '../../fetch_sol/utils.js'
+import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
 
 const questionOption = {
     loop: true,
@@ -68,21 +64,6 @@ export default function GachaGacha(){
         setCoin(await getBalance());
         setToken(await getTotalSupply());
     })();}, []);
-
-    useEffect(() => {
-        const provider = new ethers.providers.JsonRpcProvider();
-        const signer = provider.getSigner();
-        const coinContractAddress = getContractAddress("PLMCoin");
-        const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
-        const contractWithSigner = contract.connect(signer);
-        const { mint } = contractWithSigner.functions;
-        contract.on('mintDebug', (amount, user) => {
-            console.log(`${user} got ${amount}.`);
-        });
-    // const message = await mint(100); // 100 コインミントする
-
-        // const myAddress = await signer.getAddress();
-    }, []);
 
     const handleClickOpen = async () => {
         setOpen(true);
