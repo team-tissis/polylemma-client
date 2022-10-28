@@ -28,7 +28,7 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { getBalance, firstCharacterInfo, allCharacterInfo } from '../../fetch_sol/utils.js'
+import { getBalance, firstCharacterInfo, allCharacterInfo, getCoinForLevelUp } from '../../fetch_sol/utils.js'
 import { handleLevelUp } from '../../fetch_sol/training.js';
 
 function bottomBoxstyle() {
@@ -55,9 +55,11 @@ export default function ModelTraining(){
     const [isOpened, setIsOpened] = useState(false);
     const [coinToBuy, setCoinToBuy] = useState(0);
 
-    const [currentCoin, setCurrentCoin] = useState(0);
+    const [coinForLevelUp, setCoinForLevelUp] = useState();
+    const [currentCoin, setCurrentCoin] = useState();
 
     useEffect(() => {(async function() {
+        setCoinForLevelUp(await getCoinForLevelUp());
         setCurrentCoin(await getBalance());
     })();}, []);
 
@@ -178,7 +180,7 @@ export default function ModelTraining(){
                 <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }}>
                     <Grid item xs={1} sm={3} md={3}/>
                     <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
-                    <Grid item xs={1} sm={1} md={1}>3</Grid>
+                    <Grid item xs={1} sm={1} md={1}>{coinForLevelUp}</Grid>
                     <Grid item xs={4} sm={1} md={1}>コイン</Grid>
                     <Grid item xs={1} sm={4} md={4}/>
                 </Grid>
