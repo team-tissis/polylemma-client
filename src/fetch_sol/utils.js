@@ -10,7 +10,8 @@ async function getContractAddress (contractName) {
     return contractAddress;
 }
 
-const provider = new ethers.providers.JsonRpcProvider();
+// const provider = new ethers.providers.JsonRpcProvider();
+const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 
 async function getBalance () {
@@ -34,4 +35,25 @@ async function getTotalSupply () {
     return message.toString();
 }
 
-export { getContractAddress, getBalance, getTotalSupply };
+async function firstCharacterInfo() {
+    const tokenContractAddress = getContractAddress("PLMToken");
+    const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    const myAddress = await signer.getAddress();
+    const { tokenOfOwnerByIndex } = contractWithSigner.functions;
+    const message = await tokenOfOwnerByIndex(myAddress, 0);
+    console.log({ firstCharacterInfo: message });
+    return message.toString();
+}
+
+async function allCharacterInfo() {
+    const tokenContractAddress = getContractAddress("PLMToken");
+    const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
+    const contractWithSigner = contract.connect(signer);
+    const { getAllCharacterInfo } = contractWithSigner.functions;
+    const message = await getAllCharacterInfo();
+    console.log({ getAllCharacterInfo: message });
+    // return message.toString();
+}
+
+export { getContractAddress, getBalance, getTotalSupply, firstCharacterInfo, allCharacterInfo };

@@ -28,6 +28,8 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { getBalance, firstCharacterInfo, allCharacterInfo } from '../../fetch_sol/utils.js'
+import { handleLevelUp } from '../../fetch_sol/training.js';
 
 function bottomBoxstyle() {
     return {
@@ -50,14 +52,24 @@ function bottomBoxstyle() {
 export default function ModelTraining(){
     const initData = [0,1,2,3,4,5,6,7,8,9,10];
     const [selectedNFT, setSelectedNFT] = useState();
-    const [selectedId, setSelectedId] = useState(null)
-    const [isOpened, setIsOpened] = useState(false)
-    const [tokenAmount, setTokenAmount] = useState(0)
+    const [selectedId, setSelectedId] = useState(null);
+    const [isOpened, setIsOpened] = useState(false);
+    const [coinToBuy, setCoinToBuy] = useState(0);
 
-    // トークンを使用してレベルアップさせる
-    function handleLevelUp(){
+    const [currentCoin, setCurrentCoin] = useState(0);
 
+    useEffect(() => {(async function() {
+        setCurrentCoin(await getBalance());
+    })();}, []);
+
+    // コインを使用してレベルアップさせる
+    const handleClickLevelUp = async () => {
+        await allCharacterInfo();
+        const firstTokenId = await firstCharacterInfo();
+        console.log("TBD");
+        await handleLevelUp(firstTokenId); // TODO: debug
     }
+
     const items = [
         {id: 1, title: "タイトル1", subtitle: "サブタイトル1"},
         {id: 2, title: "タイトル2", subtitle: "サブタイトル2"},
@@ -114,26 +126,26 @@ export default function ModelTraining(){
             >
                 <Grid container style={{padding: 20}}>
                     <Grid item xs={12} sm={12} md={12}>
-                        <h1>現在の所持トークン: 100TOKEN</h1>
+                        <h1>現在の所持コイン: {currentCoin} コイン</h1>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
-                        <p>新しくトークンを追加で購入しますか？</p>
+                        <p>新しくコインを追加で購入しますか？</p>
                     </Grid>
                     <Grid item={12}>
                         <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
                         <OutlinedInput
                             id="outlined-adornment-weight"
-                            value={tokenAmount}
+                            value={coinToBuy}
                             type="number"
-                            onChange={(e) => setTokenAmount(e.target.value)}
-                            endAdornment={<InputAdornment position="end">TOKEN</InputAdornment>}
+                            onChange={(e) => setCoinToBuy(e.target.value)}
+                            endAdornment={<InputAdornment position="end">コイン</InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
-                            'aria-label': 'weight',
+                                'aria-label': 'weight',
                             }}
                         />
-                        <FormHelperText id="outlined-weight-helper-text">TOKEN</FormHelperText>
-                        ※ ここに円計算の大体の値段を動的に表示できると👍
+                        <FormHelperText id="outlined-weight-helper-text">コイン</FormHelperText>
+                            ※ ここに円計算の大体の値段を動的に表示できると👍
                         </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={12} md={12}>
@@ -163,16 +175,16 @@ export default function ModelTraining(){
 
                 <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }}>
                     <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={5} sm={3} md={3}>レベルアップに必要なトークン数</Grid>
+                    <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
                     <Grid item xs={1} sm={1} md={1}>3</Grid>
-                    <Grid item xs={4} sm={1} md={1}>トークン</Grid>
+                    <Grid item xs={4} sm={1} md={1}>コイン</Grid>
                     <Grid item xs={1} sm={4} md={4}/>
                 </Grid>
 
                 <Grid container style={{fontSize: 24, marginTop: 5}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
                     <Grid item xs={1} sm={4.5} md={4.5}/>
                     <Grid item xs={10} sm={3} md={3}>
-                        <Button variant="contained" style={{width: '100%', height: 80, fontSize: 30}}>
+                        <Button variant="contained" onClick={handleClickLevelUp} style={{width: '100%', height: 80, fontSize: 30}}>
                             確定
                         </Button>
                     </Grid>
@@ -181,7 +193,7 @@ export default function ModelTraining(){
                     <Grid item xs={1} sm={0} md={0}/>
                     <Grid item xs={10} sm={2.5} md={2.5}>
                         <Button variant="contained" onClick={toggleDrawer('right', true)} style={{width: '95%', height: 60, fontSize: 25, marginRight: '5%'}}>
-                        トークンを購入
+                            コインを購入
                         </Button>
                     </Grid>
                     <Grid item xs={1} sm={1} md={1}/>

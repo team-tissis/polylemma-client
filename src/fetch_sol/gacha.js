@@ -3,7 +3,8 @@ import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import { getContractAddress, getBalance, getTotalSupply } from "./utils.js";
 
-const provider = new ethers.providers.JsonRpcProvider();
+// const provider = new ethers.providers.JsonRpcProvider();
+const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 
 async function mintCoin () {
