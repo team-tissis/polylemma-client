@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
-import { handleApprove, getContractAddress, getBalance, getTotalSupply } from "./utils.js";
+import { getContract, handleApprove, getBalance, getTotalSupply } from "./utils.js";
 
 const provider = new ethers.providers.JsonRpcProvider();
 const signer = provider.getSigner(1);
@@ -8,13 +8,15 @@ const signer = provider.getSigner(1);
 // const signer = provider.getSigner();
 
 async function handleLevelUp (tokenId) {
-    const tokenContractAddress = getContractAddress("PLMToken");
-    const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
-    const contractWithSigner = contract.connect(signer);
-    const { updateLevel } = contractWithSigner.functions;
+    // const tokenContractAddress = getContractAddress("PLMToken");
+    // const contract = new ethers.Contract(tokenContractAddress, tokenArtifact.abi, provider);
+    // const contractWithSigner = contract.connect(signer);
+    // const { updateLevel } = contractWithSigner.functions;
 
-    await handleApprove(tokenContractAddress, 1000);
-    const message = await updateLevel(tokenId);
+    const { contractAddress, contract } = getContract("PLMToken");
+
+    await handleApprove(contractAddress, 1000);
+    const message = await contract.updateLevel(tokenId);
     console.log({ updateLevel: message });
 
     const myAddress = await signer.getAddress();

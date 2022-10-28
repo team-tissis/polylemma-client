@@ -66,7 +66,6 @@ export default function ModelTraining(){
     const handleClickLevelUp = async () => {
         await allCharacterInfo();
         const firstTokenId = await firstCharacterInfo();
-        console.log("TBD");
         await handleLevelUp(firstTokenId); // TODO: debug
     }
 

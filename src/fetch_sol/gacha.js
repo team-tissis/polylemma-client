@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
-import { handleApprove, getContractAddress, getBalance, getTotalSupply } from "./utils.js";
+import { getContract, handleApprove, getBalance, getTotalSupply } from "./utils.js";
 
 const provider = new ethers.providers.JsonRpcProvider();
 const signer = provider.getSigner(1);
@@ -9,11 +9,12 @@ const signer = provider.getSigner(1);
 // const signer = provider.getSigner();
 
 async function mintCoin () {
-    const coinContractAddress = getContractAddress("PLMCoin");
-    const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
-    const contractWithSigner = contract.connect(signer);
-    const { mint } = contractWithSigner.functions;
-    const message = await mint(100); // 100 コインミントする
+    // const coinContractAddress = getContractAddress("PLMCoin");
+    // const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, signer);
+    // const message = await contract.mint(100);
+
+    const { signer, contract } = getContract("PLMCoin");
+    const message = await contract.mint(100);
 
     const myAddress = await signer.getAddress();
 
@@ -39,13 +40,15 @@ async function mintCoin () {
 }
 
 async function playGacha () {
-    const gachaContractAddress = getContractAddress("PLMGacha");
-    const contract = new ethers.Contract(gachaContractAddress, gachaArtifact.abi, provider);
-    const contractWithSigner = contract.connect(signer);
-    const { gacha } = contractWithSigner.functions;
+    // const gachaContractAddress = getContractAddress("PLMGacha");
+    // const contract = new ethers.Contract(gachaContractAddress, gachaArtifact.abi, signer);
+    // await handleApprove(gachaContractAddress, 5);
+    // const message = await contract.gacha();
 
-    await handleApprove(gachaContractAddress, 5);
-    const message = await gacha();
+    const { contractAddress, contract } = getContract("PLMGacha");
+    await handleApprove(contractAddress, 5);
+    const message = await contract.gacha();
+
 
     // スマコンの実装待ち
     // const rc = await message.wait();
