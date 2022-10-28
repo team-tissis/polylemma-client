@@ -56,26 +56,26 @@ export default function GachaGacha(){
     const [isOpened, setIsOpened] = useState(false);
 
     const [open, setOpen] = useState(false);
-    const [coin, setCoin] = useState(0);
-    const [token, setToken] = useState(0);
-    const [tokenId, setTokenId] = useState(0);
+    const [currentCoin, setCurrentCoin] = useState(0);
+    const [currentToken, setCurrentToken] = useState(0);
+    const [addedTokenId, setAddedTokenId] = useState(0);
 
     useEffect(() => {(async function() {
-        setCoin(await getBalance());
-        setToken(await getTotalSupply());
+        setCurrentCoin(await getBalance());
+        setCurrentToken(await getTotalSupply());
     })();}, []);
 
     const handleClickOpen = async () => {
         setOpen(true);
         const { newCoin, newToken, newTokenId } = await playGacha();
-        setCoin(newCoin);
-        setToken(newToken);
-        setTokenId(newTokenId);
+        setCurrentCoin(newCoin);
+        setCurrentToken(newToken);
+        setAddedTokenId(newTokenId);
     };
 
     const handleClickMint = async () => {
         const { newCoin } = await mintCoin();
-        setCoin(newCoin);
+        setCurrentCoin(newCoin);
     };
 
     const handleClose = () => {
@@ -108,7 +108,7 @@ export default function GachaGacha(){
             {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
-            <div>トークンID: {tokenId}</div>
+            <div>トークンID: {addedTokenId}</div>
             <Button onClick={handleClose} autoFocus>
                 戻る
             </Button>
@@ -130,8 +130,8 @@ export default function GachaGacha(){
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>100 コインミントする</Button>
-                <div>コイン: {coin}</div>
-                <div>トークン: {token}</div>
+                <div>コイン: {currentCoin}</div>
+                <div>トークン: {currentToken}</div>
                 <h2>ここに説明文</h2><hr/>
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
