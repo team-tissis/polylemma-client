@@ -1,4 +1,4 @@
-import { getContract, handleApprove, getBalance, getTotalSupply } from "./utils.js";
+import { getContract, handleApprove, getCoinForGacha, getBalance, getTotalSupply } from "./utils.js";
 
 async function mintCoin () {
     const { signer, contract } = getContract("PLMCoin");
@@ -29,7 +29,8 @@ async function mintCoin () {
 
 async function playGacha () {
     const { contractAddress, contract } = getContract("PLMGacha");
-    await handleApprove(contractAddress, 5);
+    const coinForGacha = await getCoinForGacha();
+    await handleApprove(contractAddress, coinForGacha);
     const message = await contract.gacha();
 
     // スマコンの実装待ち

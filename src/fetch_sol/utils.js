@@ -16,7 +16,7 @@ function getAbi (contractName) {
     else if (contractName == "PLMGacha") return gachaArtifact.abi;
 }
 
-function getSigner() {
+function getSigner () {
     // (多分) MetaMask を経由しないで使う方法
     const provider = new ethers.providers.JsonRpcProvider();
     const signer = provider.getSigner(1);
@@ -27,7 +27,7 @@ function getSigner() {
     return signer;
 }
 
-function getContract(contractName) {
+function getContract (contractName) {
     const contractAddress = getContractAddress(contractName);
     const abi = getAbi(contractName);
     const signer = getSigner();
@@ -49,6 +49,22 @@ async function getBalance () {
     return message.toString();
 }
 
+async function getCoinForGacha () {
+    // スマコンの実装待ち
+    // const { signer, contract } = getContract("PLMCoin");
+    // const message = await contract.approvedCoinForGacha();
+    // return message.toString();
+    return 5;
+}
+
+async function getCoinForLevelUp () {
+    // スマコンの実装待ち
+    // const { signer, contract } = getContract("PLMCoin");
+    // const message = await contract.approvedCoinForLevelUp();
+    // return message.toString();
+    return 100000;
+}
+
 async function getTotalSupply () {
     const { contract } = getContract("PLMToken");
     const message = await contract.totalSupply();
@@ -56,7 +72,7 @@ async function getTotalSupply () {
     return message.toString();
 }
 
-async function firstCharacterInfo() {
+async function firstCharacterInfo () {
     const { signer, contract } = getContract("PLMToken");
     const myAddress = await signer.getAddress();
     const message = await contract.tokenOfOwnerByIndex(myAddress, 0);
@@ -64,11 +80,11 @@ async function firstCharacterInfo() {
     return message.toString();
 }
 
-async function allCharacterInfo() {
+async function allCharacterInfo () {
     const { contract } = getContract("PLMToken");
     const message = await contract.getAllCharacterInfo();
     console.log({ getAllCharacterInfo: message });
     return message;
 }
 
-export { getContract, handleApprove, getBalance, getTotalSupply, firstCharacterInfo, allCharacterInfo };
+export { getContract, handleApprove, getBalance, getTotalSupply, getCoinForGacha, getCoinForLevelUp, firstCharacterInfo, allCharacterInfo };

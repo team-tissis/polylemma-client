@@ -19,7 +19,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { getBalance, getTotalSupply } from '../../fetch_sol/utils.js'
+import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/utils.js'
 import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
 
 const questionOption = {
@@ -56,11 +56,13 @@ export default function GachaGacha(){
     const [isOpened, setIsOpened] = useState(false);
 
     const [open, setOpen] = useState(false);
-    const [currentCoin, setCurrentCoin] = useState(0);
-    const [currentToken, setCurrentToken] = useState(0);
+    const [coinForGacha, setCoinForGacha] = useState();
+    const [currentCoin, setCurrentCoin] = useState();
+    const [currentToken, setCurrentToken] = useState();
     const [addedTokenId, setAddedTokenId] = useState(0);
 
     useEffect(() => {(async function() {
+        setCoinForGacha(await getCoinForGacha());
         setCurrentCoin(await getBalance());
         setCurrentToken(await getTotalSupply());
     })();}, []);
@@ -123,7 +125,7 @@ export default function GachaGacha(){
                     <Skeleton.SkeletonThemeProvider>
                         <Skeleton count={3} widthMultiple={['100%', '50%', '75%']} heightMultiple={['30px', '30px', '30px']} />
                     </Skeleton.SkeletonThemeProvider>
-                    <Chip label="5 コイン/回" style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
+                    <Chip label={coinForGacha + " コイン/回"} style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
                 <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
