@@ -26,18 +26,12 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }));
 
 function App() {
-  const [value, setValue] = useState(0);
   const [alignment, setAlignment] = React.useState('battle');
 
-  const handleChange = (event,newAlignment) => {
-    setAlignment(newAlignment);
-  };
-  const [formats, setFormats] = React.useState(() => ['italic']);
-  const handleFormat = (event,newFormats) => {
-    setFormats(newFormats);
-  };
   const handleAlignment = (event,newAlignment) => {
-    setAlignment(newAlignment);
+    if(!(newAlignment == null)){
+      setAlignment(newAlignment);
+    }
   };
 
   function toggleStyle(val){

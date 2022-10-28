@@ -133,15 +133,6 @@ export default function BattleMain(){
     
     return(<>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
-        {/* padding: 20,  */}
-        {/* <Grid item xs={12} md={1}> */}
-        <Grid item xs={10} md={1}>
-            <Box style={{textAlign: 'center', width: 200}}>
-                <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
-                <div style={{textAlign: 'center'}}><UrgeWithPleasureComponent /></div>
-            </Box>
-        </Grid>
-
         {/* <Grid item xs={12} md={7}> */}
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
@@ -153,6 +144,16 @@ export default function BattleMain(){
         </Grid>
         {/* <Grid item xs={12} md={4}> */}
         <Grid item xs={10} md={3}>
+            <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
+            <div style={{textAlign: 'center'}}>
+                <div style={{display: 'inlineBlock'}}>
+                    <UrgeWithPleasureComponent/>
+                </div>
+            </div>
+            {/* <Box style={{textAlign: 'center', width: 200}}>
+                <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
+                <div style={{textAlign: 'center'}}><UrgeWithPleasureComponent /></div>
+            </Box> */}
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
                     <Grid item xs={4} md={4}></Grid>

@@ -11,6 +11,14 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
+import { Puff } from 'react-loader-spinner';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Slide from '@mui/material/Slide';
+import { TransitionProps } from '@mui/material/transitions';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -27,6 +35,26 @@ function style() {
         right: '35%', 
         width: '30%',
         fontSize: 20,
+        fontWeight: 600
+    }
+}
+function styleA() {
+    return {
+        position: 'fixed',
+        bottom: 10,
+        right: '55%', 
+        width: '20%',
+        fontSize: 17,
+        fontWeight: 600
+    }
+}
+function styleB() {
+    return {
+        position: 'fixed',
+        bottom: 10,
+        left: '55%', 
+        width: '20%',
+        fontSize: 17,
         fontWeight: 600
     }
 }
@@ -84,6 +112,7 @@ function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}
     )
 }
 
+
 export default function Battle() {
     const initData = [0,1,2,3,4,5,6,7,8,9,10];
     const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
@@ -91,7 +120,15 @@ export default function Battle() {
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
-    
+    const [open, setOpen] = useState(0);
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const handleClickOpen = () => {
+        setDialogOpen(true);
+    };
+    const handleClose = () => {
+        setDialogOpen(false);
+    };
+
     useEffect(() => {
         /* 第1引数には実行させたい副作用関数を記述*/
         console.log('')
@@ -133,8 +170,46 @@ export default function Battle() {
         }
 
         </Box>
-        <Button variant="contained" size="large" style={ style() } onClick={() => navigate('/battle_main')} disabled={isChanging}>
-          バトルへ
+
+        <Dialog
+            open={dialogOpen}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
+            <DialogTitle id="alert-dialog-title" style={{ textAlign: 'center'}}>
+            対戦相手を探しています。
+            </DialogTitle>
+            <DialogContent>
+                <div style={{width: '100%', textAlign: 'center'}}>
+                <Puff
+                    height="150"
+                    width="150"
+                    radisu={10}
+                    color="#4fa94d"
+                    ariaLabel="puff-loading"
+                    wrapperStyle={{display: 'inlineBlock'}}
+                    wrapperClass=""
+                    visible={true}
+                />
+                </div>
+
+            <DialogContentText id="alert-dialog-description">
+                あああああああああああああああああああああああああああああ<br/>
+                あああああああああああああああああああああああああ
+            </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+            <Button onClick={handleClose} autoFocus>戻る</Button>
+            </DialogActions>
+        </Dialog>
+
+        {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
+        <Button variant="contained" size="large" style={ styleA() } onClick={handleClickOpen} disabled={isChanging}>
+          対戦の部屋を作る
+        </Button>
+        <Button variant="contained" size="large" style={ styleB() } onClick={() => navigate('/match_make')} disabled={isChanging}>
+          対戦相手を探す
         </Button>
     </>)
 }
