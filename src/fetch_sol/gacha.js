@@ -6,15 +6,24 @@ import { getContractAddress, getBalance, getTotalSupply } from "./utils.js";
 const provider = new ethers.providers.JsonRpcProvider();
 const signer = provider.getSigner();
 
+function mintEvent(contract, myAddress) {
+    const filter = contract.filters.mintDebug(null, myAddress);
+    contract.on(filter, (amount, user) => {
+        console.log(`${user} got ${amount}.`);
+    });
+    // return mint(100); // 100 コインミントする
+}
+
 async function mintCoin () {
     const coinContractAddress = getContractAddress("PLMCoin");
     const contract = new ethers.Contract(coinContractAddress, coinArtifact.abi, provider);
     const contractWithSigner = contract.connect(signer);
     const { mint } = contractWithSigner.functions;
-    const message = await mint(100); // 100 コインミントする
+    // const message = await mint(100); // 100 コインミントする
 
     const myAddress = await signer.getAddress();
-
+    // mintEvent(contract, myAddress);
+    const message = await mint(100); // 100 コインミントする
     // event の listen v1
     // 本当はこのやり方でやりたいがなぜか動かない (.on の中身が実行されている様子がない)
     // const filter = contract.filters.mintDebug(null, myAddress);
@@ -24,12 +33,12 @@ async function mintCoin () {
 
     // event の listen v2
     // 一応これで動くが、あまり綺麗じゃない
-    const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'mintDebug' && event.args.user == myAddress);
-    if (event != undefined) {
-        const [ amount, user ] = event.args;
-        console.log(`${user} got ${amount.toString()}.`);
-    }
+    // const rc = await message.wait();
+    // const event = rc.events.find(event => event.event === 'mintDebug' && event.args.user == myAddress);
+    // if (event != undefined) {
+    //     const [ amount, user ] = event.args;
+    //     console.log(`${user} got ${amount.toString()}.`);
+    // }
     // event の listen 終了
 
     console.log({ mint: message });
@@ -65,4 +74,4 @@ async function playGacha () {
     return { newCoin: await getBalance(), newToken: await getTotalSupply(), newTokenId:  tokenId };
 }
 
-export { mintCoin, playGacha };
+export { mintEvent, mintCoin, playGacha };
