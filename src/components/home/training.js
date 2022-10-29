@@ -28,7 +28,7 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { getBalance, firstCharacterInfo, allCharacterInfo, getCoinForLevelUp } from '../../fetch_sol/utils.js'
+import { getBalance, getAllTokenOwned, getCoinForLevelUp, getCharacterInfo, firstCharacterInfo, allCharacterInfo } from '../../fetch_sol/utils.js'
 import { handleLevelUp } from '../../fetch_sol/training.js';
 
 function bottomBoxstyle() {
@@ -50,11 +50,12 @@ function bottomBoxstyle() {
 }
 
 export default function ModelTraining(){
-    const initData = [0,1,2,3,4,5,6,7,8,9,10];
+    const initData = [1,2,3,4,5,6,7,8,9,10];
     const [selectedTokenId, setSelectedTokenId] = useState();
     const [isOpened, setIsOpened] = useState(false);
     const [coinToBuy, setCoinToBuy] = useState(0);
 
+    const [levelBefore, setLevelBefore] = useState();
     const [coinForLevelUp, setCoinForLevelUp] = useState();
     const [currentCoin, setCurrentCoin] = useState();
 
@@ -63,15 +64,23 @@ export default function ModelTraining(){
         setCurrentCoin(await getBalance());
     })();}, []);
 
+    const handleClickCharacter = async (id) => {
+        setCoinForLevelUp(await getCoinForLevelUp(id));
+        setSelectedTokenId(id);
+        const characterBefore = await getCharacterInfo(id);
+        console.log(characterBefore);
+        setLevelBefore(characterBefore.level);
+    }
+
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
+        await handleLevelUp(selectedTokenId);
+        setCoinForLevelUp(await getCoinForLevelUp(selectedTokenId));
+
+        // for debug
+        await getAllTokenOwned();
         await firstCharacterInfo();
-        const characterBefore = await allCharacterInfo();
-        const levelBefore = characterBefore[selectedTokenId].level;
-        await handleLevelUp(selectedTokenId); // TODO: debug
-        const characterAfter = await allCharacterInfo();
-        const levelAfter = characterAfter[selectedTokenId].level;
-        console.log({ tokenId: selectedTokenId, levelBefore: levelBefore, levelAfter: levelAfter });
+        await allCharacterInfo();
     }
 
     const items = [
@@ -105,7 +114,7 @@ export default function ModelTraining(){
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {initData.map((id, index) => (
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <Card style={{backgroundColor: (id==selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => setSelectedTokenId(id) }>
+                    <Card style={{backgroundColor: (id==selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => handleClickCharacter(id) }>
                         <CardActionArea>
                             <CardMedia component="img" height="200"
                                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
@@ -171,9 +180,9 @@ export default function ModelTraining(){
 
                     <Grid item xs={1} sm={3} md={3}/>
                     <Grid item xs={4} sm={2} md={2}>レベル</Grid>
-                    <Grid item xs={1} sm={1} md={1}>10</Grid>
+                    <Grid item xs={1} sm={1} md={1}>{levelBefore}</Grid>
                     <Grid item xs={2} sm={1} md={1}><>→</></Grid>
-                    <Grid item xs={1} sm={1} md={1}>11</Grid>
+                    <Grid item xs={1} sm={1} md={1}>{levelBefore+1}</Grid>
                     <Grid item xs={1} sm={4} md={4}/>
                 </Grid>
 

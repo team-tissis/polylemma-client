@@ -50,19 +50,17 @@ async function getBalance () {
 }
 
 async function getCoinForGacha () {
-    // スマコンの実装待ち
-    // const { signer, contract } = getContract("PLMCoin");
-    // const message = await contract.approvedCoinForGacha();
-    // return message.toString();
-    return 5;
+    const { contract } = getContract("PLMGacha");
+    const message = await contract.getGachaPayment();
+    console.log({ getCoinForGacha: message });
+    return message.toString();
 }
 
-async function getCoinForLevelUp () {
-    // スマコンの実装待ち
-    // const { signer, contract } = getContract("PLMCoin");
-    // const message = await contract.approvedCoinForLevelUp();
-    // return message.toString();
-    return 100000;
+async function getCoinForLevelUp (tokenId) {
+    const { contract } = getContract("PLMToken");
+    const message = await contract.getNecessaryExp(tokenId);
+    console.log({ getCoinForLevelUp: message });
+    return message.toString();
 }
 
 async function getTotalSupply () {
@@ -70,6 +68,21 @@ async function getTotalSupply () {
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
     return message.toString();
+}
+
+async function getAllTokenOwned () {
+    const { signer, contract } = getContract("PLMToken");
+    const myAddress = await signer.getAddress();
+    const message = await contract.getAllTokenOwned(myAddress);
+    console.log({ getAllTokenOwned: message });
+    return message.toString();
+}
+
+async function getCharacterInfo (tokenId) {
+    const { contract } = getContract("PLMToken");
+    const message = await contract.getCharacterInfo(tokenId);
+    console.log({ getCharacterInfo: message });
+    return message;
 }
 
 async function firstCharacterInfo () {
@@ -87,4 +100,4 @@ async function allCharacterInfo () {
     return message;
 }
 
-export { getContract, handleApprove, getBalance, getTotalSupply, getCoinForGacha, getCoinForLevelUp, firstCharacterInfo, allCharacterInfo };
+export { getContract, handleApprove, getBalance, getTotalSupply, getCoinForGacha, getCoinForLevelUp, getAllTokenOwned, getCharacterInfo, firstCharacterInfo, allCharacterInfo };
