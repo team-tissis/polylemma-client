@@ -3,6 +3,7 @@ import contractFunctions from "../broadcast/PLMGachaScript.s.sol/31337/run-lates
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
+import exchangeArtifact from "../abi/PLMExchange.sol/PLMExchange.json";
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
@@ -14,6 +15,7 @@ function getAbi (contractName) {
     if (contractName == "PLMCoin") return coinArtifact.abi;
     else if (contractName == "PLMToken") return tokenArtifact.abi;
     else if (contractName == "PLMGacha") return gachaArtifact.abi;
+    else if (contractName == "PLMExchange") return exchangeArtifact.abi;
 }
 
 function getSigner () {

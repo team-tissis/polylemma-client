@@ -21,6 +21,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/utils.js'
 import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
+import { mintPLMByUser } from '../../fetch_sol/subsc.js'
 
 const questionOption = {
     loop: true,
@@ -75,8 +76,9 @@ export default function GachaGacha(){
         setAddedTokenId(newTokenId);
     };
 
-    const handleClickMint = async () => {
-        const { newCoin } = await mintCoin();
+    const handleClickExchange = async () => {
+        // await mintCoin();
+        const { newCoin } = await mintPLMByUser();
         setCurrentCoin(newCoin);
     };
 
@@ -131,7 +133,7 @@ export default function GachaGacha(){
                 <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
-                <Button variant="contained" onClick={handleClickMint} style={{margin: 10, width: 345}}>100 コインミントする</Button>
+                <Button variant="contained" onClick={handleClickExchange} style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
                 <div>コイン: {currentCoin}</div>
                 <div>トークン: {currentToken}</div>
                 <h2>ここに説明文</h2><hr/>
