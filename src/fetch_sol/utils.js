@@ -7,15 +7,15 @@ import exchangeArtifact from "../abi/PLMExchange.sol/PLMExchange.json";
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
-    const contractAddress = contractFunctions.transactions.find((v) => v.contractName == contractName).contractAddress;
+    const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
     return contractAddress;
 }
 
 function getAbi (contractName) {
-    if (contractName == "PLMCoin") return coinArtifact.abi;
-    else if (contractName == "PLMToken") return tokenArtifact.abi;
-    else if (contractName == "PLMGacha") return gachaArtifact.abi;
-    else if (contractName == "PLMExchange") return exchangeArtifact.abi;
+    if (contractName === "PLMCoin") return coinArtifact.abi;
+    else if (contractName === "PLMToken") return tokenArtifact.abi;
+    else if (contractName === "PLMGacha") return gachaArtifact.abi;
+    else if (contractName === "PLMExchange") return exchangeArtifact.abi;
 }
 
 function getSigner () {
