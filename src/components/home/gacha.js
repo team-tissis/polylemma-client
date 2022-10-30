@@ -21,7 +21,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/utils.js'
 import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
-import { mintPLMByUser } from '../../fetch_sol/subsc.js'
+import { mintPLMByUser, getSubscExpiredPoint, subscIsExpired, getSubscFee, updateSubsc, getSubscDuration } from '../../fetch_sol/subsc.js'
 
 const questionOption = {
     loop: true,
@@ -62,10 +62,19 @@ export default function GachaGacha(){
     const [currentToken, setCurrentToken] = useState();
     const [addedTokenId, setAddedTokenId] = useState(0);
 
+    const [subscExpired, setSubscExpired] = useState();
+    const [subscExpiredPoint, setSubscExpiredPoint] = useState();
+    const [subscFee, setSubscFee] = useState();
+    const [subscDuration, setSubscDuration] = useState();
+
     useEffect(() => {(async function() {
         setCoinForGacha(await getCoinForGacha());
         setCurrentCoin(await getBalance());
         setCurrentToken(await getTotalSupply());
+        setSubscExpired(await subscIsExpired());
+        setSubscExpiredPoint(await getSubscExpiredPoint());
+        setSubscFee(await getSubscFee());
+        setSubscDuration(await getSubscDuration());
     })();}, []);
 
     const handleClickOpen = async () => {
@@ -80,6 +89,13 @@ export default function GachaGacha(){
         // await mintCoin();
         const { newCoin } = await mintPLMByUser();
         setCurrentCoin(newCoin);
+    };
+
+    const handleClickSubscUpdate = async () => {
+        await updateSubsc();
+        setCurrentCoin(await getBalance());
+        setSubscExpired(await subscIsExpired());
+        setSubscExpiredPoint(await getSubscExpiredPoint());
     };
 
     const handleClose = () => {
@@ -136,6 +152,11 @@ export default function GachaGacha(){
                 <Button variant="contained" onClick={handleClickExchange} style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
                 <div>コイン: {currentCoin}</div>
                 <div>トークン: {currentToken}</div>
+                <Button variant="contained" onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>サブスク期間をアップデートする</Button>
+                <div>サブスクが終了しているか: {subscExpired}</div>
+                <div>サブスクが終了するブロック: {subscExpiredPoint}</div>
+                <div>サブスク料金: {subscFee}</div>
+                <div>サブスクで更新されるブロック数: {subscDuration}</div>
                 <h2>ここに説明文</h2><hr/>
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
