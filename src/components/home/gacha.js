@@ -22,6 +22,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/utils.js'
 import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
 import { mintPLMByUser, getSubscExpiredPoint, subscIsExpired, getSubscFee, updateSubsc, getSubscDuration } from '../../fetch_sol/subsc.js'
+import { useSnackbar } from 'notistack';
 
 const questionOption = {
     loop: true,
@@ -67,6 +68,7 @@ export default function GachaGacha(){
     const [subscFee, setSubscFee] = useState();
     const [subscDuration, setSubscDuration] = useState();
 
+    const { enqueueSnackbar } = useSnackbar();
     useEffect(() => {(async function() {
         setCoinForGacha(await getCoinForGacha());
         setCurrentCoin(await getBalance());
@@ -86,9 +88,13 @@ export default function GachaGacha(){
     };
 
     const handleClickExchange = async () => {
-        // await mintCoin();
         const { newCoin } = await mintPLMByUser();
         setCurrentCoin(newCoin);
+        const message = "100コインを獲得しました!"
+        enqueueSnackbar(message, { 
+            autoHideDuration: 1500,
+            variant: 'success',
+        });
     };
 
     const handleClickSubscUpdate = async () => {
@@ -96,6 +102,11 @@ export default function GachaGacha(){
         setCurrentCoin(await getBalance());
         setSubscExpired(await subscIsExpired());
         setSubscExpiredPoint(await getSubscExpiredPoint());
+        const message = "サブスクリプションを更新しました!"
+        enqueueSnackbar(message, { 
+            autoHideDuration: 1500,
+            variant: 'success',
+        });
     };
 
     const handleClose = () => {
@@ -118,13 +129,11 @@ export default function GachaGacha(){
             {/* <p> の中に <div> を入れられないっていうエラーが出るから DialogContentText は消した (橋本) */}
             {/* <DialogContentText id="alert-dialog-description"> */}
                 <div onClick={() => setIsOpened(true)} >
-                    <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} style={{backgroundColor: 'grey'}} />
+                    <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} />
                     {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
                         ここにキャラのカードを表示
                     </div> */}
                 </div>
-
-
             {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
@@ -165,7 +174,6 @@ export default function GachaGacha(){
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
-
             </Grid>
         </Grid>
     </Container>
