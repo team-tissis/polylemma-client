@@ -90,7 +90,6 @@ async function extendSubscPeriod () {
     await approve(contractAddress, subscFeePerUnitPeriod);
     const message = await contract.extendSubscPeriod();
     console.log({ extendSubscPeriod: message });
-    return await getSubscExpiredBlock();
 }
 
 //////////////////////////////////
