@@ -19,9 +19,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { balanceOf, totalSupply } from '../../fetch_sol/utils.js'
-import { mint, gacha, getGachaFee } from '../../fetch_sol/gacha.js'
-import { charge, getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum } from '../../fetch_sol/subsc.js'
+import { balanceOf, mint } from '../../fetch_sol/coin.js';
+import { totalSupply } from '../../fetch_sol/token.js';
+import { gacha, getGachaFee } from '../../fetch_sol/gacha.js';
+import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
 import TextField from '@mui/material/TextField';
 
@@ -68,6 +69,9 @@ export default function GachaGacha(){
 
     const [characterName, setCharacterName] = useState('');
 
+    const [addedCoin, setAddedCoin] = useState(-1);
+    const [charging, setCharging] = useState(false);
+
     const { enqueueSnackbar } = useSnackbar();
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
@@ -77,25 +81,33 @@ export default function GachaGacha(){
         setSubscExpiredBlock(await getSubscExpiredBlock());
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
+        accountCharged(setAddedCoin);
     })();}, []);
+
+    useEffect(() => {
+        if (charging && addedCoin > 0) {
+            const message = addedCoin + " コインを獲得しました!";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
+        }
+        setAddedCoin(-1);
+        setCharging(false);
+    }, [addedCoin]);
 
     const handleClickGacha = async () => {
         setOpen(true);
-        const { newCoin, newToken, newTokenId } = await gacha(characterName);
-        setCurrentCoin(newCoin);
-        setCurrentToken(newToken);
+        const newTokenId = await gacha(characterName);
+        setCurrentCoin(await balanceOf());
+        setCurrentToken(await totalSupply());
         setAddedTokenId(newTokenId);
     };
 
     const handleClickCharge = async () => {
-        // const { newCoin } = await mint();
-        const { newCoin } = await charge();
-        setCurrentCoin(newCoin);
-        const message = "100コインを獲得しました!"
-        enqueueSnackbar(message, {
-            autoHideDuration: 1500,
-            variant: 'success',
-        });
+        await charge();
+        setCurrentCoin(await balanceOf());
+        setCharging(true);
     };
 
     const handleClickSubscUpdate = async () => {
