@@ -19,6 +19,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
+import { getOwnedCharacterWithIDList } from '../../fetch_sol/utils.js'
+import { useSnackbar } from 'notistack';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -71,24 +73,30 @@ function editButtonstyle() {
 
 const selectedNum = 4;
 
-function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}){
+function NFTCard({character, selectedData, setStateChange, setSelectedData, isChanging}){
+    const { enqueueSnackbar } = useSnackbar();
     var color = 'white'
-    if( isChanging && selectedData.includes(id)){
+    if( isChanging && selectedData.includes(character)){
         color = '#CCFFFF'
     }
 
     function handleChange(){
         const _selecteddatas = selectedData;
-        if (selectedData.includes(id)){
+        if (selectedData.includes(character)){
             const popedDatas = _selecteddatas.filter((data, index) => {
-                return data != id
+                return data != character
             });
             setSelectedData(popedDatas)
         }else{
             if(_selecteddatas.length >= selectedNum){
                 console.log("メインキャラクターは4体までです")
+                const message = "対戦に選べるキャラクターは4体までです"
+                enqueueSnackbar(message, { 
+                    autoHideDuration: 1500,
+                    variant: 'error',
+                });
             }else{
-                _selecteddatas.push(id)
+                _selecteddatas.push(character)
                 setSelectedData(_selecteddatas)
             }
         }
@@ -101,11 +109,11 @@ function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}
             <CardMedia component="img" height="200"
                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
             <CardContent>
-            <Typography gutterBottom variant="h5" component="div">キャラ{id}</Typography>
-            <Typography variant="body1" color="text.primary">レア度: AA</Typography>
-            <Typography variant="body1" color="text.primary">属性: AA</Typography>
-            <Typography variant="body1" color="text.primary">レベル: AA</Typography>
-            <Typography variant="body1" color="text.primary">特性: AA</Typography>
+            <Typography gutterBottom variant="h5" component="div">キャラID: {character.id}</Typography>
+            <Typography variant="body1" color="text.primary">レア度: { character.rarity }</Typography>
+            <Typography variant="body1" color="text.primary">属性: { character.characterType }</Typography>
+            <Typography variant="body1" color="text.primary">レベル: { character.level }</Typography>
+            <Typography variant="body1" color="text.primary">特性: { character.abilityIds }</Typography>
             </CardContent>
         </CardActionArea>
     </Card>
@@ -121,7 +129,9 @@ export default function Battle() {
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
     const [open, setOpen] = useState(0);
+    const [myCharacterList, setMyCharacterList] = useState([]);
     const [dialogOpen, setDialogOpen] = React.useState(false);
+    const { enqueueSnackbar } = useSnackbar();
     const handleClickOpen = () => {
         setDialogOpen(true);
     };
@@ -129,10 +139,18 @@ export default function Battle() {
         setDialogOpen(false);
     };
 
-    useEffect(() => {
-        /* 第1引数には実行させたい副作用関数を記述*/
-        console.log('')
-    },[stateChange])
+    useEffect(() => {(async function() {
+        const _myCharacterList = await getOwnedCharacterWithIDList()
+        setMyCharacterList(_myCharacterList)
+        if(_myCharacterList.length < selectedNum){
+           const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
+            enqueueSnackbar(message, { 
+                autoHideDuration: 1500,
+                variant: 'info',
+            });
+        }
+        
+    })();}, [stateChange]);
 
     function handleUpdate(){
         setMainCharacters(selectedData)
@@ -144,16 +162,16 @@ export default function Battle() {
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {isChanging ? 
-                <>{initData.map((param, index) => (
+                <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard id={param} selectedData={selectedData} setStateChange={setStateChange}
+                        <NFTCard character={character} selectedData={selectedData} setStateChange={setStateChange}
                             setSelectedData={setSelectedData} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
                 :
-                <>{selectedData.map((param, index) => (
+                <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard id={param} selectedData={selectedData} setStateChange={setStateChange}
+                        <NFTCard character={character} selectedData={selectedData} setStateChange={setStateChange}
                             setSelectedData={setSelectedData} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
@@ -203,13 +221,16 @@ export default function Battle() {
             <Button onClick={handleClose} autoFocus>戻る</Button>
             </DialogActions>
         </Dialog>
-
-        {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
-        <Button variant="contained" size="large" style={ styleA() } onClick={handleClickOpen} disabled={isChanging}>
-          対戦の部屋を作る
-        </Button>
-        <Button variant="contained" size="large" style={ styleB() } onClick={() => navigate('/match_make')} disabled={isChanging}>
-          対戦相手を探す
-        </Button>
+        { (myCharacterList.length < selectedNum) & 
+            <>
+                {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
+                <Button variant="contained" size="large" style={ styleA() } onClick={handleClickOpen} disabled={isChanging}>
+                対戦の部屋を作る
+                </Button>
+                <Button variant="contained" size="large" style={ styleB() } onClick={() => navigate('/match_make')} disabled={isChanging}>
+                対戦相手を探す
+                </Button>
+            </>
+        }
     </>)
 }
