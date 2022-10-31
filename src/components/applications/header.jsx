@@ -32,9 +32,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/utils.js'
-import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
-import { mintPLMByUser, getSubscExpiredPoint, subscIsExpired, getSubscFee, updateSubsc, getSubscDuration } from '../../fetch_sol/subsc.js'
+import { balanceOf, totalSupply } from '../../fetch_sol/utils.js'
+import { charge, getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum } from '../../fetch_sol/subsc.js'
 
 function headerStyle() {
   return {
@@ -50,7 +49,7 @@ function staminaStyle() {
   return {
     position: 'fixed',
     top: 100,
-    right: 20, 
+    right: 20,
   }
 }
 
@@ -62,12 +61,12 @@ export default function Header() {
     const [subscFee, setSubscFee] = useState();
     const [subscDuration, setSubscDuration] = useState();
     useEffect(() => {(async function() {
-        setCurrentCoin(await getBalance());
-        setCurrentToken(await getTotalSupply());
+        setCurrentCoin(await balanceOf());
+        setCurrentToken(await totalSupply());
         setSubscExpired(await subscIsExpired());
-        setSubscExpiredPoint(await getSubscExpiredPoint());
-        setSubscFee(await getSubscFee());
-        setSubscDuration(await getSubscDuration());
+        setSubscExpiredPoint(await getSubscExpiredBlock());
+        setSubscFee(await getSubscFeePerUnitPeriod());
+        setSubscDuration(await getSubscUnitPeriodBlockNum());
     })();}, []);
 
   const theme = useTheme();
@@ -153,7 +152,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       .then((result) => {
           const account = result[0]
           dispatch(setCurrentWalletAddress(result[0]));
-          window.ethereum.request({ method: "eth_getBalance", params: [ account , 'latest' ]})
+          window.ethereum.request({ method: "eth_balanceOf", params: [ account , 'latest' ]})
           .then((result) => {
               const wei = parseInt(result/16)
               const gwei = (wei / Math.pow(10,9))
@@ -177,14 +176,14 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
 	}
 
   const handleClickSubscUpdate = async () => {
-      await updateSubsc();
-      setCurrentCoin(await getBalance());
+      await extendSubscPeriod();
+      setCurrentCoin(await balanceOf());
       setSubscExpired(await subscIsExpired());
-      setSubscExpiredPoint(await getSubscExpiredPoint());
+      setSubscExpiredPoint(await getSubscExpiredBlock());
   };
 
     const handleClickExchange = async () => {
-        const { newCoin } = await mintPLMByUser();
+        const { newCoin } = await charge();
         setCurrentCoin(newCoin);
     };
 
@@ -192,7 +191,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   const handleDeleteWalletData =  () => {
     dispatch(walletAddressRemove());
 	}
-  
+
   return (<>
     {/* <Box sx={{ flexGrow: 1 }} style={headerStyle()}> */}
     <Box sx={{ display: 'flex'}}>
@@ -205,7 +204,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
           <Button  variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
             [開発者用]Walletデータを消去
           </Button>
-          {walletAddress ? 
+          {walletAddress ?
             <Chip label={`${walletAddress.ethAmount} ETH`}
               style={{fontSize: 20, backgroundColor: 'white', margin: 15, padding: 10}} variant="outlined" />
             : <Button  variant="outlined" color="inherit" onClick={() => handleEnableToConnect() } style={{marginLeft: 20}}>
@@ -290,7 +289,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
                     <div>サブスク料金: {subscFee}</div>
                     <div>サブスクで更新されるブロック数: {subscDuration}</div>
                   </div>
-                  <Button variant="contained" 
+                  <Button variant="contained"
                     onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
                     サブスク期間をアップデートする
                   </Button>
@@ -315,7 +314,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
                     <div>コイン: {currentCoin}</div>
                     <div>トークン: {currentToken}体</div>
                   </div>
-                <Button variant="contained" onClick={handleClickExchange} 
+                <Button variant="contained" onClick={handleClickExchange}
                     style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
                   <hr/>
                   </Typography>
