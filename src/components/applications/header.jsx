@@ -32,8 +32,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import { balanceOf, totalSupply } from '../../fetch_sol/utils.js'
-import { charge, getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum } from '../../fetch_sol/subsc.js'
+import { balanceOf } from '../../fetch_sol/coin.js';
+import { totalSupply } from '../../fetch_sol/token.js';
+import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum, charge } from '../../fetch_sol/dealer.js';
 
 function headerStyle() {
   return {
@@ -176,16 +177,16 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
 	}
 
   const handleClickSubscUpdate = async () => {
-      await extendSubscPeriod();
-      setCurrentCoin(await balanceOf());
-      setSubscExpired(await subscIsExpired());
-      setSubscExpiredPoint(await getSubscExpiredBlock());
+    await extendSubscPeriod();
+    setCurrentCoin(await balanceOf());
+    setSubscExpired(await subscIsExpired());
+    setSubscExpiredPoint(await getSubscExpiredBlock());
   };
 
-    const handleClickExchange = async () => {
-        const { newCoin } = await charge();
-        setCurrentCoin(newCoin);
-    };
+  const handleClickCharge = async () => {
+    await charge();
+    setCurrentCoin(await balanceOf());
+  };
 
   // 開発テスト用: MetaMaskと接続を切る
   const handleDeleteWalletData =  () => {
@@ -314,7 +315,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
                     <div>コイン: {currentCoin}</div>
                     <div>トークン: {currentToken}体</div>
                   </div>
-                <Button variant="contained" onClick={handleClickExchange}
+                <Button variant="contained" onClick={handleClickCharge}
                     style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
                   <hr/>
                   </Typography>
