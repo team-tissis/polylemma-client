@@ -180,7 +180,7 @@ export default function Battle() {
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
-            {isChanging ?
+            {/* {isChanging ?
                 <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
                         <NFTCard character={character} myCharacterList={myCharacterList}
@@ -189,13 +189,13 @@ export default function Battle() {
                     </Grid>
                 ))}</>
                 :
-                <>{charactersForBattle && charactersForBattle.map((character, index) => (
+                <>{charactersForBattle.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
                         <NFTCard character={character} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
                             setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
-            }
+            } */}
         </Grid>
         {isChanging ?
             <Button variant="contained" size="large" color="secondary" style={ editButtonstyle() } onClick={() => handleUpdate() }>
@@ -241,9 +241,9 @@ export default function Battle() {
             <Button onClick={handleClose} autoFocus>戻る</Button>
             </DialogActions>
         </Dialog>
-        { charactersForBattle && (charactersForBattle.length >= selectedNum) &&
+        {/* { (charactersForBattle.length >= selectedNum) &&
             <>
-                {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
+                自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない
                 <Button variant="contained" size="large" style={ styleA() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
                 対戦の部屋を作る
                 </Button>
@@ -251,6 +251,6 @@ export default function Battle() {
                 対戦相手を探す
                 </Button>
             </>
-        }
+        } */}
     </>)
 }
