@@ -9,22 +9,125 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Chip from '@mui/material/Chip';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import Paper from '@mui/material/Paper';
+import { styled, useTheme } from '@mui/material/styles';
+import Drawer from '@mui/material/Drawer';
+import MuiAppBar from '@mui/material/AppBar';
+import CssBaseline from '@mui/material/CssBaseline';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import MailIcon from '@mui/icons-material/Mail';
 
 function headerStyle() {
   return {
       position: 'fixed',
       top: 0,
       width: '100%',
-      height: 80,
-      zIndex: 999
+      height: 10,
+      zIndex: 0
+  }
+}
+
+function staminaStyle() {
+  return {
+    position: 'fixed',
+    top: 100,
+    right: 20, 
+    // width: '10%'
   }
 }
 
 export default function Header() {
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
   const dispatch = useDispatch();
   const walletAddress = useSelector(selectCurrentWalletAddress);
   const [account,setAccount] = useState(null);
 	const [errorMessage, setErrorMessage] = useState(null);
+  const [auth, setAuth] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleChange = (event) => {
+    setAuth(event.target.checked);
+  };
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const drawerWidth = 360;
+
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginRight: -drawerWidth,
+    ...(open && {
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginRight: 0,
+    }),
+  }),
+);
+
+  const AppBar = styled(MuiAppBar, {
+    shouldForwardProp: (prop) => prop !== 'open',
+  })(({ theme, open }) => ({
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(open && {
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginRight: drawerWidth,
+    }),
+  }));
+
+  const DrawerHeader = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    // padding: 0,
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-start',
+  }));
+
 	const handleEnableToConnect = () => {
     const tmpFlag = window.ethereum && window.ethereum.isMetaMask;
     if(tmpFlag){
@@ -48,10 +151,6 @@ export default function Header() {
           .catch((error) => {
             console.log({error})
           });
-          // const balance = await window.ethereum.request({ method: 'eth_getBalance', params: [ account , 'latest' ]})
-          // const wei = parseInt(balance/16)
-          // const gwei = (wei / Math.pow(10,9))
-          // const eth = (wei / Math.pow(10,18))
       })
       .catch((error) => {
         setErrorMessage(error.message);
@@ -65,13 +164,25 @@ export default function Header() {
     dispatch(walletAddressRemove());
 	}
   
-  return (
-    <Box sx={{ flexGrow: 1 }} style={headerStyle()}>
-      <AppBar position="static">
+  return (<>
+    {/* <Box sx={{ flexGrow: 1 }} style={headerStyle()}> */}
+    <Box sx={{ display: 'flex'}}>
+    {/* <CssBaseline /> */}
+      <AppBar position="fixed" open={open}>
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }} component="div">
             Polylemma
           </Typography>
+
+          残りスタミナ: 
+          <span>
+            <FavoriteBorderIcon style={{fontSize: 30}}/>
+            <FavoriteBorderIcon style={{fontSize: 30}}/>
+            <FavoriteIcon style={{fontSize: 30}}/>
+            <FavoriteIcon style={{fontSize: 30}}/>
+            <FavoriteIcon style={{fontSize: 30}}/>
+          </span>
+
           <Button  variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
             [開発者用]Walletデータを消去
           </Button>
@@ -82,17 +193,67 @@ export default function Header() {
                 MetaMaskと連携する
               </Button>
           }
-          {/* <IconButton
-            size="large"
-            edge="start"
+          <IconButton
             color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
+            aria-label="open drawer"
+            edge="end"
+            onClick={handleDrawerOpen}
+            sx={{ ...(open && { display: 'none' }) }}
           >
             <MenuIcon />
-          </IconButton> */}
+          </IconButton>
         </Toolbar>
       </AppBar>
-    </Box>
-  );
+      <Main open={open}>
+        <DrawerHeader />
+      </Main>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+          },
+        }}
+        variant="persistent"
+        anchor="right"
+        open={open}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            アカウント設定
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <List>
+
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText primary='サブスクリプション' />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText primary='スタミナを回復する' />
+              </ListItemButton>
+            </ListItem>
+          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+        <Divider />
+      </Drawer>
+    </Box>    
+  </>);
 }

@@ -9,6 +9,7 @@ import Battle from './components/home/battle';
 import ModelTraining from './components/home/training';
 import GachaGacha from './components/home/gacha';
 
+
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
     margin: theme.spacing(0.5),
