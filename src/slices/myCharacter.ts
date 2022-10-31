@@ -9,9 +9,9 @@ interface IMyCharacter {
   rarity: number;
 }
 interface IMyCharacterList {
-  values: null | IMyCharacter[];
+  values: IMyCharacter[];
 }
-const initialState: IMyCharacterList = { values: null };
+const initialState: IMyCharacterList = { values: [] };
 const currentMyCharacterSlice = createSlice({
   name: 'currentMyCharacter',
   initialState,
@@ -42,6 +42,6 @@ const currentMyCharacterSlice = createSlice({
     },
   },
 });
-export const selectMyCharacter = (state: RootState): null | IMyCharacterList => state.myCharacter.values;
+export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter.values;
 export const { setCurrentMyCharacter, myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;
