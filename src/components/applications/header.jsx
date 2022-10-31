@@ -32,6 +32,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/utils.js'
+import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
+import { mintPLMByUser, getSubscExpiredPoint, subscIsExpired, getSubscFee, updateSubsc, getSubscDuration } from '../../fetch_sol/subsc.js'
 
 function headerStyle() {
   return {
@@ -48,11 +51,25 @@ function staminaStyle() {
     position: 'fixed',
     top: 100,
     right: 20, 
-    // width: '10%'
   }
 }
 
 export default function Header() {
+    const [currentCoin, setCurrentCoin] = useState();
+    const [currentToken, setCurrentToken] = useState();
+    const [subscExpired, setSubscExpired] = useState();
+    const [subscExpiredPoint, setSubscExpiredPoint] = useState();
+    const [subscFee, setSubscFee] = useState();
+    const [subscDuration, setSubscDuration] = useState();
+    useEffect(() => {(async function() {
+        setCurrentCoin(await getBalance());
+        setCurrentToken(await getTotalSupply());
+        setSubscExpired(await subscIsExpired());
+        setSubscExpiredPoint(await getSubscExpiredPoint());
+        setSubscFee(await getSubscFee());
+        setSubscDuration(await getSubscDuration());
+    })();}, []);
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -80,7 +97,7 @@ export default function Header() {
     setAnchorEl(null);
   };
 
-  const drawerWidth = 360;
+const drawerWidth = 380;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -159,6 +176,18 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
     }
 	}
 
+  const handleClickSubscUpdate = async () => {
+      await updateSubsc();
+      setCurrentCoin(await getBalance());
+      setSubscExpired(await subscIsExpired());
+      setSubscExpiredPoint(await getSubscExpiredPoint());
+  };
+
+    const handleClickExchange = async () => {
+        const { newCoin } = await mintPLMByUser();
+        setCurrentCoin(newCoin);
+    };
+
   // 開発テスト用: MetaMaskと接続を切る
   const handleDeleteWalletData =  () => {
     dispatch(walletAddressRemove());
@@ -167,21 +196,11 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   return (<>
     {/* <Box sx={{ flexGrow: 1 }} style={headerStyle()}> */}
     <Box sx={{ display: 'flex'}}>
-    {/* <CssBaseline /> */}
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <Typography variant="h6" noWrap sx={{ flexGrow: 1 }} component="div">
             Polylemma
           </Typography>
-
-          残りスタミナ: 
-          <span>
-            <FavoriteBorderIcon style={{fontSize: 30}}/>
-            <FavoriteBorderIcon style={{fontSize: 30}}/>
-            <FavoriteIcon style={{fontSize: 30}}/>
-            <FavoriteIcon style={{fontSize: 30}}/>
-            <FavoriteIcon style={{fontSize: 30}}/>
-          </span>
 
           <Button  variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
             [開発者用]Walletデータを消去
@@ -204,7 +223,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Main open={open}>
+      <Main open={open} style={{margin: 0, padding: 5, height: 50}}>
         <DrawerHeader />
       </Main>
       <Drawer
@@ -226,34 +245,86 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
+        <List style={{margin: 8}}>
 
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon></ListItemIcon>
-                <ListItemText primary='サブスクリプション' />
-              </ListItemButton>
-            </ListItem>
+          <ListItemText
+              primary="現在のスタミナ状況"
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    sx={{ display: 'inline'}}
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                  <div style={{marginTop: 10}}>
+                    <FavoriteBorderIcon style={{fontSize: 30}}/>
+                    <FavoriteBorderIcon style={{fontSize: 30}}/>
+                    <FavoriteIcon style={{fontSize: 30}}/>
+                    <FavoriteIcon style={{fontSize: 30}}/>
+                    <FavoriteIcon style={{fontSize: 30}}/>
+                  <Button variant="contained" disabled
+                    onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
+                    コインを消費してスタミナを回復する
+                  </Button>
+                  </div>
+                  <hr/>
+                  </Typography>
+                </React.Fragment>
+              }
+          />
 
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon></ListItemIcon>
-                <ListItemText primary='スタミナを回復する' />
-              </ListItemButton>
-            </ListItem>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          <ListItemText
+              primary="サブスクリプション"
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    sx={{ display: 'inline'}}
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                  <div style={{marginTop: 10}}>
+                    <div>サブスクが終了しているか: {subscExpired}</div>
+                    <div>サブスクが終了するブロック: {subscExpiredPoint}</div>
+                    <div>サブスク料金: {subscFee}</div>
+                    <div>サブスクで更新されるブロック数: {subscDuration}</div>
+                  </div>
+                  <Button variant="contained" 
+                    onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
+                    サブスク期間をアップデートする
+                  </Button>
+                  <hr/>
+                  </Typography>
+                </React.Fragment>
+              }
+          />
+
+
+          <ListItemText
+              primary="サブスクリプション"
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    sx={{ display: 'inline'}}
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                  <div style={{marginTop: 10}}>
+                    <div>コイン: {currentCoin}</div>
+                    <div>トークン: {currentToken}体</div>
+                  </div>
+                <Button variant="contained" onClick={handleClickExchange} 
+                    style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
+                  <hr/>
+                  </Typography>
+                </React.Fragment>
+              }
+          />
         </List>
         <Divider />
       </Drawer>
-    </Box>    
+    </Box>
   </>);
 }

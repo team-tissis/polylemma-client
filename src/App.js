@@ -12,7 +12,7 @@ import GachaGacha from './components/home/gacha';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
-    margin: theme.spacing(0.5),
+    margin: theme.spacing(1.5),
     border: 0,
     '&.Mui-disabled': {
       border: 0,
@@ -25,6 +25,7 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
     },
   },
 }));
+
 
 function App() {
   const [alignment, setAlignment] = React.useState('battle');
@@ -56,9 +57,7 @@ function App() {
 
   return (<>
       <Paper
-        elevation={0}
-        // style={{marginTop: 80}}
-        sx={{ display: 'flex', border: (theme) => `1px solid ${theme.palette.divider}`, flexWrap: 'wrap'}}
+        elevation={1} sx={{ display: 'flex', border: (theme) => `1px solid ${theme.palette.divider}`, flexWrap: 'wrap'}}
       >
         <StyledToggleButtonGroup
           size="small"
