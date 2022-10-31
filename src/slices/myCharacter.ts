@@ -4,7 +4,7 @@ import { RootState } from '../store.ts';
 interface IMyCharacter {
   abilityIds: null | number[];
   characterType: String;
-  id: String;
+  id: number;
   level: number;
   rarity: number;
 }

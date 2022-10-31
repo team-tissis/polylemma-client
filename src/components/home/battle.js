@@ -126,6 +126,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
 
 export default function Battle() {
     const dispatch = useDispatch();
+    const myCharacters = useSelector(selectMyCharacter);
     const [charactersForBattle, setCharactersForBattle] = useState([]);
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
@@ -140,7 +141,6 @@ export default function Battle() {
     const handleClose = () => {
         setDialogOpen(false);
     };
-    const myCharacters = useSelector(selectMyCharacter);
 
 
     useEffect(() => {(async function() {
