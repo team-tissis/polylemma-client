@@ -1,8 +1,8 @@
-import { getContract, balanceOf } from "./utils.js";
+import { getContract, approve, balanceOf } from "./utils.js";
 
-async function charge () { // TODO: Debug
+async function charge () {
     const { contract } = getContract("PLMDealer");
-    const sendMATICAmount = "1000000000000000000";
+    const sendMATICAmount = "1" + "0".repeat(20);
     const message = await contract.charge({ value: sendMATICAmount });
     console.log({ charge: message });
     return { newCoin: await balanceOf() };
@@ -32,7 +32,10 @@ async function getSubscFeePerUnitPeriod () {
 }
 
 async function extendSubscPeriod () {
-    const { contract } = getContract("PLMDealer");
+    const { contractAddress, signer, contract } = getContract("PLMDealer");
+    const myAddress = await signer.getAddress();
+    const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(myAddress);
+    await approve(contractAddress, subscFeePerUnitPeriod);
     const message = await contract.extendSubscPeriod();
     console.log({ extendSubscPeriod: message });
     return await getSubscExpiredBlock();

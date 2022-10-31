@@ -1,4 +1,4 @@
-import { getContract, handleApprove, getBalance } from "./utils.js";
+import { getContract, approve, balanceOf } from "./utils.js";
 
 async function getCurrentStamina () {
     const { signer, contract } = getContract("PLMDealer");
@@ -32,11 +32,11 @@ async function getRestoreStaminaFee () {
 async function restoreFullStamina () {
     const { contractAddress, signer, contract } = getContract("PLMDealer");
     const myAddress = await signer.getAddress();
-    const coinForStamina = await getRestoreStaminaFee(myAddress);
-    await handleApprove(contractAddress, coinForStamina);
+    const restoreStaminaFee = await getRestoreStaminaFee(myAddress);
+    await approve(contractAddress, restoreStaminaFee);
     const message = await contract.gacha();
     console.log({ restoreFullStamina: message });
-    return { newCoin: await getBalance(), newStamina: await getCurrentStamina() };
+    return { newCoin: await balanceOf(), newStamina: await getCurrentStamina() };
 }
 
 export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina };

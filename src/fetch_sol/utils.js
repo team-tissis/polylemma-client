@@ -4,6 +4,10 @@ import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 
+function stringToBytes32 (str) {
+    return ethers.utils.formatBytes32String(str);
+}
+
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
     const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
@@ -114,4 +118,4 @@ async function getOwnedCharacterWithIDList (){
     return ownedCharacters;
 }
 
-export { getContract, approve, balanceOf, totalSupply, getNecessaryExp, getAllTokenOwned, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo, getOwnedCharacterWithIDList };
+export { stringToBytes32, getContract, approve, balanceOf, totalSupply, getNecessaryExp, getAllTokenOwned, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo, getOwnedCharacterWithIDList };

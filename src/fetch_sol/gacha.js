@@ -1,4 +1,4 @@
-import { getContract, approve, balanceOf, totalSupply } from "./utils.js";
+import { stringToBytes32, getContract, approve, balanceOf, totalSupply } from "./utils.js";
 
 async function mint () {
     const { signer, contract } = getContract("PLMCoin");
@@ -29,7 +29,6 @@ async function mint () {
 
 async function getGachaFee () {
     const { contract } = getContract("PLMDealer");
-    console.log(contract);
     const message = await contract.getGachaFee();
     console.log({ getGachaFee: message });
     return message.toString();
@@ -39,14 +38,14 @@ async function gacha (name) {
     const { contractAddress, signer, contract } = getContract("PLMDealer");
     const coinForGacha = await getGachaFee();
     await approve(contractAddress, coinForGacha);
-    const message = await contract.gacha(name);
+    const message = await contract.gacha(stringToBytes32(name));
     console.log({ gacha: message });
 
     // contract.on は非同期(?)だから return する段階で、tokenId の値が入ってくれない
     // /home の方で書く必要があるかも
     // let newTokenId;
     // const myAddress = await signer.getAddress();
-    // const filter = contract.filters.CharacterRecievedByUser(myAddress, null, null);
+    // const filter = contract.filters.CharacterReceivedByUser(myAddress, null, null);
     // contract.on(filter, (account, tokenId, characterInfo) => {
     //     newTokenId = tokenId.toString();
     //     console.log(`${account} got token of ${tokenId}.`);
@@ -55,10 +54,10 @@ async function gacha (name) {
 
     const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'CharacterRecievedByUser' && event.args.account === myAddress);
+    const event = rc.events.find(event => event.event === 'CharacterReceivedByUser' && event.args.account === myAddress);
     const [ account, tokenId, characterInfo ] = event.args;
     console.log(`${account} got token of ${tokenId}.`);
-    console.log({ characterInfo: characterInfo })
+    console.log({ characterInfo: characterInfo });
 
     return { newCoin: await balanceOf(), newToken: await totalSupply(), newTokenId:  tokenId.toString() };
 }

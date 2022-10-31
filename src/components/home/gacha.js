@@ -53,9 +53,6 @@ const defaultOptions = {
 };
 
 export default function GachaGacha(){
-    const initData = [0,1,2,3,4,5,6,7,8,9,10];
-    const [selectedNFT, setSelectedNFT] = useState();
-    const [selectedId, setSelectedId] = useState(null);
     const [isOpened, setIsOpened] = useState(false);
 
     const [open, setOpen] = useState(false);
@@ -84,8 +81,7 @@ export default function GachaGacha(){
 
     const handleClickGacha = async () => {
         setOpen(true);
-        const name = "hoge";
-        const { newCoin, newToken, newTokenId } = await gacha(name);
+        const { newCoin, newToken, newTokenId } = await gacha(characterName);
         setCurrentCoin(newCoin);
         setCurrentToken(newToken);
         setAddedTokenId(newTokenId);
