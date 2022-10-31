@@ -102,4 +102,23 @@ async function allCharacterInfo () {
     return message;
 }
 
-export { getContract, handleApprove, getBalance, getTotalSupply, getCoinForGacha, getCoinForLevelUp, getAllTokenOwned, getCharacterInfo, firstCharacterInfo, allCharacterInfo };
+// IDとキャラの内容を合体させて取得したいのでこの関数を追加お願いします
+// battle.jsとtraining.jsの両方で使う予定です
+async function getOwnedCharacterWithIDList (){
+    const myTokens = await getAllTokenOwned();
+    const myTokenIds = myTokens.split(',').map(myToken => Number(myToken));
+    const ownedCharacterInfoList = await allCharacterInfo();
+    const ownedCharacters = []
+    for (let i = 0; i < myTokenIds.length; i++) {
+        ownedCharacters.push({
+            id: myTokenIds[i],
+            characterType: ownedCharacterInfoList[i]['characterType'],
+            level: ownedCharacterInfoList[i]['level'],
+            rarity: ownedCharacterInfoList[i]['rarity'],
+            abilityIds: ownedCharacterInfoList[i]['abilityIds'],
+        })
+    }
+    return ownedCharacters;
+}
+
+export { getContract, handleApprove, getBalance, getTotalSupply, getCoinForGacha, getCoinForLevelUp, getAllTokenOwned, getCharacterInfo, firstCharacterInfo, allCharacterInfo ,getOwnedCharacterWithIDList};
