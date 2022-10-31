@@ -18,11 +18,11 @@ import { selectMyCharacter } from '../../slices/myCharacter.ts'
 import { useSelector, useDispatch } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(2),
-  textAlign: 'center',
- color: theme.palette.text.secondary,
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
 }));
 
 
@@ -32,12 +32,12 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLeve
         console.log({character})
         console.log("レベルを読み込み中........")
     },[extraLevel])
-    
+
     return(<>
         <Paper onClick={() =>　setThisCharacter(character.id) } elevation={10}
-            style={{backgroundColor: (thisCharacter == character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
+            style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
             トークンID {character.id} <br/>
-            {(extraLevel > 0)&(thisCharacter == character.id) ? 
+            {(extraLevel > 0)&(thisCharacter === character.id) ?
                 <>レベル {character.level + extraLevel}( +{extraLevel}.Lv )<br/></>
                 : <>レベル {character.level}.Lv<br/></>
             }
@@ -50,7 +50,7 @@ function style() {
     return {
         position: 'fixed',
         bottom: 20,
-        right: '38%', 
+        right: '38%',
         width: '24%',
         fontSize: 17,
         fontWeight: 600
@@ -84,7 +84,7 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard character={myCharactor} 
+                    <NFTCharactorCard character={myCharactor}
                         thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} extraLevel={extraLevel} />
                 </Grid>
             ))}
@@ -111,15 +111,15 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel
 }
 
 const UrgeWithPleasureComponent = () => (
-  <CountdownCircleTimer
-    isPlaying
-    duration={30}
-    colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-    colorsTime={[7, 5, 2, 0]}
-    strokeWidth={20}
-  >
-    {({ remainingTime }) => <div style={{fontSize: 50, fontWeight: 700}}>{ remainingTime }</div>}
-  </CountdownCircleTimer>
+    <CountdownCircleTimer
+        isPlaying
+        duration={30}
+        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+        colorsTime={[7, 5, 2, 0]}
+        strokeWidth={20}
+    >
+        {({ remainingTime }) => <div style={{fontSize: 50, fontWeight: 700}}>{ remainingTime }</div>}
+    </CountdownCircleTimer>
 )
 
 export default function BattleMain(){
@@ -132,7 +132,7 @@ export default function BattleMain(){
         console.log({自分のキャラ: myCharacters})
         console.log("読み込み中........")
     },[thisCharacter])
-    
+
     return(<>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={6}>
@@ -159,7 +159,7 @@ export default function BattleMain(){
                     <Grid item xs={4} md={4}>1戦目</Grid>
                     <Grid item xs={4} md={4}>✖️</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
-                    
+
                     <Grid item xs={4} md={4}>2戦目</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
                     <Grid item xs={4} md={4}>✖️</Grid>
@@ -170,7 +170,7 @@ export default function BattleMain(){
 
                     <Grid item xs={4} md={4}>4戦目</Grid>
                     <Grid item xs={4} md={4}>✖️</Grid>
-                     <Grid item xs={4} md={4}>◯</Grid>
+                    <Grid item xs={4} md={4}>◯</Grid>
 
                     <Grid item xs={4} md={4}>5戦目</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
@@ -180,7 +180,7 @@ export default function BattleMain(){
         </Grid>
 
         {thisCharacter &&
-            <Fab variant="extended"　style={ style() } color="primary" aria-label="add">
+            <Fab variant="extended" style={ style() } color="primary" aria-label="add">
                 勝負するキャラクターを確定する
             </Fab>
         }

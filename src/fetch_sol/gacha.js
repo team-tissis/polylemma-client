@@ -1,6 +1,6 @@
-import { getContract, handleApprove, getCoinForGacha, getBalance, getTotalSupply } from "./utils.js";
+import { stringToBytes32, getContract, approve, balanceOf, totalSupply } from "./utils.js";
 
-async function mintCoin () {
+async function mint () {
     const { signer, contract } = getContract("PLMCoin");
     const message = await contract.mint(100);
     console.log({ mint: message });
@@ -17,28 +17,35 @@ async function mintCoin () {
     // 一応これで動くが、あまり綺麗じゃない
     const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'mintDebug' && event.args.user == myAddress);
-    if (event != undefined) {
+    const event = rc.events.find(event => event.event === 'mintDebug' && event.args.user === myAddress);
+    if (event !== undefined) {
         const [ amount, user ] = event.args;
         console.log(`${user} got ${amount.toString()}.`);
     }
     // event の listen 終了
 
-    return { newCoin: await getBalance() };
+    return { newCoin: await balanceOf() };
 }
 
-async function playGacha () {
-    const { contractAddress, signer, contract } = getContract("PLMGacha");
-    const coinForGacha = await getCoinForGacha();
-    await handleApprove(contractAddress, coinForGacha);
-    const message = await contract.gacha();
+async function getGachaFee () {
+    const { contract } = getContract("PLMDealer");
+    const message = await contract.getGachaFee();
+    console.log({ getGachaFee: message });
+    return message.toString();
+}
+
+async function gacha (name) {
+    const { contractAddress, signer, contract } = getContract("PLMDealer");
+    const coinForGacha = await getGachaFee();
+    await approve(contractAddress, coinForGacha);
+    const message = await contract.gacha(stringToBytes32(name));
     console.log({ gacha: message });
 
     // contract.on は非同期(?)だから return する段階で、tokenId の値が入ってくれない
     // /home の方で書く必要があるかも
     // let newTokenId;
     // const myAddress = await signer.getAddress();
-    // const filter = contract.filters.CharacterRecievedByUser(myAddress, null, null);
+    // const filter = contract.filters.CharacterReceivedByUser(myAddress, null, null);
     // contract.on(filter, (account, tokenId, characterInfo) => {
     //     newTokenId = tokenId.toString();
     //     console.log(`${account} got token of ${tokenId}.`);
@@ -47,12 +54,12 @@ async function playGacha () {
 
     const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'CharacterRecievedByUser' && event.args.account == myAddress);
+    const event = rc.events.find(event => event.event === 'CharacterReceivedByUser' && event.args.account === myAddress);
     const [ account, tokenId, characterInfo ] = event.args;
     console.log(`${account} got token of ${tokenId}.`);
-    console.log({ characterInfo: characterInfo })
+    console.log({ characterInfo: characterInfo });
 
-    return { newCoin: await getBalance(), newToken: await getTotalSupply(), newTokenId:  tokenId.toString() };
+    return { newCoin: await balanceOf(), newToken: await totalSupply(), newTokenId:  tokenId.toString() };
 }
 
-export { mintCoin, playGacha };
+export { mint, getGachaFee, gacha };

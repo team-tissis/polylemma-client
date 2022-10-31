@@ -36,7 +36,7 @@ function style() {
     return {
         position: 'fixed',
         bottom: 10,
-        right: '35%', 
+        right: '35%',
         width: '30%',
         fontSize: 20,
         fontWeight: 600
@@ -46,7 +46,7 @@ function styleA() {
     return {
         position: 'fixed',
         bottom: 10,
-        right: '55%', 
+        right: '55%',
         width: '20%',
         fontSize: 17,
         fontWeight: 600
@@ -56,7 +56,7 @@ function styleB() {
     return {
         position: 'fixed',
         bottom: 10,
-        left: '55%', 
+        left: '55%',
         width: '20%',
         fontSize: 17,
         fontWeight: 600
@@ -67,7 +67,7 @@ function editButtonstyle() {
     return {
         position: 'fixed',
         bottom: 50,
-        right: 30, 
+        right: 30,
         fontSize: 20,
         fontWeight: 600
     }
@@ -78,7 +78,7 @@ const selectedNum = 4;
 function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
     var color = 'white'
-    const result = charactersForBattle.filter(cha => cha.id == character.id);
+    const result = charactersForBattle.filter(cha => cha.id === character.id);
     const alreadySelected = (result.length > 0) ? true : false;
     if( isChanging && alreadySelected){
         color = '#CCFFFF'
@@ -88,13 +88,13 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
         const _selectedData = charactersForBattle;
         if (alreadySelected){
             const popThisData = _selectedData.filter((data, index) => {
-                return data.id != character.id
+                return data.id !== character.id
             });
             setCharactersForBattle(popThisData)
         }else{
             if(_selectedData.length >= selectedNum){
                 const message = "対戦に選べるキャラクターは4体までです"
-                enqueueSnackbar(message, { 
+                enqueueSnackbar(message, {
                     autoHideDuration: 1500,
                     variant: 'error',
                 });
@@ -141,7 +141,7 @@ export default function Battle() {
         setDialogOpen(false);
     };
     const myCharacters = useSelector(selectMyCharacter);
-    
+
 
     useEffect(() => {(async function() {
         setCharactersForBattle(myCharacters)
@@ -152,27 +152,27 @@ export default function Battle() {
         const _myCharacterList = await getOwnedCharacterWithIDList()
         setMyCharacterList(_myCharacterList)
         if(_myCharacterList.length < selectedNum){
-           const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
-            enqueueSnackbar(message, { 
+            const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
+            enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'info',
             });
         }
-        
+
     })();}, [stateChange]);
 
     function handleUpdate(){
-        dispatch(setCurrentMyCharacter(charactersForBattle));　//更新
+        dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
         setIsChanging(false)
         setStateChange((prev) => prev + 1)
     }
 
     function handleCharacterSelected(kind){
-        // 4体あるか確認する　reduxに保存する
-        dispatch(setCurrentMyCharacter(charactersForBattle));　//更新
-        if(kind == "makeOwnRoom"){
+        // 4体あるか確認する redux に保存する
+        dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
+        if(kind === "makeOwnRoom"){
             setDialogOpen(true);
-        }else if(kind == "searchRooms"){
+        }else if(kind === "searchRooms"){
             navigate('/match_make')
         }
     }
@@ -180,10 +180,10 @@ export default function Battle() {
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
-            {isChanging ? 
+            {/* {isChanging ?
                 <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} myCharacterList={myCharacterList} 
+                        <NFTCard character={character} myCharacterList={myCharacterList}
                             charactersForBattle={charactersForBattle} setStateChange={setStateChange}
                             setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
@@ -195,9 +195,9 @@ export default function Battle() {
                             setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
-            }
+            } */}
         </Grid>
-        {isChanging ? 
+        {isChanging ?
             <Button variant="contained" size="large" color="secondary" style={ editButtonstyle() } onClick={() => handleUpdate() }>
                 変更を保存する
             </Button>
@@ -241,9 +241,9 @@ export default function Battle() {
             <Button onClick={handleClose} autoFocus>戻る</Button>
             </DialogActions>
         </Dialog>
-        { (charactersForBattle.length >= selectedNum) && 
+        {/* { (charactersForBattle.length >= selectedNum) &&
             <>
-                {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
+                自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない
                 <Button variant="contained" size="large" style={ styleA() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
                 対戦の部屋を作る
                 </Button>
@@ -251,6 +251,6 @@ export default function Battle() {
                 対戦相手を探す
                 </Button>
             </>
-        }
+        } */}
     </>)
 }
