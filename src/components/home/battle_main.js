@@ -14,30 +14,34 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import { selectMyCharacter } from '../../slices/myCharacter.ts'
+import { useSelector, useDispatch } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(2),
-  textAlign: 'center',
- color: theme.palette.text.secondary,
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
 }));
 
 
 // TODO::すでにバトルに出したキャラは選択できない
-function NFTCharactorCard({id, thisCharacter, setThisCharacter, extraLevel}){
+function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLevel}){
     useEffect(() => {
+        console.log({character})
         console.log("レベルを読み込み中........")
     },[extraLevel])
 
-    
     return(<>
-        <Paper onClick={() =>　setThisCharacter(id) } elevation={10}
-            style={{backgroundColor: (thisCharacter == id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
-            {(extraLevel > 0)&(thisCharacter == id) ? 
-                <>トークン {id + extraLevel} .Lv <br/>( +{extraLevel}.Lv )</>
-                : <>トークン {id}.Lv</>
+        <Paper onClick={() =>　setThisCharacter(character.id) } elevation={10}
+            style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
+            トークンID {character.id} <br/>
+            {(extraLevel > 0)&(thisCharacter === character.id) ?
+                <>レベル {character.level + extraLevel}( +{extraLevel}.Lv )<br/></>
+                : <>レベル {character.level}.Lv<br/></>
             }
+            属性: {character.characterType}
         </Paper>
     </>)
 }
@@ -46,17 +50,17 @@ function style() {
     return {
         position: 'fixed',
         bottom: 20,
-        right: '38%', 
+        right: '38%',
         width: '24%',
         fontSize: 17,
         fontWeight: 600
     }
 }
 
-function PlayerYou(){
-    const myCharactors = [1,2,3,4]
+function PlayerYou({opponentCharacters}){
+    opponentCharacters = [1,2,3,4]
     const randomSlot = 'a'
-    myCharactors.push(randomSlot)
+    opponentCharacters.push(randomSlot)
     return(<>
         <Container style={{padding: 10}}>
             <div style={{ textAlign: 'right', verticalAlign: 'middle'}}>
@@ -64,9 +68,9 @@ function PlayerYou(){
                 <img src={Icon}  alt="アイコン" width="60" height="60"/>
             </div>
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
-                {myCharactors.map((id, index) => (
+                {opponentCharacters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard id={id}/>
+                    <NFTCharactorCard character={character}/>
                 </Grid>
                 ))}
             </Grid>
@@ -78,9 +82,9 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
-            {myCharactors.map((id, index) => (
+            {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard id={id} 
+                    <NFTCharactorCard character={myCharactor}
                         thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} extraLevel={extraLevel} />
                 </Grid>
             ))}
@@ -106,43 +110,39 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel
     </>)
 }
 
-
 const UrgeWithPleasureComponent = () => (
-  <CountdownCircleTimer
-    isPlaying
-    duration={30}
-    colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-    colorsTime={[7, 5, 2, 0]}
-    strokeWidth={20}
-  >
-    {({ remainingTime }) => <div style={{fontSize: 50, fontWeight: 700}}>{ remainingTime }</div>}
-  </CountdownCircleTimer>
+    <CountdownCircleTimer
+        isPlaying
+        duration={30}
+        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+        colorsTime={[7, 5, 2, 0]}
+        strokeWidth={20}
+    >
+        {({ remainingTime }) => <div style={{fontSize: 50, fontWeight: 700}}>{ remainingTime }</div>}
+    </CountdownCircleTimer>
 )
 
 export default function BattleMain(){
     const [thisCharacter, setThisCharacter] = useState();
-    const myCharactors = [5,6,7,8]
-    const randomSlot = 'b'
-    myCharactors.push(randomSlot)
     const totalExtraLevel = 10;
     const [extraLevel, setExtraLevel] = useState(0);
+    const myCharacters = useSelector(selectMyCharacter);
 
     useEffect(() => {
+        console.log({自分のキャラ: myCharacters})
         console.log("読み込み中........")
     },[thisCharacter])
-    
+
     return(<>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
-        {/* <Grid item xs={12} md={7}> */}
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
                 <div style={{height: 100}}/>
-                <PlayerI myCharactors={myCharactors} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
+                <PlayerI myCharactors={myCharacters} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
                         totalExtraLevel={totalExtraLevel} extraLevel={extraLevel} setExtraLevel={setExtraLevel} />
             </Container>
         </Grid>
-        {/* <Grid item xs={12} md={4}> */}
         <Grid item xs={10} md={3}>
             <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
             <div style={{textAlign: 'center'}}>
@@ -150,10 +150,6 @@ export default function BattleMain(){
                     <UrgeWithPleasureComponent/>
                 </div>
             </div>
-            {/* <Box style={{textAlign: 'center', width: 200}}>
-                <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
-                <div style={{textAlign: 'center'}}><UrgeWithPleasureComponent /></div>
-            </Box> */}
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
                     <Grid item xs={4} md={4}></Grid>
@@ -163,7 +159,7 @@ export default function BattleMain(){
                     <Grid item xs={4} md={4}>1戦目</Grid>
                     <Grid item xs={4} md={4}>✖️</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
-                    
+
                     <Grid item xs={4} md={4}>2戦目</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
                     <Grid item xs={4} md={4}>✖️</Grid>
@@ -174,7 +170,7 @@ export default function BattleMain(){
 
                     <Grid item xs={4} md={4}>4戦目</Grid>
                     <Grid item xs={4} md={4}>✖️</Grid>
-                     <Grid item xs={4} md={4}>◯</Grid>
+                    <Grid item xs={4} md={4}>◯</Grid>
 
                     <Grid item xs={4} md={4}>5戦目</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
@@ -184,7 +180,7 @@ export default function BattleMain(){
         </Grid>
 
         {thisCharacter &&
-            <Fab variant="extended"　style={ style() } color="primary" aria-label="add">
+            <Fab variant="extended" style={ style() } color="primary" aria-label="add">
                 勝負するキャラクターを確定する
             </Fab>
         }

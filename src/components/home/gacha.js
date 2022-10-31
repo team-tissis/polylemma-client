@@ -22,6 +22,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { balanceOf, totalSupply } from '../../fetch_sol/utils.js'
 import { mint, gacha, getGachaFee } from '../../fetch_sol/gacha.js'
 import { charge, getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum } from '../../fetch_sol/subsc.js'
+import { useSnackbar } from 'notistack';
+import TextField from '@mui/material/TextField';
 
 const questionOption = {
     loop: true,
@@ -67,6 +69,9 @@ export default function GachaGacha(){
     const [subscFee, setSubscFee] = useState();
     const [subscBlock, setSubscBlock] = useState();
 
+    const [characterName, setCharacterName] = useState('');
+
+    const { enqueueSnackbar } = useSnackbar();
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
         setCurrentCoin(await balanceOf());
@@ -90,6 +95,11 @@ export default function GachaGacha(){
         // const { newCoin } = await mint();
         const { newCoin } = await charge();
         setCurrentCoin(newCoin);
+        const message = "100コインを獲得しました!"
+        enqueueSnackbar(message, {
+            autoHideDuration: 1500,
+            variant: 'success',
+        });
     };
 
     const handleClickSubscUpdate = async () => {
@@ -97,6 +107,11 @@ export default function GachaGacha(){
         setCurrentCoin(await balanceOf());
         setSubscExpired(await subscIsExpired());
         setSubscExpiredBlock(await getSubscExpiredBlock());
+        const message = "サブスクリプションを更新しました!"
+        enqueueSnackbar(message, {
+            autoHideDuration: 1500,
+            variant: 'success',
+        });
     };
 
     const handleClose = () => {
@@ -116,17 +131,12 @@ export default function GachaGacha(){
             ギフトボックスをクリックしてキャラクターを確認しよう
             </DialogTitle>
             <DialogContent>
-            {/* <p> の中に <div> を入れられないっていうエラーが出るから DialogContentText は消した (橋本) */}
-            {/* <DialogContentText id="alert-dialog-description"> */}
                 <div onClick={() => setIsOpened(true)} >
-                    <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} style={{backgroundColor: 'grey'}} />
+                    <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} />
                     {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
                         ここにキャラのカードを表示
                     </div> */}
                 </div>
-
-
-            {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
             <div>トークンID: {addedTokenId}</div>
@@ -147,7 +157,12 @@ export default function GachaGacha(){
                     <Chip label={gachaFee + " コイン/回"} style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
-                <Button variant="contained" onClick={handleClickGacha} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                <label>ガチャを引く前にキャラクターの名前を決めてください</label>
+                <TextField id="outlined-basic" label="キャラクターの名前を決めよう"
+                    variant="outlined" style={{margin: 10, width: 345}}
+                    value={ characterName }
+                    onChange={(e) => setCharacterName(e.target.value)}/>
+                <Button variant="contained" onClick={handleClickGacha} disabled={characterName === ''} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
@@ -166,10 +181,8 @@ export default function GachaGacha(){
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
-
             </Grid>
         </Grid>
     </Container>
-        {/* タップしてキャラクターを確認しよう！ */}
     </>)
 }

@@ -21,7 +21,7 @@ root.render(
   <Provider store={store}>
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center'}}>
       <Header />
-      <div style={{height: 70}}/>
+      {/* <div style={{height: 70}}/> */}
       <RouterConfig/>
       <Footer />
   </SnackbarProvider>

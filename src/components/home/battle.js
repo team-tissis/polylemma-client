@@ -19,6 +19,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
+import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
+import { useSelector, useDispatch } from 'react-redux';
+import { getOwnedCharacterWithIDList } from '../../fetch_sol/utils.js'
+import { useSnackbar } from 'notistack';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -32,7 +36,7 @@ function style() {
     return {
         position: 'fixed',
         bottom: 10,
-        right: '35%', 
+        right: '35%',
         width: '30%',
         fontSize: 20,
         fontWeight: 600
@@ -42,7 +46,7 @@ function styleA() {
     return {
         position: 'fixed',
         bottom: 10,
-        right: '55%', 
+        right: '55%',
         width: '20%',
         fontSize: 17,
         fontWeight: 600
@@ -52,7 +56,7 @@ function styleB() {
     return {
         position: 'fixed',
         bottom: 10,
-        left: '55%', 
+        left: '55%',
         width: '20%',
         fontSize: 17,
         fontWeight: 600
@@ -63,7 +67,7 @@ function editButtonstyle() {
     return {
         position: 'fixed',
         bottom: 50,
-        right: 30, 
+        right: 30,
         fontSize: 20,
         fontWeight: 600
     }
@@ -71,25 +75,32 @@ function editButtonstyle() {
 
 const selectedNum = 4;
 
-function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}){
+function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
+    const { enqueueSnackbar } = useSnackbar();
     var color = 'white'
-    if( isChanging && selectedData.includes(id)){
+    const result = charactersForBattle.filter(cha => cha.id === character.id);
+    const alreadySelected = (result.length > 0) ? true : false;
+    if( isChanging && alreadySelected){
         color = '#CCFFFF'
     }
 
     function handleChange(){
-        const _selecteddatas = selectedData;
-        if (selectedData.includes(id)){
-            const popedDatas = _selecteddatas.filter((data, index) => {
-                return data != id
+        const _selectedData = charactersForBattle;
+        if (alreadySelected){
+            const popThisData = _selectedData.filter((data, index) => {
+                return data.id !== character.id
             });
-            setSelectedData(popedDatas)
+            setCharactersForBattle(popThisData)
         }else{
-            if(_selecteddatas.length >= selectedNum){
-                console.log("メインキャラクターは4体までです")
+            if(_selectedData.length >= selectedNum){
+                const message = "対戦に選べるキャラクターは4体までです"
+                enqueueSnackbar(message, {
+                    autoHideDuration: 1500,
+                    variant: 'error',
+                });
             }else{
-                _selecteddatas.push(id)
-                setSelectedData(_selecteddatas)
+                _selectedData.push(character)
+                setCharactersForBattle(_selectedData)
             }
         }
         setStateChange((prev) => prev + 1)
@@ -101,11 +112,11 @@ function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}
             <CardMedia component="img" height="200"
                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
             <CardContent>
-            <Typography gutterBottom variant="h5" component="div">キャラ{id}</Typography>
-            <Typography variant="body1" color="text.primary">レア度: AA</Typography>
-            <Typography variant="body1" color="text.primary">属性: AA</Typography>
-            <Typography variant="body1" color="text.primary">レベル: AA</Typography>
-            <Typography variant="body1" color="text.primary">特性: AA</Typography>
+            <Typography gutterBottom variant="h5" component="div">キャラID: {character.id}</Typography>
+            <Typography variant="body1" color="text.primary">レア度: { character.rarity }</Typography>
+            <Typography variant="body1" color="text.primary">属性: { character.characterType }</Typography>
+            <Typography variant="body1" color="text.primary">レベル: { character.level }</Typography>
+            <Typography variant="body1" color="text.primary">特性: { character.abilityIds }</Typography>
             </CardContent>
         </CardActionArea>
     </Card>
@@ -114,52 +125,79 @@ function NFTCard({id, selectedData, setStateChange, setSelectedData, isChanging}
 
 
 export default function Battle() {
-    const initData = [0,1,2,3,4,5,6,7,8,9,10];
-    const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
-    const [selectedData, setSelectedData] = useState([0,1,2,3]);
+    const dispatch = useDispatch();
+    const [charactersForBattle, setCharactersForBattle] = useState([]);
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
     const [open, setOpen] = useState(0);
+    const [myCharacterList, setMyCharacterList] = useState([]);
     const [dialogOpen, setDialogOpen] = React.useState(false);
+    const { enqueueSnackbar } = useSnackbar();
     const handleClickOpen = () => {
         setDialogOpen(true);
     };
     const handleClose = () => {
         setDialogOpen(false);
     };
+    const myCharacters = useSelector(selectMyCharacter);
 
-    useEffect(() => {
-        /* 第1引数には実行させたい副作用関数を記述*/
-        console.log('')
-    },[stateChange])
+
+    useEffect(() => {(async function() {
+        setCharactersForBattle(myCharacters)
+    })();}, []);
+
+
+    useEffect(() => {(async function() {
+        const _myCharacterList = await getOwnedCharacterWithIDList()
+        setMyCharacterList(_myCharacterList)
+        if(_myCharacterList.length < selectedNum){
+            const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'info',
+            });
+        }
+
+    })();}, [stateChange]);
 
     function handleUpdate(){
-        setMainCharacters(selectedData)
+        dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
         setIsChanging(false)
         setStateChange((prev) => prev + 1)
+    }
+
+    function handleCharacterSelected(kind){
+        // 4体あるか確認する redux に保存する
+        dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
+        if(kind === "makeOwnRoom"){
+            setDialogOpen(true);
+        }else if(kind === "searchRooms"){
+            navigate('/match_make')
+        }
     }
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
-            {isChanging ? 
-                <>{initData.map((param, index) => (
+            {isChanging ?
+                <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard id={param} selectedData={selectedData} setStateChange={setStateChange}
-                            setSelectedData={setSelectedData} isChanging={isChanging}/>
+                        <NFTCard character={character} myCharacterList={myCharacterList}
+                            charactersForBattle={charactersForBattle} setStateChange={setStateChange}
+                            setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
                 :
-                <>{selectedData.map((param, index) => (
+                <>{charactersForBattle && charactersForBattle.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard id={param} selectedData={selectedData} setStateChange={setStateChange}
-                            setSelectedData={setSelectedData} isChanging={isChanging}/>
+                        <NFTCard character={character} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
+                            setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
             }
         </Grid>
-        {isChanging ? 
+        {isChanging ?
             <Button variant="contained" size="large" color="secondary" style={ editButtonstyle() } onClick={() => handleUpdate() }>
                 変更を保存する
             </Button>
@@ -203,13 +241,16 @@ export default function Battle() {
             <Button onClick={handleClose} autoFocus>戻る</Button>
             </DialogActions>
         </Dialog>
-
-        {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
-        <Button variant="contained" size="large" style={ styleA() } onClick={handleClickOpen} disabled={isChanging}>
-          対戦の部屋を作る
-        </Button>
-        <Button variant="contained" size="large" style={ styleB() } onClick={() => navigate('/match_make')} disabled={isChanging}>
-          対戦相手を探す
-        </Button>
+        { charactersForBattle && (charactersForBattle.length >= selectedNum) &&
+            <>
+                {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
+                <Button variant="contained" size="large" style={ styleA() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
+                対戦の部屋を作る
+                </Button>
+                <Button variant="contained" size="large" style={ styleB() } onClick={() => handleCharacterSelected('searchRooms')} disabled={isChanging}>
+                対戦相手を探す
+                </Button>
+            </>
+        }
     </>)
 }

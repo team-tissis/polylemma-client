@@ -28,8 +28,9 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { balanceOf, getAllTokenOwned, getNecessaryExp, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo } from '../../fetch_sol/utils.js'
+import { balanceOf, getAllTokenOwned, getNecessaryExp, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo, getOwnedCharacterWithIDList } from '../../fetch_sol/utils.js'
 import { handleLevelUp } from '../../fetch_sol/training.js';
+import { useSnackbar } from 'notistack';
 
 function bottomBoxstyle() {
     return {
@@ -50,49 +51,52 @@ function bottomBoxstyle() {
 }
 
 export default function ModelTraining(){
-    const initData = [1,2,3,4,5,6,7,8,9,10];
+    const [isLoading, setIsLoading] = useState(0);
     const [selectedTokenId, setSelectedTokenId] = useState();
     const [isOpened, setIsOpened] = useState(false);
     const [coinToBuy, setCoinToBuy] = useState(0);
-
     const [levelBefore, setLevelBefore] = useState();
     const [necessaryExp, setNecessaryExp] = useState();
     const [currentCoin, setCurrentCoin] = useState();
+    const [myCharacterList, setMyCharacterList] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {(async function() {
-        setNecessaryExp(await getNecessaryExp());
+        setMyCharacterList(await getOwnedCharacterWithIDList())
         setCurrentCoin(await balanceOf());
-    })();}, []);
+    })();}, [isLoading]);
 
     const handleClickCharacter = async (id) => {
         setNecessaryExp(await getNecessaryExp(id));
         setSelectedTokenId(id);
         const characterBefore = await getCurrentCharacterInfo(id);
-        console.log(characterBefore);
         setLevelBefore(characterBefore.level);
     }
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
+        // トークンが足りなかった場合snackbarを表示
+        console.log({currentCoin: currentCoin, necessaryExp: necessaryExp})
+        if(Number(currentCoin) < Number(necessaryExp)){
+            const message = "コインが足りないです、チャージしてください。";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'error',
+            });
+        }
         await handleLevelUp(selectedTokenId);
         setNecessaryExp(await getNecessaryExp(selectedTokenId));
+        // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
+        const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
+        setLevelBefore(characterBefore.level);
 
         // for debug
         await getAllTokenOwned();
         await firstCharacterInfo();
         await getAllCharacterInfo();
-    }
 
-    const items = [
-        {id: 1, title: "タイトル1", subtitle: "サブタイトル1"},
-        {id: 2, title: "タイトル2", subtitle: "サブタイトル2"},
-        {id: 3, title: "タイトル3", subtitle: "サブタイトル3"},
-        {id: 4, title: "タイトル4", subtitle: "サブタイトル4"},
-        {id: 5, title: "タイトル5", subtitle: "サブタイトル5"},
-        {id: 6, title: "タイトル6", subtitle: "サブタイトル6"},
-        {id: 7, title: "タイトル7", subtitle: "サブタイトル7"},
-        {id: 8, title: "タイトル8", subtitle: "サブタイトル8"}
-    ]
+        setIsLoading((prev) => prev + 1)
+    }
     const [state, setState] = useState({
         top: false,
         left: false,
@@ -112,18 +116,18 @@ export default function ModelTraining(){
         <h1>キャラ一覧</h1>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
-            {initData.map((id, index) => (
+            {myCharacterList.map((character, index) => (
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <Card style={{backgroundColor: (id===selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => handleClickCharacter(id) }>
+                    <Card style={{backgroundColor: (character.id===selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => handleClickCharacter(character.id) }>
                         <CardActionArea>
                             <CardMedia component="img" height="200"
                                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
                             <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">キャラ{id}</Typography>
-                            <Typography variant="body1" color="text.primary">レア度: AA</Typography>
-                            <Typography variant="body1" color="text.primary">属性: AA</Typography>
-                            <Typography variant="body1" color="text.primary">レベル: AA</Typography>
-                            <Typography variant="body1" color="text.primary">特性: AA</Typography>
+                            <Typography gutterBottom variant="h5" component="div">キャラID {character.id}</Typography>
+                            <Typography variant="body1" color="text.primary">レア度: { character.rarity }</Typography>
+                            <Typography variant="body1" color="text.primary">属性: { character.characterType }</Typography>
+                            <Typography variant="body1" color="text.primary">レベル: { character.level }</Typography>
+                            <Typography variant="body1" color="text.primary">特性: { character.abilityIds }</Typography>
                             </CardContent>
                         </CardActionArea>
                     </Card>
@@ -175,11 +179,11 @@ export default function ModelTraining(){
             <Box style={ bottomBoxstyle() }>
                 <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
                     <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={11} sm={2} md={2}>キャラ{selectedTokenId}</Grid>
+                    <Grid item xs={11} sm={2} md={2}>キャラID {selectedTokenId}</Grid>
                     <Grid item xs={1} sm={6} md={6}/>
 
                     <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={4} sm={2} md={2}>レベル</Grid>
+                    <Grid item xs={4} sm={3} md={3}>レベル</Grid>
                     <Grid item xs={1} sm={1} md={1}>{levelBefore}</Grid>
                     <Grid item xs={2} sm={1} md={1}><>→</></Grid>
                     <Grid item xs={1} sm={1} md={1}>{levelBefore+1}</Grid>
@@ -191,7 +195,7 @@ export default function ModelTraining(){
                     <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
                     <Grid item xs={1} sm={1} md={1}>{necessaryExp}</Grid>
                     <Grid item xs={4} sm={1} md={1}>コイン</Grid>
-                    <Grid item xs={1} sm={4} md={4}/>
+                    <Grid item xs={1} sm={2} md={2}/>
                 </Grid>
 
                 <Grid container style={{fontSize: 24, marginTop: 5}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
