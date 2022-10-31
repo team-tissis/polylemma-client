@@ -28,7 +28,7 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { getBalance, getAllTokenOwned, getCoinForLevelUp, getCharacterInfo, firstCharacterInfo, allCharacterInfo } from '../../fetch_sol/utils.js'
+import { balanceOf, getAllTokenOwned, getNecessaryExp, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo } from '../../fetch_sol/utils.js'
 import { handleLevelUp } from '../../fetch_sol/training.js';
 
 function bottomBoxstyle() {
@@ -56,18 +56,18 @@ export default function ModelTraining(){
     const [coinToBuy, setCoinToBuy] = useState(0);
 
     const [levelBefore, setLevelBefore] = useState();
-    const [coinForLevelUp, setCoinForLevelUp] = useState();
+    const [necessaryExp, setNecessaryExp] = useState();
     const [currentCoin, setCurrentCoin] = useState();
 
     useEffect(() => {(async function() {
-        setCoinForLevelUp(await getCoinForLevelUp());
-        setCurrentCoin(await getBalance());
+        setNecessaryExp(await getNecessaryExp());
+        setCurrentCoin(await balanceOf());
     })();}, []);
 
     const handleClickCharacter = async (id) => {
-        setCoinForLevelUp(await getCoinForLevelUp(id));
+        setNecessaryExp(await getNecessaryExp(id));
         setSelectedTokenId(id);
-        const characterBefore = await getCharacterInfo(id);
+        const characterBefore = await getCurrentCharacterInfo(id);
         console.log(characterBefore);
         setLevelBefore(characterBefore.level);
     }
@@ -75,12 +75,12 @@ export default function ModelTraining(){
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
         await handleLevelUp(selectedTokenId);
-        setCoinForLevelUp(await getCoinForLevelUp(selectedTokenId));
+        setNecessaryExp(await getNecessaryExp(selectedTokenId));
 
         // for debug
         await getAllTokenOwned();
         await firstCharacterInfo();
-        await allCharacterInfo();
+        await getAllCharacterInfo();
     }
 
     const items = [
@@ -114,7 +114,7 @@ export default function ModelTraining(){
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {initData.map((id, index) => (
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <Card style={{backgroundColor: (id==selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => handleClickCharacter(id) }>
+                    <Card style={{backgroundColor: (id===selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => handleClickCharacter(id) }>
                         <CardActionArea>
                             <CardMedia component="img" height="200"
                                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
@@ -189,7 +189,7 @@ export default function ModelTraining(){
                 <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }}>
                     <Grid item xs={1} sm={3} md={3}/>
                     <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
-                    <Grid item xs={1} sm={1} md={1}>{coinForLevelUp}</Grid>
+                    <Grid item xs={1} sm={1} md={1}>{necessaryExp}</Grid>
                     <Grid item xs={4} sm={1} md={1}>コイン</Grid>
                     <Grid item xs={1} sm={4} md={4}/>
                 </Grid>

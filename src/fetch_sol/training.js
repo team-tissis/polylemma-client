@@ -1,9 +1,9 @@
-import { getContract, handleApprove, getCoinForLevelUp } from "./utils.js";
+import { getContract, approve, getNecessaryExp } from "./utils.js";
 
 async function handleLevelUp (tokenId) {
     const { contractAddress, signer, contract } = getContract("PLMToken");
-    const coinForLevelUp = getCoinForLevelUp(tokenId);
-    await handleApprove(contractAddress, coinForLevelUp);
+    const coinForLevelUp = getNecessaryExp(tokenId);
+    await approve(contractAddress, coinForLevelUp);
     const message = await contract.updateLevel(tokenId);
     console.log({ updateLevel: message });
 

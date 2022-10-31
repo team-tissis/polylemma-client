@@ -1,9 +1,8 @@
 import { ethers } from "ethers";
 import contractFunctions from "../broadcast/PLMGachaScript.s.sol/31337/run-latest.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
+import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
-import gachaArtifact from "../abi/PLMGacha.sol/PLMGacha.json";
-import exchangeArtifact from "../abi/PLMExchange.sol/PLMExchange.json";
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
@@ -13,9 +12,8 @@ function getContractAddress (contractName) {
 
 function getAbi (contractName) {
     if (contractName === "PLMCoin") return coinArtifact.abi;
+    else if (contractName === "PLMDealer") return dealerArtifact.abi;
     else if (contractName === "PLMToken") return tokenArtifact.abi;
-    else if (contractName === "PLMGacha") return gachaArtifact.abi;
-    else if (contractName === "PLMExchange") return exchangeArtifact.abi;
 }
 
 function getSigner () {
@@ -37,13 +35,13 @@ function getContract (contractName) {
     return { contractAddress, signer, contract };
 }
 
-async function handleApprove (contractAddress, approvedCoin) {
+async function approve (contractAddress, approvedCoin) {
     const { contract } = getContract("PLMCoin");
     const message = await contract.approve(contractAddress, approvedCoin);
     console.log({ approve: message });
 }
 
-async function getBalance () {
+async function balanceOf () {
     const { signer, contract } = getContract("PLMCoin");
     const myAddress = await signer.getAddress();
     const message = await contract.balanceOf(myAddress);
@@ -51,21 +49,14 @@ async function getBalance () {
     return message.toString();
 }
 
-async function getCoinForGacha () {
-    const { contract } = getContract("PLMGacha");
-    const message = await contract.getGachaPayment();
-    console.log({ getCoinForGacha: message });
-    return message.toString();
-}
-
-async function getCoinForLevelUp (tokenId) {
+async function getNecessaryExp (tokenId) {
     const { contract } = getContract("PLMToken");
     const message = await contract.getNecessaryExp(tokenId);
-    console.log({ getCoinForLevelUp: message });
+    console.log({ getNecessaryExp: message });
     return message.toString();
 }
 
-async function getTotalSupply () {
+async function totalSupply () {
     const { contract } = getContract("PLMToken");
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
@@ -80,10 +71,10 @@ async function getAllTokenOwned () {
     return message.toString();
 }
 
-async function getCharacterInfo (tokenId) {
+async function getCurrentCharacterInfo (tokenId) {
     const { contract } = getContract("PLMToken");
-    const message = await contract.getCharacterInfo(tokenId);
-    console.log({ getCharacterInfo: message });
+    const message = await contract.getCurrentCharacterInfo(tokenId);
+    console.log({ getCurrentCharacterInfo: message });
     return message;
 }
 
@@ -95,11 +86,11 @@ async function firstCharacterInfo () {
     return message.toString();
 }
 
-async function allCharacterInfo () {
+async function getAllCharacterInfo () {
     const { contract } = getContract("PLMToken");
     const message = await contract.getAllCharacterInfo();
     console.log({ getAllCharacterInfo: message });
     return message;
 }
 
-export { getContract, handleApprove, getBalance, getTotalSupply, getCoinForGacha, getCoinForLevelUp, getAllTokenOwned, getCharacterInfo, firstCharacterInfo, allCharacterInfo };
+export { getContract, approve, balanceOf, totalSupply, getNecessaryExp, getAllTokenOwned, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo };
