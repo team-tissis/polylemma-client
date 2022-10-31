@@ -288,10 +288,10 @@ export default function Header() {
                             <FavoriteIcon style={{fontSize: 30}}/>
                             <FavoriteIcon style={{fontSize: 30}}/>
                             <FavoriteIcon style={{fontSize: 30}}/>
-                        <Button variant="contained" disabled
-                            onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
-                            コインを消費してスタミナを回復する
-                        </Button>
+                            <Button variant="contained" disabled
+                                onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
+                                コインを消費してスタミナを回復する
+                            </Button>
                         </div>
                         <hr/>
                         </Typography>
@@ -339,8 +339,9 @@ export default function Header() {
                             <div>コイン: {currentCoin}</div>
                             <div>トークン: {currentToken}体</div>
                         </div>
-                        <Button variant="contained" onClick={handleClickCharge}
-                            style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
+                        <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>
+                            100 MATIC を 95 PLM に交換する
+                        </Button>
                         <hr/>
                         </Typography>
                         </React.Fragment>
