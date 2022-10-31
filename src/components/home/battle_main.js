@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
 import Icon from '../../icons/avatar_1.png'
 import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
@@ -11,9 +10,6 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import { selectMyCharacter } from '../../slices/myCharacter.ts'
 import { useSelector, useDispatch } from 'react-redux';
 
