@@ -69,32 +69,34 @@ export default function GachaGacha(){
 
     const [characterName, setCharacterName] = useState('');
 
-    const [addedCoin, setAddedCoin] = useState(-1);
-    const [charging, setCharging] = useState(false);
+    // const [addedCoin, setAddedCoin] = useState(-1);
+    // const [charging, setCharging] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
-        setSubscExpired(await subscIsExpired());
+
         setSubscExpiredBlock(await getSubscExpiredBlock());
+        setSubscExpired(await subscIsExpired());
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
-        accountCharged(setAddedCoin);
+
+        // accountCharged(setAddedCoin);
     })();}, []);
 
-    useEffect(() => {
-        if (charging && addedCoin > 0) {
-            const message = addedCoin + " コインを獲得しました!";
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'success',
-            });
-        }
-        setAddedCoin(-1);
-        setCharging(false);
-    }, [addedCoin]);
+    // useEffect(() => {
+    //     if (charging && addedCoin > 0) {
+    //         const message = addedCoin + " コインを獲得しました!";
+    //         enqueueSnackbar(message, {
+    //             autoHideDuration: 1500,
+    //             variant: 'success',
+    //         });
+    //     }
+    //     setAddedCoin(-1);
+    //     setCharging(false);
+    // }, [addedCoin]);
 
     const handleClickGacha = async () => {
         setOpen(true);
@@ -104,23 +106,23 @@ export default function GachaGacha(){
         setAddedTokenId(newTokenId);
     };
 
-    const handleClickCharge = async () => {
-        await charge();
-        setCurrentCoin(await balanceOf());
-        setCharging(true);
-    };
+    // const handleClickCharge = async () => {
+    //     await charge();
+    //     setCurrentCoin(await balanceOf());
+    //     setCharging(true);
+    // };
 
-    const handleClickSubscUpdate = async () => {
-        await extendSubscPeriod();
-        setCurrentCoin(await balanceOf());
-        setSubscExpired(await subscIsExpired());
-        setSubscExpiredBlock(await getSubscExpiredBlock());
-        const message = "サブスクリプションを更新しました!"
-        enqueueSnackbar(message, {
-            autoHideDuration: 1500,
-            variant: 'success',
-        });
-    };
+    // const handleClickExtendSubscPeriod = async () => {
+    //     await extendSubscPeriod();
+    //     setCurrentCoin(await balanceOf());
+    //     setSubscExpired(await subscIsExpired());
+    //     setSubscExpiredBlock(await getSubscExpiredBlock());
+    //     const message = "サブスクリプションを更新しました!"
+    //     enqueueSnackbar(message, {
+    //         autoHideDuration: 1500,
+    //         variant: 'success',
+    //     });
+    // };
 
     const handleClose = () => {
         setOpen(false);
@@ -173,14 +175,14 @@ export default function GachaGacha(){
                 <Button variant="contained" onClick={handleClickGacha} disabled={characterName === ''} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
-                <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
+                {/* <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
                 <div>コイン: {currentCoin}</div>
                 <div>トークン: {currentToken}</div>
-                <Button variant="contained" onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>サブスク期間をアップデートする</Button>
+                <Button variant="contained" onClick={handleClickExtendSubscPeriod} style={{margin: 10, width: 345}}>サブスク期間をアップデートする</Button>
                 <div>サブスクが終了しているか: {subscExpired}</div>
                 <div>サブスクが終了するブロック: {subscExpiredBlock}</div>
                 <div>サブスク料金: {subscFee}</div>
-                <div>サブスクで更新されるブロック数: {subscBlock}</div>
+                <div>サブスクで更新されるブロック数: {subscBlock}</div> */}
                 <h2>ここに説明文</h2><hr/>
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
