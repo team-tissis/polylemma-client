@@ -5,7 +5,7 @@ async function mintPLMByUser () {
     const sendTokenAmount = "100";
     const message = await contract.mintPLMByUser({ value: sendTokenAmount });
     console.log({ mintPLMByUser: message });
-
+    
     return { newCoin: await getBalance() };
 }
 

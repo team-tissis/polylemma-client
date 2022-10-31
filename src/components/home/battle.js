@@ -19,6 +19,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
+import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
+import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/utils.js'
 import { useSnackbar } from 'notistack';
 
@@ -73,31 +75,32 @@ function editButtonstyle() {
 
 const selectedNum = 4;
 
-function NFTCard({character, selectedData, setStateChange, setSelectedData, isChanging}){
+function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
     var color = 'white'
-    if( isChanging && selectedData.includes(character)){
+    const result = charactersForBattle.filter(cha => cha.id == character.id);
+    const alreadySelected = (result.length > 0) ? true : false;
+    if( isChanging && alreadySelected){
         color = '#CCFFFF'
     }
 
     function handleChange(){
-        const _selecteddatas = selectedData;
-        if (selectedData.includes(character)){
-            const popedDatas = _selecteddatas.filter((data, index) => {
-                return data != character
+        const _selectedData = charactersForBattle;
+        if (alreadySelected){
+            const popThisData = _selectedData.filter((data, index) => {
+                return data.id != character.id
             });
-            setSelectedData(popedDatas)
+            setCharactersForBattle(popThisData)
         }else{
-            if(_selecteddatas.length >= selectedNum){
-                console.log("メインキャラクターは4体までです")
+            if(_selectedData.length >= selectedNum){
                 const message = "対戦に選べるキャラクターは4体までです"
                 enqueueSnackbar(message, { 
                     autoHideDuration: 1500,
                     variant: 'error',
                 });
             }else{
-                _selecteddatas.push(character)
-                setSelectedData(_selecteddatas)
+                _selectedData.push(character)
+                setCharactersForBattle(_selectedData)
             }
         }
         setStateChange((prev) => prev + 1)
@@ -122,9 +125,8 @@ function NFTCard({character, selectedData, setStateChange, setSelectedData, isCh
 
 
 export default function Battle() {
-    const initData = [0,1,2,3,4,5,6,7,8,9,10];
-    const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
-    const [selectedData, setSelectedData] = useState([0,1,2,3]);
+    const dispatch = useDispatch();
+    const [charactersForBattle, setCharactersForBattle] = useState([]);
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
@@ -138,6 +140,13 @@ export default function Battle() {
     const handleClose = () => {
         setDialogOpen(false);
     };
+    const myCharacters = useSelector(selectMyCharacter);
+    
+
+    useEffect(() => {(async function() {
+        setCharactersForBattle(myCharacters)
+    })();}, []);
+
 
     useEffect(() => {(async function() {
         const _myCharacterList = await getOwnedCharacterWithIDList()
@@ -153,9 +162,19 @@ export default function Battle() {
     })();}, [stateChange]);
 
     function handleUpdate(){
-        setMainCharacters(selectedData)
+        dispatch(setCurrentMyCharacter(charactersForBattle));　//更新
         setIsChanging(false)
         setStateChange((prev) => prev + 1)
+    }
+
+    function handleCharacterSelected(kind){
+        // 4体あるか確認する　reduxに保存する
+        dispatch(setCurrentMyCharacter(charactersForBattle));　//更新
+        if(kind == "makeOwnRoom"){
+            setDialogOpen(true);
+        }else if(kind == "searchRooms"){
+            navigate('/match_make')
+        }
     }
 
     return(<>
@@ -164,15 +183,16 @@ export default function Battle() {
             {isChanging ? 
                 <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} selectedData={selectedData} setStateChange={setStateChange}
-                            setSelectedData={setSelectedData} isChanging={isChanging}/>
+                        <NFTCard character={character} myCharacterList={myCharacterList} 
+                            charactersForBattle={charactersForBattle} setStateChange={setStateChange}
+                            setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
                 :
-                <>{myCharacterList.map((character, index) => (
+                <>{charactersForBattle.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} selectedData={selectedData} setStateChange={setStateChange}
-                            setSelectedData={setSelectedData} isChanging={isChanging}/>
+                        <NFTCard character={character} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
+                            setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
             }
@@ -221,13 +241,13 @@ export default function Battle() {
             <Button onClick={handleClose} autoFocus>戻る</Button>
             </DialogActions>
         </Dialog>
-        { (myCharacterList.length < selectedNum) & 
+        { (charactersForBattle.length >= selectedNum) && 
             <>
                 {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
-                <Button variant="contained" size="large" style={ styleA() } onClick={handleClickOpen} disabled={isChanging}>
+                <Button variant="contained" size="large" style={ styleA() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
                 対戦の部屋を作る
                 </Button>
-                <Button variant="contained" size="large" style={ styleB() } onClick={() => navigate('/match_make')} disabled={isChanging}>
+                <Button variant="contained" size="large" style={ styleB() } onClick={() => handleCharacterSelected('searchRooms')} disabled={isChanging}>
                 対戦相手を探す
                 </Button>
             </>

@@ -23,6 +23,7 @@ import { getBalance, getCoinForGacha, getTotalSupply } from '../../fetch_sol/uti
 import { playGacha, mintCoin } from '../../fetch_sol/gacha.js'
 import { mintPLMByUser, getSubscExpiredPoint, subscIsExpired, getSubscFee, updateSubsc, getSubscDuration } from '../../fetch_sol/subsc.js'
 import { useSnackbar } from 'notistack';
+import TextField from '@mui/material/TextField';
 
 const questionOption = {
     loop: true,
@@ -67,6 +68,8 @@ export default function GachaGacha(){
     const [subscExpiredPoint, setSubscExpiredPoint] = useState();
     const [subscFee, setSubscFee] = useState();
     const [subscDuration, setSubscDuration] = useState();
+
+    const [characterName, setCharacterName] = useState('');
 
     const { enqueueSnackbar } = useSnackbar();
     useEffect(() => {(async function() {
@@ -126,15 +129,12 @@ export default function GachaGacha(){
             ギフトボックスをクリックしてキャラクターを確認しよう
             </DialogTitle>
             <DialogContent>
-            {/* <p> の中に <div> を入れられないっていうエラーが出るから DialogContentText は消した (橋本) */}
-            {/* <DialogContentText id="alert-dialog-description"> */}
                 <div onClick={() => setIsOpened(true)} >
                     <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} />
                     {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
                         ここにキャラのカードを表示
                     </div> */}
                 </div>
-            {/* </DialogContentText> */}
             </DialogContent>
             <DialogActions>
             <div>トークンID: {addedTokenId}</div>
@@ -155,7 +155,12 @@ export default function GachaGacha(){
                     <Chip label={coinForGacha + " コイン/回"} style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
-                <Button variant="contained" onClick={handleClickOpen} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                <label>ガチャを引く前にキャラクターの名前を決めてください</label>
+                <TextField id="outlined-basic" label="キャラクターの名前を決めよう" 
+                    variant="outlined" style={{margin: 10, width: 345}}
+                    value={ characterName }
+                    onChange={(e) => setCharacterName(e.target.value)}/>
+                <Button variant="contained" onClick={handleClickOpen} disabled={characterName == ''} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 <Button variant="contained" onClick={handleClickExchange} style={{margin: 10, width: 345}}>100 MATIC を PLM に交換する</Button>
@@ -177,6 +182,5 @@ export default function GachaGacha(){
             </Grid>
         </Grid>
     </Container>
-        {/* タップしてキャラクターを確認しよう！ */}
     </>)
 }
