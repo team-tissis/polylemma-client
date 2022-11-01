@@ -1,12 +1,15 @@
 import { getContract } from "./utils.js";
 
 
-async function proposeBattle () {
+const CAHARCTER_MIN_LV = 1
+const CAHARCTER_MAX_LV = 255
+const CAHARCTER_NUM = 4
+async function proposeBattle (fixedSlotsOfProposer) {
     const { signer, contract } = getContract("PLMMatchOrganizer");
     const message = await contract.proposeBattle(
-        // uint16 lowerBound,
-        // uint16 upperBound,
-        // uint256[4] calldata partyProposed
+        CAHARCTER_MIN_LV*CAHARCTER_NUM,
+        CAHARCTER_MAX_LV*CAHARCTER_NUM,
+        fixedSlotsOfProposer
     );
     console.log({ proposeBattle: message });
     return message.toString();
@@ -32,7 +35,7 @@ async function isInProposal () {
     const myAddress = await signer.getAddress();
     const message = await contract.isInProposal(myAddress);
     console.log({ isInProposal: message });
-    return message.toString();
+    return message;
 }
 
 async function isInBattle () {
@@ -51,12 +54,10 @@ async function isNonProposal () {
     return message.toString();
 }
 
-async function requestChallenge () {
+async function requestChallenge (fixedSlotsOfChallenger) {
     const { signer, contract } = getContract("PLMMatchOrganizer");
-    const message = await contract.requestChallenge(
-        // address proposer,
-        // uint256[4] calldata partyChallenger
-    );
+    const myAddress = await signer.getAddress();
+    const message = await contract.requestChallenge(myAddress,fixedSlotsOfChallenger);
     console.log({ requestChallenge: message });
     return message.toString();
 }
@@ -68,4 +69,35 @@ async function settleBattle () {
     return message.toString();
 }
 
-export { getProposalList };
+async function cancelProposal () {
+    const { signer, contract } = getContract("PLMMatchOrganizer");
+    const message = await contract.cancelProposal();
+    console.log({ cancelProposal: message });
+    return message.toString();
+}
+
+
+// 後で消す: 開発用1
+// 3名のユーザーを対戦可能にする
+async function devProposeBattle (fixedSlotsOfProposer) {
+    const { signer, contract } = getContract("PLMMatchOrganizer", 2);
+    const message = await contract.proposeBattle(
+        CAHARCTER_MIN_LV*CAHARCTER_NUM,
+        CAHARCTER_MAX_LV*CAHARCTER_NUM,
+        fixedSlotsOfProposer
+    );
+    console.log({ proposeBattle: message });
+    return message.toString();
+}
+// 後で消す: 開発用2
+// 3名のユーザーを対戦可能状態を取り下げる
+async function devCancelPropose () {
+    const { signer, contract } = getContract("PLMMatchOrganizer");
+    const message = await contract.cancelProposal();
+    console.log({ cancelProposal: message });
+    return message.toString();
+}
+
+export { proposeBattle, getProposalList, getMatchState, 
+        isInProposal, isInBattle, isNonProposal, requestChallenge, 
+        settleBattle, cancelProposal };

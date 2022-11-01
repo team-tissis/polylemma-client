@@ -119,7 +119,9 @@ export default function GachaGacha(){
                     variant="outlined" style={{margin: 10, width: 345}}
                     value={ characterName }
                     onChange={(e) => setCharacterName(e.target.value)}/>
-                <Button variant="contained" onClick={handleClickGacha} disabled={characterName === ''} style={{margin: 10, width: 345}}>ガチャを1回引く</Button>
+                <Button variant="contained" onClick={handleClickGacha} disabled={characterName === ''} style={{margin: 10, width: 345}}>
+                    ガチャを1回引く
+                </Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
                 {/* <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>100 MATIC を 95 PLM に交換する</Button> */}

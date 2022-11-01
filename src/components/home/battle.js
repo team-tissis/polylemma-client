@@ -21,6 +21,8 @@ import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../
 import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
+import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { testProposal } from '../../fetch_sol/test/match_organizer_test';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -130,6 +132,8 @@ export default function Battle() {
     }, []);
 
     useEffect(() => {(async function() {
+        // 現在対戦申し込み中の場合は、ダイアログを表示
+        setDialogOpen(await isInProposal());
         const _myCharacterList = await getOwnedCharacterWithIDList()
         setMyCharacterList(_myCharacterList)
         if(_myCharacterList.length < selectedNum){
@@ -147,14 +151,31 @@ export default function Battle() {
         setStateChange((prev) => prev + 1)
     }
 
-    function handleCharacterSelected(kind){
+    async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
         dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
         if(kind === "makeOwnRoom"){
+            const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
+            // proposeBattleで自分が対戦要求ステータスに変更される
+            console.log({fixedSlotsOfChallenger})
+            await proposeBattle(fixedSlotsOfChallenger)
+            // requestChallenge(fixedSlotsOfChallenger)
             setDialogOpen(true);
         }else if(kind === "searchRooms"){
             navigate('/match_make')
         }
+    }
+
+    async function declineProposal(){
+        setDialogOpen(false);
+        await cancelProposal();
+    }
+
+    // 開発用・後で消す
+    async function devHanldeProposal(){
+        await testProposal()
+        // setDialogOpen(false);
+        // await cancelProposal();
     }
 
     return(<>
@@ -191,7 +212,7 @@ export default function Battle() {
 
         <Dialog
             open={dialogOpen}
-            onClose={() => setDialogOpen(false)}
+            // onClose={() => setDialogOpen(false)}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
@@ -218,17 +239,26 @@ export default function Battle() {
             </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button onClick={() => setDialogOpen(false)} autoFocus>戻る</Button>
+            <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
+                対戦申告を取り下げる
+            </Button>
             </DialogActions>
         </Dialog>
+
+        <Button variant="contained" size="large"
+            onClick={() => devHanldeProposal()} disabled={isChanging}>
+            [開発用] ユーザー2~4の3名を対戦可能状態にする
+        </Button>
+
         { (charactersForBattle.length >= selectedNum) &&
             <>
                 {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
-                <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
-                対戦の部屋を作る
+                <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() } 
+                    onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
+                    対戦の部屋を作る
                 </Button>
                 <Button variant="contained" size="large" style={ handleSearchRoomButtonStyle() } onClick={() => handleCharacterSelected('searchRooms')} disabled={isChanging}>
-                対戦相手を探す
+                    対戦相手を探す
                 </Button>
             </>
         }

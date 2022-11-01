@@ -16,6 +16,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
+import { getProposalList } from '../../fetch_sol/match_organizer.js';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -102,6 +103,9 @@ export default function MatchMake() {
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
     
+    useEffect(() => {(async function() {
+        await getProposalList();
+    })();}, [stateChange]);
     
     useEffect(() => {
         /* 第1引数には実行させたい副作用関数を記述*/
