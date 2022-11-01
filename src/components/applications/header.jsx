@@ -9,49 +9,19 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Chip from '@mui/material/Chip';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import Paper from '@mui/material/Paper';
 import { styled, useTheme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
-import CssBaseline from '@mui/material/CssBaseline';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import { balanceOf, totalSupply } from '../../fetch_sol/utils.js'
 import { charge, getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum } from '../../fetch_sol/subsc.js'
-
-function headerStyle() {
-  return {
-      position: 'fixed',
-      top: 0,
-      width: '100%',
-      height: 10,
-      zIndex: 0
-  }
-}
-
-function staminaStyle() {
-  return {
-    position: 'fixed',
-    top: 100,
-    right: 20,
-  }
-}
+import { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina  } from '../../fetch_sol/stamina.js'
 
 export default function Header() {
     const [currentCoin, setCurrentCoin] = useState();
@@ -60,7 +30,22 @@ export default function Header() {
     const [subscExpiredPoint, setSubscExpiredPoint] = useState();
     const [subscFee, setSubscFee] = useState();
     const [subscDuration, setSubscDuration] = useState();
+    const [staminaDetail, setstaminaDetail] = useState({
+      currentStamina: 0, maxStamina: 0, 
+      staminaPerBattle: 0, restoreStaminaFee: 0
+    });
+
     useEffect(() => {(async function() {
+      setstaminaDetail({
+        currentStamina: await getCurrentStamina(),
+        maxStamina: await getStaminaMax(), 
+        staminaPerBattle: await getStaminaPerBattle(),
+        restoreStaminaFee: await getRestoreStaminaFee()
+      })
+    })()},[]);
+
+    useEffect(() => {(async function() {
+        console.log({staminaDetail})
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
         setSubscExpired(await subscIsExpired());
@@ -82,40 +67,28 @@ export default function Header() {
 
   const dispatch = useDispatch();
   const walletAddress = useSelector(selectCurrentWalletAddress);
-  const [account,setAccount] = useState(null);
 	const [errorMessage, setErrorMessage] = useState(null);
-  const [auth, setAuth] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const handleChange = (event) => {
-    setAuth(event.target.checked);
-  };
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
-const drawerWidth = 380;
+  const drawerWidth = 380;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginRight: -drawerWidth,
-    ...(open && {
+  const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+    ({ theme, open }) => ({
+      flexGrow: 1,
+      padding: theme.spacing(3),
       transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
       }),
-      marginRight: 0,
+      marginRight: -drawerWidth,
+      ...(open && {
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginRight: 0,
+      }),
     }),
-  }),
-);
+  );
 
   const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
