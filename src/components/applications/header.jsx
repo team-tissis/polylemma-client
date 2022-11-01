@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import Chip from '@mui/material/Chip';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
 import { styled, useTheme } from '@mui/material/styles';
@@ -57,7 +56,6 @@ export default function Header() {
     })()},[]);
 
     useEffect(() => {(async function() {
-        console.log("UseEffect")
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
 
