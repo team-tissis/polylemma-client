@@ -33,12 +33,12 @@ function RadialSeparators(props) {
 
 const percentage = 66;
 
-export default function ProgressBar({percentage}) {
+export default function ProgressBar({stamina}) {
     return <>
     <Example>
         <CircularProgressbarWithChildren
-            value={percentage}
-            text={`${percentage}%`}
+            value={stamina.currentStaminapercentage}
+            text={`${stamina.currentStaminapercentage}%`}
             strokeWidth={10}
             styles={buildStyles({
                 strokeLinecap: "butt"
@@ -60,14 +60,10 @@ export default function ProgressBar({percentage}) {
 
 function Example(props) {
     return (
-      <div style={{ marginBottom: 80 }}>
+      <div style={{ marginBottom: 10 }}>
         <hr style={{ border: "2px solid #ddd" }} />
         <div style={{ marginTop: 30, display: "flex" }}>
-          <div style={{ width: "50%", paddingRight: 30 }}>{props.children}</div>
-          <div style={{ width: "50%" }}>
-            {/* <h3 className="h5">{props.label}</h3>
-            <p>{props.description}</p> */}
-          </div>
+            <div style={{width: "50%", margin: '0 auto' }}>{props.children}</div>
         </div>
       </div>
     );

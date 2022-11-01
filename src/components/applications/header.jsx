@@ -9,8 +9,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Chip from '@mui/material/Chip';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { styled, useTheme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -100,19 +98,6 @@ export default function Header() {
 
     const dispatch = useDispatch();
     const walletAddress = useSelector(selectCurrentWalletAddress);
-    const [account,setAccount] = useState(null);
-    const [errorMessage, setErrorMessage] = useState(null);
-    const [auth, setAuth] = useState(true);
-    const [anchorEl, setAnchorEl] = useState(null);
-    const handleChange = (event) => {
-        setAuth(event.target.checked);
-    };
-    const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const drawerWidth = 380;
 
@@ -186,7 +171,6 @@ export default function Header() {
                 });
             })
             .catch((error) => {
-                setErrorMessage(error.message);
                 console.log({error})
             });
         }
@@ -269,7 +253,7 @@ export default function Header() {
             <List style={{margin: 8}}>
 
                 <ListItemText
-                    primary="現在のスタミナ状況"
+                    primary={`現在のスタミナ状況 ${ staminaDetail.currentStamina }/${ staminaDetail.maxStamina }`}
                     secondary={
                         <React.Fragment>
                         <Typography
@@ -279,18 +263,11 @@ export default function Header() {
                             color="text.primary"
                         >
 
-                        <ProgressBar percentage={staminaDetail.currentStaminapercentage}/>
+                        <ProgressBar stamina={staminaDetail}/>
 
                         <div style={{marginTop: 10}}>
-                            { staminaDetail.currentStamina }<br/>
-                            Maxのスタミナ値: { staminaDetail.maxStamina }<br/>
                             バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
                             スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
-                            <FavoriteBorderIcon style={{fontSize: 30}}/>
-                            <FavoriteBorderIcon style={{fontSize: 30}}/>
-                            <FavoriteIcon style={{fontSize: 30}}/>
-                            <FavoriteIcon style={{fontSize: 30}}/>
-                            <FavoriteIcon style={{fontSize: 30}}/>
                             <Button variant="contained" disabled
                                 onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
                                 コインを消費してスタミナを回復する
