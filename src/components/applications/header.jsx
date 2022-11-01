@@ -178,7 +178,7 @@ export default function Header() {
         } else {
             await charge();
             setCurrentCoin(await balanceOf());
-            accountCharged(setAddedCoin);
+            await accountCharged(setAddedCoin);
             setCharging(true);
         }
     };
