@@ -196,7 +196,7 @@ export default function Header() {
                     Polylemma
                 </Typography>
 
-                <Button variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
+                {/* <Button variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
                     [開発者用]Walletデータを消去
                 </Button>
                 {walletAddress ?
@@ -205,7 +205,10 @@ export default function Header() {
                     : <Button  variant="outlined" color="inherit" onClick={() => handleEnableToConnect() } style={{marginLeft: 20}}>
                         MetaMaskと連携する
                     </Button>
-                }
+                } */}
+                <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
+                    所持コイン: {`${currentCoin} PLM`} 
+                </Button>
                 <IconButton
                     color="inherit"
                     aria-label="open drawer"
