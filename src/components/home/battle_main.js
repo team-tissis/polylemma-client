@@ -10,9 +10,6 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -23,7 +20,16 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-
+function handleButtonStyle() {
+    return {
+        position: 'fixed',
+        bottom: 20,
+        right: '38%',
+        width: '24%',
+        fontSize: 17,
+        fontWeight: 600
+    }
+}
 
 // TODO::すでにバトルに出したキャラは選択できない
 function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLevel}){
@@ -43,17 +49,6 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLeve
             属性: {character.characterType}
         </Paper>
     </>)
-}
-
-function style() {
-    return {
-        position: 'fixed',
-        bottom: 20,
-        right: '38%',
-        width: '24%',
-        fontSize: 17,
-        fontWeight: 600
-    }
 }
 
 function PlayerYou({opponentCharacters}){
@@ -179,7 +174,7 @@ export default function BattleMain(){
         </Grid>
 
         {thisCharacter &&
-            <Fab variant="extended" style={ style() } color="primary" aria-label="add">
+            <Fab variant="extended" style={ handleButtonStyle() } color="primary" aria-label="add">
                 勝負するキャラクターを確定する
             </Fab>
         }

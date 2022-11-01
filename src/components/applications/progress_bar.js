@@ -1,8 +1,5 @@
 import React from "react";
-import { render } from "react-dom";
-// Import react-circular-progressbar module and styles
 import {
-  CircularProgressbar,
   CircularProgressbarWithChildren,
   buildStyles
 } from "react-circular-progressbar";
@@ -26,16 +23,13 @@ function Separator(props) {
 function RadialSeparators(props) {
   const turns = 1 / props.count;
   return _.range(props.count).map(index => (
-    <Separator turns={index * turns} style={props.style} />
+    <Separator turns={index * turns} key={index} style={props.style} />
   ));
 }
 
-
-const percentage = 66;
-
 export default function ProgressBar({stamina}) {
     return <>
-    <Example>
+    <ExternalDiv>
         <CircularProgressbarWithChildren
             value={stamina.currentStaminapercentage}
             text={`${stamina.currentStaminapercentage}%`}
@@ -54,11 +48,11 @@ export default function ProgressBar({stamina}) {
                 }}
             />
         </CircularProgressbarWithChildren>
-    </Example>
+    </ExternalDiv>
     </>
 }
 
-function Example(props) {
+function ExternalDiv(props) {
     return (
       <div style={{ marginBottom: 10 }}>
         <hr style={{ border: "2px solid #ddd" }} />

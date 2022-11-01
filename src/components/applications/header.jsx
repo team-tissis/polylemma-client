@@ -37,9 +37,9 @@ export default function Header() {
     const [addedCoin, setAddedCoin] = useState(-1);
     const [charging, setCharging] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-
+    
     const [staminaDetail, setstaminaDetail] = useState({
-      currentStamina: 0,maxStamina: 0, 
+      currentStamina: 0, maxStamina: 0, 
       staminaPerBattle: 0, restoreStaminaFee: 0, 
       currentStaminapercentage: 0
     })
@@ -49,8 +49,6 @@ export default function Header() {
       const staminaMax = await getStaminaMax();
       const staminaPerBattle = await getStaminaPerBattle();
       const restoreStaminaFee = await getRestoreStaminaFee();
-      console.log({今のスタミナ: currentStamina, マックス: staminaMax, 
-                  バトルごとに消費されるスタミナ: staminaPerBattle, スタミナ回復費用: restoreStaminaFee})
       setstaminaDetail({
         currentStamina: currentStamina,
         maxStamina: staminaMax, 
@@ -61,7 +59,6 @@ export default function Header() {
     })()},[]);
 
     useEffect(() => {(async function() {
-        console.log({今のスタミナの情報一覧: staminaDetail})
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
 
@@ -96,9 +93,6 @@ export default function Header() {
         setOpen(false);
     };
 
-    const dispatch = useDispatch();
-    const walletAddress = useSelector(selectCurrentWalletAddress);
-
     const drawerWidth = 380;
 
     const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -117,7 +111,7 @@ export default function Header() {
             }),
             marginRight: 0,
         }),
-    }), );
+    }));
 
     const AppBar = styled(MuiAppBar, {
         shouldForwardProp: (prop) => prop !== 'open',
@@ -146,6 +140,8 @@ export default function Header() {
         justifyContent: 'flex-start',
     }));
 
+  const dispatch = useDispatch();
+  const walletAddress = useSelector(selectCurrentWalletAddress);
 	const handleEnableToConnect = () => {
         const tmpFlag = window.ethereum && window.ethereum.isMetaMask;
         if(tmpFlag){
@@ -159,11 +155,7 @@ export default function Header() {
                     const wei = parseInt(result/16)
                     const gwei = (wei / Math.pow(10,9))
                     const eth = (wei / Math.pow(10,18))
-                    const payload = {
-                        address: account,
-                        ethAmount: eth,
-                        gwei: gwei,
-                    }
+                    const payload = { address: account, ethAmount: eth, gwei: gwei}
                     dispatch(setCurrentWalletAddress(payload));
                 })
                 .catch((error) => {
@@ -199,7 +191,6 @@ export default function Header() {
     }
 
     return (<>
-        {/* <Box sx={{ flexGrow: 1 }} style={headerStyle()}> */}
         <Box sx={{ display: 'flex'}}>
         <AppBar position="fixed" open={open}>
             <Toolbar>
@@ -228,6 +219,7 @@ export default function Header() {
                 </IconButton>
             </Toolbar>
         </AppBar>
+
         <Main open={open} style={{margin: 0, padding: 5, height: 50}}>
             <DrawerHeader />
         </Main>
@@ -251,82 +243,42 @@ export default function Header() {
             </DrawerHeader>
             <Divider />
             <List style={{margin: 8}}>
+                <Box component="span">
+                  <h4>{`現在のスタミナ状況 ${ staminaDetail.currentStamina }/${ staminaDetail.maxStamina }`}</h4>
+                  <ProgressBar stamina={staminaDetail}/>
+                  <div style={{marginTop: 10}}>
+                    バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
+                    スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
+                    <Button variant="contained" disabled={(staminaDetail.currentStamina == staminaDetail.maxStamina) ? true : false}
+                          onClick={handleClickCharge} style={{margin: 10, width: 345}}>
+                        コインを消費してスタミナを回復する
+                    </Button>
+                  </div><hr/>
+                </Box>
+                <Box component="span">
+                  <h4>サブスクリプション</h4>
+                  <div style={{marginTop: 10}}>
+                    <div>サブスクが終了しているか: {subscExpired}</div>
+                    <div>サブスクが終了するブロック: {subscExpiredBlock}</div>
+                    <div>サブスク料金: {subscFee}</div>
+                    <div>サブスクで更新されるブロック数: {subscBlock}</div>
+                  </div>
+                  <Button variant="contained"
+                    onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
+                        サブスク期間をアップデートする
+                  </Button><hr/>
+                </Box>
 
-                <ListItemText
-                    primary={`現在のスタミナ状況 ${ staminaDetail.currentStamina }/${ staminaDetail.maxStamina }`}
-                    secondary={
-                        <React.Fragment>
-                        <Typography
-                            sx={{ display: 'inline'}}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                        >
-
-                        <ProgressBar stamina={staminaDetail}/>
-
-                        <div style={{marginTop: 10}}>
-                            バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
-                            スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
-                            <Button variant="contained" disabled
-                                onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
-                                コインを消費してスタミナを回復する
-                            </Button>
-                        </div>
-                        <hr/>
-                        </Typography>
-                        </React.Fragment>
-                    }
-                />
-
-                <ListItemText
-                    primary="サブスクリプション"
-                    secondary={
-                        <React.Fragment>
-                        <Typography
-                            sx={{ display: 'inline'}}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                        >
-                        <div style={{marginTop: 10}}>
-                            <div>サブスクが終了しているか: {subscExpired}</div>
-                            <div>サブスクが終了するブロック: {subscExpiredBlock}</div>
-                            <div>サブスク料金: {subscFee}</div>
-                            <div>サブスクで更新されるブロック数: {subscBlock}</div>
-                        </div>
-                        <Button variant="contained"
-                            onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
-                            サブスク期間をアップデートする
-                        </Button>
-                        <hr/>
-                        </Typography>
-                        </React.Fragment>
-                    }
-                />
-
-                <ListItemText
-                    primary="サブスクリプション"
-                    secondary={
-                        <React.Fragment>
-                        <Typography
-                            sx={{ display: 'inline'}}
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                        >
-                        <div style={{marginTop: 10}}>
-                            <div>コイン: {currentCoin}</div>
-                            <div>トークン: {currentToken}体</div>
-                        </div>
-                        <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>
-                            100 MATIC を 95 PLM に交換する
-                        </Button>
-                        <hr/>
-                        </Typography>
-                        </React.Fragment>
-                    }
-                />
+                <Box component="span">
+                  <h4>ステータス</h4>
+                  <div style={{marginTop: 10}}>
+                    <div>コイン: {currentCoin}</div>
+                    <div>トークン: {currentToken}体</div>
+                  </div>
+                  <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>
+                    100 MATIC を 95 PLM に交換する
+                  </Button><hr/>
+                </Box>
             </List>
             <Divider />
         </Drawer>

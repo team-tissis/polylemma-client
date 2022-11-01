@@ -71,12 +71,6 @@ export default function GachaGacha(){
         setAddedTokenId(newTokenId);
     };
 
-    // const handleClickCharge = async () => {
-    //     await charge();
-    //     setCurrentCoin(await balanceOf());
-    //     setCharging(true);
-    // };
-
     const handleClose = () => {
         setOpen(false);
     };

@@ -30,7 +30,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function styleA() {
+function handleCreateRoomButtonStyle() {
     return {
         position: 'fixed',
         bottom: 10,
@@ -40,7 +40,7 @@ function styleA() {
         fontWeight: 600
     }
 }
-function styleB() {
+function handleSearchRoomButtonStyle() {
     return {
         position: 'fixed',
         bottom: 10,
@@ -163,7 +163,7 @@ export default function Battle() {
             {isChanging ?
                 <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} myCharacterList={myCharacterList}
+                        <NFTCard character={character} myCharacterList={myCharacterList} key={index}
                             charactersForBattle={charactersForBattle} setStateChange={setStateChange}
                             setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
@@ -171,7 +171,7 @@ export default function Battle() {
                 :
                 <>{charactersForBattle.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
+                        <NFTCard character={character} key={index} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
                             setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
@@ -224,10 +224,10 @@ export default function Battle() {
         { (charactersForBattle.length >= selectedNum) &&
             <>
                 {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
-                <Button variant="contained" size="large" style={ styleA() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
+                <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() } onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
                 対戦の部屋を作る
                 </Button>
-                <Button variant="contained" size="large" style={ styleB() } onClick={() => handleCharacterSelected('searchRooms')} disabled={isChanging}>
+                <Button variant="contained" size="large" style={ handleSearchRoomButtonStyle() } onClick={() => handleCharacterSelected('searchRooms')} disabled={isChanging}>
                 対戦相手を探す
                 </Button>
             </>
