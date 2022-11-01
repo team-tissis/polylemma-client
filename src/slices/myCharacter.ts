@@ -9,39 +9,25 @@ interface IMyCharacter {
   rarity: number;
 }
 interface IMyCharacterList {
-  values: IMyCharacter[];
+  charactersList: IMyCharacter[];
 }
-const initialState: IMyCharacterList = { values: [] };
+
+// const initialState: IMyCharacter[] = [];
+const initialState: IMyCharacterList = { charactersList: [] };
 const currentMyCharacterSlice = createSlice({
   name: 'currentMyCharacter',
   initialState,
   reducers: {
-    setCurrentMyCharacter: (state, action: any) => {
-      function createData(
-          id: number,
-          rarity: number,
-          level: number,
-          characterType: string,
-          abilityIds: number[]
-      ): IMyCharacter {
-          return { id, rarity, level , characterType, abilityIds};
-      }
-      const stateData: IMyCharacter[] = action.payload.map(function(actionData){
-          return createData( actionData.id, actionData.rarity, actionData.level, actionData.characterType, actionData.abilityIds)
-      })  
-      return {
-        ...state,
-        values: stateData
-      }
+    setCurrentMyCharacter(state, action: PayloadAction<IMyCharacter[]>) {
+      state.charactersList = action.payload
     },
-    myCharacterRemove: (state) => {
-      return {
-        ...state,
-        values: []
-      }
+    myCharacterRemove(state)  {
+      state.charactersList= []
     },
   },
 });
-export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter.values;
+
+// export const selectMyCharacter = (state: RootState): IMyCharacter[] => state.myCharacter;
+export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
 export const { setCurrentMyCharacter, myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

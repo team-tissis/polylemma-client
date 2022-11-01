@@ -42,28 +42,28 @@ function getContract (contractName) {
 async function approve (contractAddress, approvedCoin) {
     const { contract } = getContract("PLMCoin");
     const message = await contract.approve(contractAddress, approvedCoin);
-    console.log({ approve: message });
+    // console.log({ approve: message });
 }
 
 async function balanceOf () {
     const { signer, contract } = getContract("PLMCoin");
     const myAddress = await signer.getAddress();
     const message = await contract.balanceOf(myAddress);
-    console.log({ balanceOf: message });
+    // console.log({ balanceOf: message });
     return message.toString();
 }
 
 async function getNecessaryExp (tokenId) {
     const { contract } = getContract("PLMToken");
     const message = await contract.getNecessaryExp(tokenId);
-    console.log({ getNecessaryExp: message });
+    // console.log({ getNecessaryExp: message });
     return message.toString();
 }
 
 async function totalSupply () {
     const { contract } = getContract("PLMToken");
     const message = await contract.totalSupply();
-    console.log({ totalSupply: message });
+    // console.log({ totalSupply: message });
     return message.toString();
 }
 
@@ -71,14 +71,14 @@ async function getAllTokenOwned () {
     const { signer, contract } = getContract("PLMToken");
     const myAddress = await signer.getAddress();
     const message = await contract.getAllTokenOwned(myAddress);
-    console.log({ getAllTokenOwned: message });
+    // console.log({ getAllTokenOwned: message });
     return message.toString();
 }
 
 async function getCurrentCharacterInfo (tokenId) {
     const { contract } = getContract("PLMToken");
     const message = await contract.getCurrentCharacterInfo(tokenId);
-    console.log({ getCurrentCharacterInfo: message });
+    // console.log({ getCurrentCharacterInfo: message });
     return message;
 }
 
@@ -86,14 +86,14 @@ async function firstCharacterInfo () {
     const { signer, contract } = getContract("PLMToken");
     const myAddress = await signer.getAddress();
     const message = await contract.tokenOfOwnerByIndex(myAddress, 0);
-    console.log({ firstCharacterInfo: message });
+    // console.log({ firstCharacterInfo: message });
     return message.toString();
 }
 
 async function getAllCharacterInfo () {
     const { contract } = getContract("PLMToken");
     const message = await contract.getAllCharacterInfo();
-    console.log({ getAllCharacterInfo: message });
+    // console.log({ getAllCharacterInfo: message });
     return message;
 }
 

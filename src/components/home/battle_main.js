@@ -125,7 +125,7 @@ export default function BattleMain(){
     const myCharacters = useSelector(selectMyCharacter);
 
     useEffect(() => {
-        console.log({自分のキャラ: myCharacters})
+        console.log({自分のキャラ: myCharacters.charactersList})
         console.log("読み込み中........")
     },[thisCharacter])
 
@@ -135,7 +135,7 @@ export default function BattleMain(){
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
                 <div style={{height: 100}}/>
-                <PlayerI myCharactors={myCharacters} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
+                <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
                         totalExtraLevel={totalExtraLevel} extraLevel={extraLevel} setExtraLevel={setExtraLevel} />
             </Container>
         </Grid>
