@@ -13,8 +13,11 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
-import { balanceOf, getAllTokenOwned, getNecessaryExp, getCurrentCharacterInfo, firstCharacterInfo, getAllCharacterInfo, getOwnedCharacterWithIDList } from '../../fetch_sol/utils.js'
-import { handleLevelUp } from '../../fetch_sol/training.js';
+import TextField from '@mui/material/TextField';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { balanceOf } from '../../fetch_sol/coin.js';
+import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
 
 function bottomBoxstyle() {
@@ -69,31 +72,28 @@ export default function ModelTraining(){
                 variant: 'error',
             });
         }
-        await handleLevelUp(selectedTokenId);
+        await updateLevel(selectedTokenId);
         setNecessaryExp(await getNecessaryExp(selectedTokenId));
         // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
         const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
         setLevelBefore(characterBefore.level);
-
-        // for debug
-        await getAllTokenOwned();
-        await firstCharacterInfo();
-        await getAllCharacterInfo();
-
         setIsLoading((prev) => prev + 1)
     }
+
     const [state, setState] = useState({
         top: false,
         left: false,
         bottom: false,
         right: false,
     });
+
     const toggleDrawer = (anchor, open) => (event) => {
         if ( event && event.type === 'keydown' && ((event).key === 'Tab' || (event).key === 'Shift')) {
             return;
         }
         setState({ ...state, [anchor]: open });
     };
+
     // 画面サイズを取得
     var windowWidth = window.innerWidth;
 

@@ -6,11 +6,14 @@ import Icon from '../../icons/avatar_1.png'
 import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer'
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter } from '../../slices/myCharacter.ts'
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({

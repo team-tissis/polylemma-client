@@ -19,7 +19,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
 import { useSelector, useDispatch } from 'react-redux';
-import { getOwnedCharacterWithIDList } from '../../fetch_sol/utils.js'
+import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
 
 const Item = styled(Paper)(({ theme }) => ({
