@@ -1,6 +1,5 @@
 import React , { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -16,7 +15,6 @@ import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItemText from '@mui/material/ListItemText';
 import { balanceOf } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
 import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, 
@@ -59,6 +57,7 @@ export default function Header() {
     })()},[]);
 
     useEffect(() => {(async function() {
+        console.log("UseEffect")
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
 
@@ -66,8 +65,6 @@ export default function Header() {
         setSubscExpired(await subscIsExpired());
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
-
-        accountCharged(setAddedCoin);
     })();}, []);
 
     useEffect(() => {
@@ -181,6 +178,7 @@ export default function Header() {
         } else {
             await charge();
             setCurrentCoin(await balanceOf());
+            accountCharged(setAddedCoin);
             setCharging(true);
         }
     };
@@ -275,7 +273,7 @@ export default function Header() {
                     <div>コイン: {currentCoin}</div>
                     <div>トークン: {currentToken}体</div>
                   </div>
-                  <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>
+                  <Button variant="contained" disabled={charging} onClick={handleClickCharge} style={{margin: 10, width: 345}}>
                     100 MATIC を 95 PLM に交換する
                   </Button><hr/>
                 </Box>
