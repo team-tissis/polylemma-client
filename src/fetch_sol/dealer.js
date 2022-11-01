@@ -8,7 +8,7 @@ import { approve } from "./coin.js";
 async function getCurrentStamina () {
     const { signer, contract } = getContract("PLMDealer");
     const myAddress = await signer.getAddress();
-    const message = contract.getCurrentStamina(myAddress);
+    const message = await contract.getCurrentStamina(myAddress);
     console.log({ getCurrentStamina: message });
     return message.toString();
 }

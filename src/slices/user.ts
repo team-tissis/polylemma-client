@@ -4,17 +4,14 @@ import { RootState } from '../store.ts';
 interface IWalletAddress {
   address: null | String;
 }
-const initialState: IWalletAddress = { address: null};
+const initialState: IWalletAddress = { address: null };
 
 const currentWalletAddressSlice = createSlice({
   name: 'currentWalletAddress',
   initialState,
   reducers: {
-    setCurrentWalletAddress: (state, action: PayloadAction<IWalletAddress>) => {
-      state.address = action.payload;
-    },
-    setCurrentBalance: (state, action: PayloadAction<IWalletBalance>) => {
-      state.address = action.payload;
+    setCurrentWalletAddress(state, action: PayloadAction<IWalletAddress>) {
+      state = action.payload;
     },
     walletAddressRemove: (state) => {
       state.address = null;

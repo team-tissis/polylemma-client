@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
 import Icon from '../../icons/avatar_1.png'
 import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
@@ -129,7 +128,7 @@ export default function BattleMain(){
     const myCharacters = useSelector(selectMyCharacter);
 
     useEffect(() => {
-        console.log({自分のキャラ: myCharacters})
+        console.log({自分のキャラ: myCharacters.charactersList})
         console.log("読み込み中........")
     },[thisCharacter])
 
@@ -139,7 +138,7 @@ export default function BattleMain(){
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
                 <div style={{height: 100}}/>
-                <PlayerI myCharactors={myCharacters} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
+                <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
                         totalExtraLevel={totalExtraLevel} extraLevel={extraLevel} setExtraLevel={setExtraLevel} />
             </Container>
         </Grid>

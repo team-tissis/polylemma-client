@@ -1,6 +1,6 @@
 import React , { useEffect, useState } from 'react';
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -9,51 +9,22 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Chip from '@mui/material/Chip';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import Paper from '@mui/material/Paper';
 import { styled, useTheme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
-import CssBaseline from '@mui/material/CssBaseline';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import { balanceOf } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged } from '../../fetch_sol/dealer.js';
+import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, 
+        extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged ,
+        getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, consumeStaminaForBattle,
+      } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
-
-function headerStyle() {
-    return {
-        position: 'fixed',
-        top: 0,
-        width: '100%',
-        height: 10,
-        zIndex: 0
-    }
-}
-
-function staminaStyle() {
-    return {
-        position: 'fixed',
-        top: 100,
-        right: 20,
-    }
-}
+import ProgressBar from './progress_bar'
 
 export default function Header() {
     const [currentCoin, setCurrentCoin] = useState();
@@ -67,7 +38,30 @@ export default function Header() {
     const [charging, setCharging] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
+    const [staminaDetail, setstaminaDetail] = useState({
+      currentStamina: 0,maxStamina: 0, 
+      staminaPerBattle: 0, restoreStaminaFee: 0, 
+      currentStaminapercentage: 0
+    })
+
     useEffect(() => {(async function() {
+      const currentStamina = await getCurrentStamina();
+      const staminaMax = await getStaminaMax();
+      const staminaPerBattle = await getStaminaPerBattle();
+      const restoreStaminaFee = await getRestoreStaminaFee();
+      console.log({今のスタミナ: currentStamina, マックス: staminaMax, 
+                  バトルごとに消費されるスタミナ: staminaPerBattle, スタミナ回復費用: restoreStaminaFee})
+      setstaminaDetail({
+        currentStamina: currentStamina,
+        maxStamina: staminaMax, 
+        staminaPerBattle: staminaPerBattle,
+        restoreStaminaFee: restoreStaminaFee,
+        currentStaminapercentage: (currentStamina/staminaMax)*100
+      })
+    })()},[]);
+
+    useEffect(() => {(async function() {
+        console.log({今のスタミナの情報一覧: staminaDetail})
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
 
@@ -104,19 +98,6 @@ export default function Header() {
 
     const dispatch = useDispatch();
     const walletAddress = useSelector(selectCurrentWalletAddress);
-    const [account,setAccount] = useState(null);
-    const [errorMessage, setErrorMessage] = useState(null);
-    const [auth, setAuth] = useState(true);
-    const [anchorEl, setAnchorEl] = useState(null);
-    const handleChange = (event) => {
-        setAuth(event.target.checked);
-    };
-    const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const drawerWidth = 380;
 
@@ -190,7 +171,6 @@ export default function Header() {
                 });
             })
             .catch((error) => {
-                setErrorMessage(error.message);
                 console.log({error})
             });
         }
@@ -273,7 +253,7 @@ export default function Header() {
             <List style={{margin: 8}}>
 
                 <ListItemText
-                    primary="現在のスタミナ状況"
+                    primary={`現在のスタミナ状況 ${ staminaDetail.currentStamina }/${ staminaDetail.maxStamina }`}
                     secondary={
                         <React.Fragment>
                         <Typography
@@ -282,12 +262,12 @@ export default function Header() {
                             variant="body2"
                             color="text.primary"
                         >
+
+                        <ProgressBar stamina={staminaDetail}/>
+
                         <div style={{marginTop: 10}}>
-                            <FavoriteBorderIcon style={{fontSize: 30}}/>
-                            <FavoriteBorderIcon style={{fontSize: 30}}/>
-                            <FavoriteIcon style={{fontSize: 30}}/>
-                            <FavoriteIcon style={{fontSize: 30}}/>
-                            <FavoriteIcon style={{fontSize: 30}}/>
+                            バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
+                            スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
                             <Button variant="contained" disabled
                                 onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
                                 コインを消費してスタミナを回復する

@@ -17,8 +17,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import Slide from '@mui/material/Slide';
-import { TransitionProps } from '@mui/material/transitions';
 import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
 import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
@@ -32,16 +30,6 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function style() {
-    return {
-        position: 'fixed',
-        bottom: 10,
-        right: '35%',
-        width: '30%',
-        fontSize: 20,
-        fontWeight: 600
-    }
-}
 function styleA() {
     return {
         position: 'fixed',
@@ -85,22 +73,21 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
     }
 
     function handleChange(){
-        const _selectedData = charactersForBattle;
+        const selectedData = charactersForBattle;
         if (alreadySelected){
-            const popThisData = _selectedData.filter((data, index) => {
+            const popThisData = selectedData.filter((data, index) => {
                 return data.id !== character.id
             });
             setCharactersForBattle(popThisData)
         }else{
-            if(_selectedData.length >= selectedNum){
+            if(selectedData.length >= selectedNum){
                 const message = "対戦に選べるキャラクターは4体までです"
                 enqueueSnackbar(message, {
                     autoHideDuration: 1500,
                     variant: 'error',
                 });
             }else{
-                _selectedData.push(character)
-                setCharactersForBattle(_selectedData)
+                setCharactersForBattle([...selectedData, character])
             }
         }
         setStateChange((prev) => prev + 1)
@@ -131,22 +118,16 @@ export default function Battle() {
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
-    const [open, setOpen] = useState(0);
     const [myCharacterList, setMyCharacterList] = useState([]);
-    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-    const handleClickOpen = () => {
-        setDialogOpen(true);
-    };
-    const handleClose = () => {
-        setDialogOpen(false);
-    };
 
-
-    useEffect(() => {(async function() {
-        setCharactersForBattle(myCharacters)
-    })();}, []);
-
+    useEffect(() => {
+        // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
+        // もし服魔れていなかったら dispatch(myCharacterRemove()); で削除
+        console.log({自分が選択しているキャラ: myCharacters.charactersList})
+        setCharactersForBattle(myCharacters.charactersList)
+    }, []);
 
     useEffect(() => {(async function() {
         const _myCharacterList = await getOwnedCharacterWithIDList()
@@ -210,7 +191,7 @@ export default function Battle() {
 
         <Dialog
             open={dialogOpen}
-            onClose={handleClose}
+            onClose={() => setDialogOpen(false)}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
@@ -237,7 +218,7 @@ export default function Battle() {
             </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button onClick={handleClose} autoFocus>戻る</Button>
+            <Button onClick={() => setDialogOpen(false)} autoFocus>戻る</Button>
             </DialogActions>
         </Dialog>
         { (charactersForBattle.length >= selectedNum) &&
