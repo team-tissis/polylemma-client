@@ -1,6 +1,6 @@
 import React , { useEffect, useState } from 'react';
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -19,30 +19,14 @@ import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import { balanceOf } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged } from '../../fetch_sol/dealer.js';
+import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, 
+        extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged ,
+        getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, consumeStaminaForBattle,
+      } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
-
-function headerStyle() {
-    return {
-        position: 'fixed',
-        top: 0,
-        width: '100%',
-        height: 10,
-        zIndex: 0
-    }
-}
-
-function staminaStyle() {
-    return {
-        position: 'fixed',
-        top: 100,
-        right: 20,
-    }
-}
+import ProgressBar from './progress_bar'
 
 export default function Header() {
     const [currentCoin, setCurrentCoin] = useState();
@@ -56,17 +40,30 @@ export default function Header() {
     const [charging, setCharging] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
+    const [staminaDetail, setstaminaDetail] = useState({
+      currentStamina: 0,maxStamina: 0, 
+      staminaPerBattle: 0, restoreStaminaFee: 0, 
+      currentStaminapercentage: 0
+    })
+
     useEffect(() => {(async function() {
+      const currentStamina = await getCurrentStamina();
+      const staminaMax = await getStaminaMax();
+      const staminaPerBattle = await getStaminaPerBattle();
+      const restoreStaminaFee = await getRestoreStaminaFee();
+      console.log({今のスタミナ: currentStamina, マックス: staminaMax, 
+                  バトルごとに消費されるスタミナ: staminaPerBattle, スタミナ回復費用: restoreStaminaFee})
       setstaminaDetail({
-        currentStamina: await getCurrentStamina(),
-        maxStamina: await getStaminaMax(), 
-        staminaPerBattle: await getStaminaPerBattle(),
-        restoreStaminaFee: await getRestoreStaminaFee()
+        currentStamina: currentStamina,
+        maxStamina: staminaMax, 
+        staminaPerBattle: staminaPerBattle,
+        restoreStaminaFee: restoreStaminaFee,
+        currentStaminapercentage: (currentStamina/staminaMax)*100
       })
     })()},[]);
 
     useEffect(() => {(async function() {
-        console.log({staminaDetail})
+        console.log({今のスタミナの情報一覧: staminaDetail})
         setCurrentCoin(await balanceOf());
         setCurrentToken(await totalSupply());
 
@@ -281,7 +278,14 @@ export default function Header() {
                             variant="body2"
                             color="text.primary"
                         >
+
+                        <ProgressBar percentage={staminaDetail.currentStaminapercentage}/>
+
                         <div style={{marginTop: 10}}>
+                            { staminaDetail.currentStamina }<br/>
+                            Maxのスタミナ値: { staminaDetail.maxStamina }<br/>
+                            バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
+                            スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
                             <FavoriteBorderIcon style={{fontSize: 30}}/>
                             <FavoriteBorderIcon style={{fontSize: 30}}/>
                             <FavoriteIcon style={{fontSize: 30}}/>
