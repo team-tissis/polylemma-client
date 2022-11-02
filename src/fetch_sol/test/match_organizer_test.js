@@ -1,7 +1,7 @@
 import { getRandomBytes32, getSeedString, getCommitString, getContract } from '../../fetch_sol/utils.js';
 import { charge } from '../../fetch_sol/dealer.js';
 import { gacha } from '../../fetch_sol/gacha.js';
-import { proposeBattle, getMatchState, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { proposeBattle, getMatchState, isInProposal, setNonProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { commitPlayerSeed, commitChoice, revealChoice } from '../../fetch_sol/battle_field.js';
 import { MovingSharp } from '@mui/icons-material';
 
@@ -86,4 +86,10 @@ async function defeatByFoul () {
     }
 }
 
-export { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, defeatByFoul };
+async function resetStates () {
+    for (let i = 0; i < 7; i++) {
+        await setNonProposal(i);
+    }
+}
+
+export { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, defeatByFoul, resetStates };

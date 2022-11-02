@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
 import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
+import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, resetStates } from '../../fetch_sol/test/match_organizer_test.js';
 import characterInfo from "./character_info.json";
 import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
@@ -105,7 +105,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
             <div class="box">
                 <p>{ character.level }</p>
             </div>
-            <div class="character_type_box" 
+            <div class="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
@@ -254,6 +254,10 @@ export default function Battle() {
         navigate('/battle_main');
     }
 
+    async function handleResetStates () {
+        await resetStates();
+    }
+
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
@@ -339,6 +343,10 @@ export default function Battle() {
             [dev]全ユーザーのProposalを取り下げる
         </Button>
 
+        <Button variant="outlined" color="secondary" onClick={() => handleResetStates()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+            [dev]全ユーザーのステートをNonProposalにする
+        </Button>
+
         { (charactersForBattle.length >= selectedNum) &&
             <>
                 <Box
@@ -347,7 +355,7 @@ export default function Battle() {
                         alignItems: 'center',
                         '& > :not(style)': { m: 1 },
                     }}
-                >   
+                >
                     <div>対戦相手の希望レベル上限下限<br/>(4 ~ 1020)まで指定可能</div>
                     <TextField
                         error={false}
