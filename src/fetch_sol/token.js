@@ -72,7 +72,7 @@ async function getOwnedCharacterWithIDList (addressIndex) {
                 level: ownedCharacterInfoList[i]['level'],
                 rarity: ownedCharacterInfoList[i]['rarity'],
                 abilityIds: ownedCharacterInfoList[i]['abilityIds'],
-            })
+            });
         }
     }
     return ownedCharacters;
