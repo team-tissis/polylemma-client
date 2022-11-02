@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
 import Icon from '../../icons/avatar_1.png'
 import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
+import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -39,7 +42,7 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLeve
     },[extraLevel])
 
     return(<>
-        <Paper onClick={() =>　setThisCharacter(character.id) } elevation={10}
+        <Paper onClick={() => setThisCharacter(character.id) } elevation={10}
             style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
             トークンID {character.id} <br/>
             {(extraLevel > 0)&(thisCharacter === character.id) ?
@@ -127,7 +130,16 @@ export default function BattleMain(){
         console.log("読み込み中........")
     },[thisCharacter])
 
+    const navigate = useNavigate();
+    async function handleFinishBattle () {
+        await defeatByFoul();
+        navigate('../');
+    }
+
     return(<>
+    <Button variant="contained" size="large" color="secondary" onClick={() => handleFinishBattle() }>
+        バトルを終了する
+    </Button>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>

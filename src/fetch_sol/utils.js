@@ -9,6 +9,18 @@ function stringToBytes32 (str) {
     return ethers.utils.formatBytes32String(str);
 }
 
+function getRandomBytes32 () {
+    return ethers.utils.hexlify(ethers.utils.randomBytes(32));
+}
+
+function getSeedString (myAddress, seed) {
+    return ethers.utils.solidityKeccak256(["address", "bytes32"], [myAddress, seed]);
+}
+
+function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
+    return ethers.utils.solidityKeccak256(["address", "uint8", "uint8", "bytes32"], [myAddress, levelPoint, choice, blindingFactor]);
+}
+
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
     const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
@@ -42,4 +54,4 @@ function getContract (contractName, addressIndex) {
     return { contractAddress, signer, contract };
 }
 
-export { stringToBytes32, getContract };
+export { stringToBytes32, getRandomBytes32, getSeedString, getCommitString, getContract };
