@@ -10,28 +10,28 @@ async function getCurrentStamina (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.getCurrentStamina(myAddress);
     console.log({ getCurrentStamina: message });
-    return message.toString();
+    return message;
 }
 
 async function getStaminaMax (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getStaminaMax();
     console.log({ getStaminaMax: message });
-    return message.toString();
+    return message;
 }
 
 async function getStaminaPerBattle (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getStaminaPerBattle();
     console.log({ getStaminaPerBattle: message });
-    return message.toString();
+    return message;
 }
 
 async function getRestoreStaminaFee (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getRestoreStaminaFee();
     console.log({ getRestoreStaminaFee: message });
-    return message.toString();
+    return message;
 }
 
 async function restoreFullStamina (addressIndex) {

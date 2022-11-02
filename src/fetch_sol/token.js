@@ -5,7 +5,7 @@ async function totalSupply (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
-    return message.toString();
+    return message.toNumber();
 }
 
 async function getAllTokenOwned (addressIndex) {
