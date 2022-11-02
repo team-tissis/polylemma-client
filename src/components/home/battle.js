@@ -329,12 +329,6 @@ export default function Battle() {
             </DialogActions>
         </Dialog>
 
-        <Button variant="contained" size="large" style={{margin: 10}}
-            onClick={() => dispatch(myCharacterRemove())} disabled={isChanging}>
-            [開発用] 自分のキャラクターの登録を初期化する<br/>
-            ボタンクリック後リロード
-        </Button><br/>
-
         <Button variant="contained" size="large"
             onClick={() => devHanldeCharacter()} disabled={isChanging}>
             [開発用] ユーザー2~4のキャラを用意する
