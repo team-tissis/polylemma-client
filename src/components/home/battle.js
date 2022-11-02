@@ -243,18 +243,18 @@ export default function Battle() {
     }
 
     // 開発テスト用: Proposalを取り下げる
-    async function handleDeclinePros () {
+    async function devHandleDeclinePros () {
         await cancelProposals();
     }
 
     // 開発テスト用: 自分に対戦を申し込む
     // TODO: event を listen してマッチを成立させないといけない
-    async function handleProposeToMe () {
+    async function devHandleProposeToMe () {
         await requestChallengeToMe();
         navigate('/battle_main');
     }
 
-    async function handleResetStates () {
+    async function devHandleResetStates () {
         await resetStates();
     }
 
@@ -320,7 +320,7 @@ export default function Battle() {
             </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button variant="outlined" color="secondary" onClick={() => handleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+            <Button variant="outlined" color="secondary" onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
                 [dev]自分に対戦を申し込ませる
             </Button>
             <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
@@ -339,11 +339,11 @@ export default function Battle() {
             [開発用] ユーザー2~4の3名を対戦可能状態にする
         </Button>
 
-        <Button variant="outlined" color="secondary" onClick={() => handleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+        <Button variant="outlined" color="secondary" onClick={() => devHandleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
             [dev]全ユーザーのProposalを取り下げる
         </Button>
 
-        <Button variant="outlined" color="secondary" onClick={() => handleResetStates()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+        <Button variant="outlined" color="secondary" onClick={() => devHandleResetStates()} style={{marginLeft: 20, backgroundColor: 'white'}}>
             [dev]全ユーザーのステートをNonProposalにする
         </Button>
 
