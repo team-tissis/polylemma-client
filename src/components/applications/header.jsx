@@ -16,7 +16,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { balanceOf } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod,
+import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
          extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged ,
          getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, consumeStaminaForBattle,
        } from '../../fetch_sol/dealer.js';
@@ -28,6 +28,7 @@ export default function Header() {
     const [currentToken, setCurrentToken] = useState();
     const [subscExpired, setSubscExpired] = useState();
     const [subscExpiredBlock, setSubscExpiredBlock] = useState();
+    const [subscRemainingBlocks, setSubscRemainingBlocks] = useState();
     const [subscFee, setSubscFee] = useState();
     const [subscBlock, setSubscBlock] = useState();
 
@@ -60,6 +61,7 @@ export default function Header() {
         setCurrentToken(await totalSupply());
 
         setSubscExpiredBlock(await getSubscExpiredBlock());
+        setSubscRemainingBlocks(await getSubscRemainingBlockNum());
         setSubscExpired(await subscIsExpired());
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
@@ -168,6 +170,7 @@ export default function Header() {
         setCurrentCoin(await balanceOf());
         setSubscExpired(await subscIsExpired());
         setSubscExpiredBlock(await getSubscExpiredBlock());
+        setSubscRemainingBlocks(await getSubscRemainingBlockNum());
     };
 
     const handleClickCharge = async () => {
@@ -259,6 +262,7 @@ export default function Header() {
                     <div style={{marginTop: 10}}>
                         <div>サブスクが終了しているか: {subscExpired}</div>
                         <div>サブスクが終了するブロック: {subscExpiredBlock}</div>
+                        <div>サブスクが終了するまでのブロック数: {subscRemainingBlocks}</div>
                         <div>サブスク料金: {subscFee}</div>
                         <div>サブスクで更新されるブロック数: {subscBlock}</div>
                     </div>

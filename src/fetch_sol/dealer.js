@@ -61,6 +61,14 @@ async function getSubscExpiredBlock (addressIndex) {
     return message.toString();
 }
 
+async function getSubscRemainingBlockNum (addressIndex) {
+    const { signer, contract } = getContract("PLMDealer", addressIndex);
+    const myAddress = await signer.getAddress();
+    const message = await contract.getSubscRemainingBlockNum(myAddress);
+    console.log({ getSubscRemainingBlockNum: message });
+    return message.toString();
+}
+
 async function subscIsExpired (addressIndex) {
     const { signer, contract } = getContract("PLMDealer", addressIndex);
     const myAddress = await signer.getAddress();
@@ -114,5 +122,5 @@ async function accountCharged (setAddedCoin, addressIndex) {
 }
 
 export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, consumeStaminaForBattle,
-         getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
+         getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
          charge, accountCharged };
