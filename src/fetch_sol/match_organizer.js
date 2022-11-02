@@ -19,7 +19,7 @@ async function getProposalList (addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.getProposalList();
     console.log({ getProposalList: message });
-    return message.toString();
+    return message;
 }
 
 async function getMatchState (addressIndex) {
@@ -54,12 +54,12 @@ async function isNonProposal (addressIndex) {
     return message.toString();
 }
 
-async function requestChallenge (proposerId, fixedSlotsOfChallenger, addressIndex) {
+async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger) {
     // TODO: signer and proposerAddress need to be fixed
-    const signer = getSigner(proposerId);
-    const proposerAddress = await signer.getAddress();
-    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.requestChallenge(proposerAddress, fixedSlotsOfChallenger);
+    const signer = getSigner();
+    // const myAddress = await signer.getAddress();
+    const { contract } = getContract("PLMMatchOrganizer");
+    const message = await contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);
     console.log({ requestChallenge: message });
     return message.toString();
 }

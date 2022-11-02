@@ -22,6 +22,7 @@ import { getSubscExpiredBlock, subscIsExpired, getSubscFeePerUnitPeriod,
        } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
 import ProgressBar from './progress_bar'
+import { cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test';
 
 export default function Header() {
     const [currentCoin, setCurrentCoin] = useState();
@@ -185,7 +186,15 @@ export default function Header() {
     const handleDeleteWalletData =  () => {
         dispatch(walletAddressRemove());
     }
-
+    // 開発テスト用: Proposalを取り下げる
+    async function handleDeclinePros () {
+        await cancelProposals();
+    }
+    // 開発テスト用: Proposalを取り下げる
+    async function handleProposeToMe () {
+        await requestChallengeToMe();
+    }
+   
     return (<>
         <Box sx={{ display: 'flex'}}>
         <AppBar position="fixed" open={open}>
@@ -204,6 +213,12 @@ export default function Header() {
                         MetaMaskと連携する
                     </Button>
                 } */}
+                <Button variant="outlined" color="secondary" onClick={() => handleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+                    [dev]自分に対戦を申し込ませる
+                </Button>
+                <Button variant="outlined" color="secondary" onClick={() => handleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+                    [dev]全ユーザーのProposalを取り下げる
+                </Button>
                 <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
                     所持コイン: {`${currentCoin} PLM`}
                 </Button>
