@@ -38,18 +38,19 @@ function handleButtonStyle() {
 }
 
 // TODO::すでにバトルに出したキャラは選択できない
-function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLevel}){
+// TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
+function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoint}){
     useEffect(() => {
         console.log({character});
         console.log("レベルを読み込み中........");
-    },[extraLevel])
+    },[levelPoint])
 
     return(<>
         <Paper onClick={() => setThisCharacter(character.id) } elevation={10}
             style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
             トークンID {character.id} <br/>
-            {(extraLevel > 0)&(thisCharacter === character.id) ?
-                <>レベル {character.level + extraLevel}( +{extraLevel}.Lv )<br/></>
+            {(levelPoint > 0)&(thisCharacter === character.id) ?
+                <>レベル {character.level + levelPoint}( +{levelPoint}.Lv )<br/></>
                 : <>レベル {character.level}.Lv<br/></>
             }
             属性: {character.characterType}
@@ -78,20 +79,20 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel, extraLevel, setExtraLevel, randomSlot}){
+function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalLevelPoint, levelPoint, setLevelPoint, randomSlot}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
                     <NFTCharactorCard character={myCharactor}
-                        thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} extraLevel={extraLevel} />
+                        thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
                 </Grid>
             ))}
             {/* TODO: 描画の方が先に走ってしまうから randomSlot が undefined になってる (多分) */}
             {/* <Grid item xs={2} sm={2} md={2} key={myCharactors.length}>
                 <NFTCharactorCard character={randomSlot}
-                    thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} extraLevel={extraLevel} />
+                    thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
             </Grid> */}
         </Grid>
         <div style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}}>
@@ -103,12 +104,12 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel
             <Slider
                 aria-label="Temperature"
                 defaultValue={0}
-                onChange={(e) => setExtraLevel(e.target.value)}
+                onChange={(e) => setLevelPoint(e.target.value)}
                 valueLabelDisplay="auto"
                 step={1}
                 marks
                 min={0}
-                max={totalExtraLevel}
+                max={totalLevelPoint}
             />
         </Box>
     </Container>
@@ -129,37 +130,57 @@ const UrgeWithPleasureComponent = () => (
 
 export default function BattleMain(){
     const [thisCharacter, setThisCharacter] = useState();
-    const totalExtraLevel = 10;
-    const [extraLevel, setExtraLevel] = useState(0);
+    const totalLevelPoint = 10;
+    const [levelPoint, setLevelPoint] = useState(0);
     const myCharacters = useSelector(selectMyCharacter);
 
-    const myPlayerId = getPlayerIdFromAddress();
-    // myCharacters = getFixedSlotCharacterInfo(myPlayerId);
-    // opponentCharacters = getFixedSlotCharacterInfo(1-myPlayerId);
+    const [myPlayerId, setMyPlayerId] = useState();
+    // const [myCharacters, setMyCharacters] = getFixedSlotCharacterInfo(myPlayerId);
+    // const [opponentCharacters, setOpponentCharacters] = getFixedSlotCharacterInfo(1-myPlayerId);
     const seed = getRandomBytes32();
     const [nonce, setNonce] = useState();
     const [mod, setMod] = useState();
     const [randomSlot, setRandomSlot] = useState();
 
+    // for debug
+    const addressIndex = 2;
+    const seedCOM = getRandomBytes32();
+    const [nonceCOM, setNonceCOM] = useState();
+    const [randomSlotCOM, setRandomSlotCOM] = useState();
+    const [choice, setChoice] = useState(0);
+
+
     useEffect(() => {
         console.log({自分のキャラ: myCharacters.charactersList});
-        console.log(myCharacters.charactersList[0]);
         console.log("読み込み中........");
     },[thisCharacter]);
 
     useEffect(() => {(async function() {
+        const tmpMyPlayerId = await getPlayerIdFromAddress();
+        setMyPlayerId(tmpMyPlayerId);
+
         try {
-            await commitPlayerSeed(myPlayerId, seed);
+            await commitPlayerSeed(tmpMyPlayerId, seed);
         } catch (e) {
             // TODO: Error handling
         }
 
-        const tmpNonce = await getNonce(myPlayerId);
+        const tmpNonce = await getNonce(tmpMyPlayerId);
         setNonce(tmpNonce);
         const tmpMod = await totalSupply();
         setMod(tmpMod);
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
         setRandomSlot(await getRandomSlot(tmpNonce, seed, tmpMod));
+
+        // for debug
+        try {
+            await commitPlayerSeed(1-tmpMyPlayerId, seedCOM, addressIndex);
+        } catch (e) {
+            // TODO: Error handling
+        }
+        const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
+        setNonce(tmpNonceCOM);
+        setRandomSlot(await getRandomSlot(tmpNonceCOM, seedCOM, tmpMod, addressIndex));
     })();}, []);
 
     const navigate = useNavigate();
@@ -168,8 +189,30 @@ export default function BattleMain(){
         navigate('../');
     }
 
-    async function handleCommit () {
-        // TODO
+    // for debug
+    async function handleCommitCOM() {
+        const blindingFactor = getRandomBytes32();
+        await commitChoice(1-myPlayerId, levelPoint, choice, blindingFactor, addressIndex);
+        try {
+            await revealChoice(1-myPlayerId, levelPoint, choice, blindingFactor, addressIndex);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async function handleCommit() {
+        const blindingFactor = getRandomBytes32();
+        await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
+
+        await handleCommitCOM();
+
+        try {
+            await revealChoice(myPlayerId, levelPoint, choice, blindingFactor);
+        } catch (err) {
+            console.log(err);
+        }
+
+        setChoice(choice + 1);
     }
 
     return(<>
@@ -182,7 +225,7 @@ export default function BattleMain(){
                 <PlayerYou/>
                 <div style={{height: 100}}/>
                 <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
-                        totalExtraLevel={totalExtraLevel} extraLevel={extraLevel} setExtraLevel={setExtraLevel} randomSlot={randomSlot}/>
+                        totalLevelPoint={totalLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} randomSlot={randomSlot}/>
             </Container>
         </Grid>
         <Grid item xs={10} md={3}>
