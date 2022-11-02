@@ -1,32 +1,32 @@
 import { getContract } from "./utils.js";
 import { approve } from "./coin.js";
 
-async function totalSupply () {
-    const { contract } = getContract("PLMToken");
+async function totalSupply (addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
     return message.toString();
 }
 
-async function getAllTokenOwned () {
-    const { signer, contract } = getContract("PLMToken");
+async function getAllTokenOwned (addressIndex) {
+    const { signer, contract } = getContract("PLMToken", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.getAllTokenOwned(myAddress);
     console.log({ getAllTokenOwned: message });
     return message.toString();
 }
 
-async function getAllCharacterInfo () {
-    const { contract } = getContract("PLMToken");
+async function getAllCharacterInfo (addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getAllCharacterInfo();
     console.log({ getAllCharacterInfo: message });
     return message;
 }
 
-async function updateLevel (tokenId) {
-    const { contractAddress, signer, contract } = getContract("PLMToken");
+async function updateLevel (tokenId, addressIndex) {
+    const { contractAddress, signer, contract } = getContract("PLMToken", addressIndex);
     const coinForLevelUp = getNecessaryExp(tokenId);
-    await approve(contractAddress, coinForLevelUp);
+    await approve(contractAddress, coinForLevelUp, addressIndex);
     const message = await contract.updateLevel(tokenId);
     console.log({ updateLevel: message });
 
@@ -40,24 +40,24 @@ async function updateLevel (tokenId) {
     // }
 }
 
-async function getNecessaryExp (tokenId) {
-    const { contract } = getContract("PLMToken");
+async function getNecessaryExp (tokenId, addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getNecessaryExp(tokenId);
     console.log({ getNecessaryExp: message });
     return message.toString();
 }
 
-async function getCurrentCharacterInfo (tokenId) {
-    const { contract } = getContract("PLMToken");
+async function getCurrentCharacterInfo (tokenId, addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getCurrentCharacterInfo(tokenId);
     console.log({ getCurrentCharacterInfo: message });
     return message;
 }
 
-async function getOwnedCharacterWithIDList (){
-    const myTokens = await getAllTokenOwned();
+async function getOwnedCharacterWithIDList (addressIndex) {
+    const myTokens = await getAllTokenOwned(addressIndex);
     const myTokenIds = myTokens.split(',').map(myToken => Number(myToken));
-    const ownedCharacterInfoList = await getAllCharacterInfo();
+    const ownedCharacterInfoList = await getAllCharacterInfo(addressIndex);
     const ownedCharacters = []
     if (myTokenIds.length > 1) {
         for (let i = 0; i < myTokenIds.length; i++) {

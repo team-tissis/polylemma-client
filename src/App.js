@@ -37,7 +37,7 @@ function App() {
   };
 
   function toggleStyle(val){
-    if(alignment==val){
+    if(alignment === val){
       return { width: '25%', backgroundColor: '#75A9FF', color: 'white', fontWeight: 600, fontSize: 17 }
     }else{
       return { width: '25%', backgroundColor: '#EEEEEE', fontWeight: 500, fontSize: 17  }
@@ -45,13 +45,13 @@ function App() {
   }
 
   function homeBody(){
-    if(alignment == "battle"){
+    if(alignment === "battle"){
       return <Battle/>
-    }else if(alignment == "training"){
+    }else if(alignment === "training"){
       return <ModelTraining/>
-    }else if(alignment == "gacha"){
+    }else if(alignment === "gacha"){
       return <GachaGacha/>
-    }else if(alignment == "pictorial_book"){
+    }else if(alignment === "pictorial_book"){
     }
   }
 
