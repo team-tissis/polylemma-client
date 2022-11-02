@@ -16,6 +16,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
+import { selectMyCharacter } from '../../slices/myCharacter.ts'
+import { useSelector } from 'react-redux';
 import { getProposalList, requestChallenge } from '../../fetch_sol/match_organizer.js';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -48,6 +50,7 @@ function editButtonstyle() {
 }
 
 function BattleAccount({id}){
+    const myCharacters = useSelector(selectMyCharacter);
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {
@@ -58,7 +61,7 @@ function BattleAccount({id}){
     };
 
     async function handleClickStartBattle (id) {
-        const fixedSlotsOfChallenger = [1, 2, 3, 4]; // TODO: 情報を受け取る
+        const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
         await requestChallenge(id, fixedSlotsOfChallenger);
         navigate('/battle_main');
     };
@@ -84,7 +87,7 @@ function BattleAccount({id}){
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-            対戦を行う
+                対戦を行う
             </DialogTitle>
             <DialogContent>
             <DialogContentText id="alert-dialog-description">
@@ -93,7 +96,7 @@ function BattleAccount({id}){
             </DialogContent>
             <DialogActions>
             <Button onClick={handleClose}>やめる</Button>
-            <Button onClick={handleClickStartBattle(id)} autoFocus>
+            <Button onClick={() => handleClickStartBattle(id)} autoFocus>
                 対戦する
             </Button>
             </DialogActions>
@@ -128,7 +131,6 @@ export default function MatchMake() {
                     <BattleAccount id={param}/>
                 </Grid>
             ))}</>
-
         </Grid>
     </Box>
     </>)
