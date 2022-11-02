@@ -168,7 +168,27 @@ export default function Battle() {
         // 現在対戦申し込み中の場合は、ダイアログを表示
         setDialogOpen(await isInProposal());
         const _myCharacterList = await getOwnedCharacterWithIDList()
-        console.log({受け取ったデータ: _myCharacterList})
+
+        // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
+        for (let step = 0; step < myCharacters.charactersList.length; step++) {
+            // const thisChara = _myCharacterList[step];
+            const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.charactersList[step].id);
+            if (_myCharacterList.find(char => char.id === myCharacters.charactersList[step].id)) {
+                console.log({存在しました: myCharacters.charactersList[step]})
+                if( myCharacters.charactersList[step].level == matchedCharaFromAPI.level ){
+                    continue
+                } else {
+                    // 育成が反映されていないので更新する必要がある
+                    continue
+                }
+            } else {
+                console.log({存在しませんでした: myCharacters.charactersList[step]})
+                // dispatch(myCharacterRemove());
+                // break
+            }
+        }
+        // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
+        
         setMyCharacterList(_myCharacterList)
         if(_myCharacterList.length < selectedNum){
             const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
