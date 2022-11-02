@@ -29,7 +29,6 @@ async function gacha (name, addressIndex) {
     const myAddress = await signer.getAddress();
     const rc = await message.wait();
     const event = rc.events.find(event => event.event === 'CharacterReceivedByUser' && event.args.account === myAddress);
-    console.log(event);
     if (event !== undefined) {
         const [ account, tokenId, characterInfo ] = event.args;
         console.log(`${account} got token of ${tokenId}.`);

@@ -13,7 +13,12 @@ async function getAllTokenOwned (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.getAllTokenOwned(myAddress);
     console.log({ getAllTokenOwned: message });
-    return message.toString();
+    return message;
+}
+
+async function getNumberOfOwnedTokens (addressIndex) {
+    const myTokens = await getAllTokenOwned(addressIndex);
+    return myTokens.length;
 }
 
 async function getAllCharacterInfo (addressIndex) {
@@ -56,7 +61,8 @@ async function getCurrentCharacterInfo (tokenId, addressIndex) {
 
 async function getOwnedCharacterWithIDList (addressIndex) {
     const myTokens = await getAllTokenOwned(addressIndex);
-    const myTokenIds = myTokens.split(',').map(myToken => Number(myToken));
+    const myTokenIds = myTokens.map(myToken => Number(myToken));
+    console.log(myTokenIds);
     const ownedCharacterInfoList = await getAllCharacterInfo(addressIndex);
     const ownedCharacters = []
     if (myTokenIds.length > 1) {
@@ -73,4 +79,4 @@ async function getOwnedCharacterWithIDList (addressIndex) {
     return ownedCharacters;
 }
 
-export { totalSupply, updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList };
+export { totalSupply, getNumberOfOwnedTokens, updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList };
