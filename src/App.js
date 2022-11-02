@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper';
 import Battle from './components/home/battle';
 import ModelTraining from './components/home/training';
 import GachaGacha from './components/home/gacha';
-
+import CharacterBook from './components/home/character_book';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
@@ -52,6 +52,7 @@ function App() {
     }else if(alignment === "gacha"){
       return <GachaGacha/>
     }else if(alignment === "pictorial_book"){
+      return <CharacterBook/>
     }
   }
 
