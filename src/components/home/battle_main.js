@@ -40,8 +40,8 @@ function handleButtonStyle() {
 // TODO::すでにバトルに出したキャラは選択できない
 function NFTCharactorCard({character, thisCharacter, setThisCharacter, extraLevel}){
     useEffect(() => {
-        console.log({character})
-        console.log("レベルを読み込み中........")
+        console.log({character});
+        console.log("レベルを読み込み中........");
     },[extraLevel])
 
     return(<>
@@ -78,7 +78,7 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel, extraLevel, setExtraLevel}){
+function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel, extraLevel, setExtraLevel, randomSlot}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
@@ -88,6 +88,11 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalExtraLevel
                         thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} extraLevel={extraLevel} />
                 </Grid>
             ))}
+            {/* TODO: 描画の方が先に走ってしまうから randomSlot が undefined になってる (多分) */}
+            {/* <Grid item xs={2} sm={2} md={2} key={myCharactors.length}>
+                <NFTCharactorCard character={randomSlot}
+                    thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} extraLevel={extraLevel} />
+            </Grid> */}
         </Grid>
         <div style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}}>
             プレイヤーA
@@ -138,6 +143,7 @@ export default function BattleMain(){
 
     useEffect(() => {
         console.log({自分のキャラ: myCharacters.charactersList});
+        console.log(myCharacters.charactersList[0]);
         console.log("読み込み中........");
     },[thisCharacter]);
 
@@ -176,7 +182,7 @@ export default function BattleMain(){
                 <PlayerYou/>
                 <div style={{height: 100}}/>
                 <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
-                        totalExtraLevel={totalExtraLevel} extraLevel={extraLevel} setExtraLevel={setExtraLevel} />
+                        totalExtraLevel={totalExtraLevel} extraLevel={extraLevel} setExtraLevel={setExtraLevel} randomSlot={randomSlot}/>
             </Container>
         </Grid>
         <Grid item xs={10} md={3}>

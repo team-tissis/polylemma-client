@@ -33,7 +33,14 @@ async function getNonce (playerId, addressIndex) {
 async function getRandomSlot (nonce, seed, mod) {
     const randomSlotId = calcRandomSlotId(nonce, seed, mod);
     console.log({ randomSlotId: randomSlotId });
-    return await getCurrentCharacterInfo(randomSlotId);
+    const message = await getCurrentCharacterInfo(randomSlotId);
+    return {
+        id: randomSlotId,
+        characterType: message['characterType'],
+        level: message['level'],
+        rarity: message['rarity'],
+        abilityIds: message['abilityIds'],
+    };
 }
 
 async function getFixedSlotCharInfo (playerId, addressIndex) {
