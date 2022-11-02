@@ -22,7 +22,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
 import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { testProposal } from '../../fetch_sol/test/match_organizer_test';
+import { makeProposers } from '../../fetch_sol/test/match_organizer_test';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -147,8 +147,8 @@ export default function Battle() {
 
     function handleUpdate(){
         dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
-        setIsChanging(false)
-        setStateChange((prev) => prev + 1)
+        setIsChanging(false);
+        setStateChange((prev) => prev + 1);
     }
 
     async function handleCharacterSelected(kind){
@@ -157,12 +157,11 @@ export default function Battle() {
         if(kind === "makeOwnRoom"){
             const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
             // proposeBattleで自分が対戦要求ステータスに変更される
-            console.log({fixedSlotsOfChallenger})
-            await proposeBattle(fixedSlotsOfChallenger)
-            // requestChallenge(fixedSlotsOfChallenger)
+            console.log({fixedSlotsOfChallenger});
+            await proposeBattle(fixedSlotsOfChallenger);
             setDialogOpen(true);
         }else if(kind === "searchRooms"){
-            navigate('/match_make')
+            navigate('/match_make');
         }
     }
 
@@ -173,7 +172,7 @@ export default function Battle() {
 
     // 開発用・後で消す
     async function devHanldeProposal(){
-        await testProposal();
+        await makeProposers();
         // setDialogOpen(false);
         // await cancelProposal();
     }

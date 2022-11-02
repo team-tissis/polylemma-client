@@ -1,4 +1,4 @@
-import { getContract } from "./utils.js";
+import { getSigner, getContract } from "./utils.js";
 
 const CAHARCTER_MIN_LV = 1
 const CAHARCTER_MAX_LV = 255
@@ -54,10 +54,12 @@ async function isNonProposal (addressIndex) {
     return message.toString();
 }
 
-async function requestChallenge (fixedSlotsOfChallenger, addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const myAddress = await signer.getAddress();
-    const message = await contract.requestChallenge(myAddress, fixedSlotsOfChallenger);
+async function requestChallenge (proposerId, fixedSlotsOfChallenger, addressIndex) {
+    // TODO: signer and proposerAddress need to be fixed
+    const signer = getSigner(proposerId);
+    const proposerAddress = await signer.getAddress();
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.requestChallenge(proposerAddress, fixedSlotsOfChallenger);
     console.log({ requestChallenge: message });
     return message.toString();
 }

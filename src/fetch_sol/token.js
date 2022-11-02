@@ -62,7 +62,6 @@ async function getCurrentCharacterInfo (tokenId, addressIndex) {
 async function getOwnedCharacterWithIDList (addressIndex) {
     const myTokens = await getAllTokenOwned(addressIndex);
     const myTokenIds = myTokens.map(myToken => Number(myToken));
-    console.log(myTokenIds);
     const ownedCharacterInfoList = await getAllCharacterInfo(addressIndex);
     const ownedCharacters = []
     if (myTokenIds.length > 1) {

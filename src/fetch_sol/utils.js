@@ -42,4 +42,4 @@ function getContract (contractName, addressIndex) {
     return { contractAddress, signer, contract };
 }
 
-export { stringToBytes32, getContract };
+export { stringToBytes32, getSigner, getContract };
