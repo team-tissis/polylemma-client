@@ -1,29 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './card.css';
 import 'react-tabs/style/react-tabs.css';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { CardActionArea } from '@mui/material';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
-import { Puff } from 'react-loader-spinner';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
-import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList , getAllCharacterInfo} from '../../fetch_sol/token.js';
-import { useSnackbar } from 'notistack';
-import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
 import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -33,8 +15,6 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-
-const selectedNum = 4;
 
 function NFTCard({character}){
     const thisCharacterAbility = character.abilityIds[0];
@@ -46,9 +26,7 @@ function NFTCard({character}){
                 キャラクター名をここに書く
             </div>
             <div class="box">
-                <p>
-                    { character.level }
-                </p>
+                <p>{ character.level }</p>
             </div>
             <div class="character_type_box" 
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
@@ -79,13 +57,13 @@ export default function CharacterBook() {
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
-        <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
+            <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
                 <>{allCharacters.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
                         <NFTCard character={character} key={index} />
                     </Grid>
                 ))}</>
-        </Grid>
+            </Grid>
         </Box>
     </>)
 }

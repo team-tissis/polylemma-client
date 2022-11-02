@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './card.css';
 import 'react-tabs/style/react-tabs.css';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { CardActionArea } from '@mui/material';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -25,6 +20,8 @@ import { useSnackbar } from 'notistack';
 import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
 import characterInfo from "./character_info.json";
+import Slider from '@mui/material/Slider';
+import TextField from '@mui/material/TextField';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -106,9 +103,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
                 キャラクター名をここに書く
             </div>
             <div class="box">
-                <p>
-                    { character.level }
-                </p>
+                <p>{ character.level }</p>
             </div>
             <div class="character_type_box" 
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
@@ -154,6 +149,7 @@ export default function Battle() {
     const [myCharacterList, setMyCharacterList] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
+    const [rangeValue, setRangeValue] = useState({min: 4, max: 1020});
 
     useEffect(() => {
         // スマコンのアドレスを取得
@@ -222,7 +218,7 @@ export default function Battle() {
             const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
             // proposeBattleで自分が対戦要求ステータスに変更される
             console.log({fixedSlotsOfChallenger});
-            await proposeBattle(fixedSlotsOfChallenger);
+            await proposeBattle(fixedSlotsOfChallenger, rangeValue);
             setDialogOpen(true);
         }else if(kind === "searchRooms"){
             navigate('/match_make');
@@ -301,16 +297,16 @@ export default function Battle() {
             </DialogTitle>
             <DialogContent>
                 <div style={{width: '100%', textAlign: 'center'}}>
-                <Puff
-                    height="150"
-                    width="150"
-                    radisu={10}
-                    color="#4fa94d"
-                    ariaLabel="puff-loading"
-                    wrapperStyle={{display: 'inlineBlock'}}
-                    wrapperClass=""
-                    visible={true}
-                />
+                    <Puff
+                        height="150"
+                        width="150"
+                        radisu={10}
+                        color="#4fa94d"
+                        ariaLabel="puff-loading"
+                        wrapperStyle={{display: 'inlineBlock'}}
+                        wrapperClass=""
+                        visible={true}
+                    />
                 </div>
 
             <DialogContentText id="alert-dialog-description">
@@ -344,7 +340,37 @@ export default function Battle() {
 
         { (charactersForBattle.length >= selectedNum) &&
             <>
-                {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        '& > :not(style)': { m: 1 },
+                    }}
+                >   
+                    <div>対戦相手の希望レベル上限下限<br/>(4 ~ 1020)まで指定可能</div>
+                    <TextField
+                        error={false}
+                        type = 'number'
+                        min="4" max="1020"
+                        helperText={ false ? "対戦相手希望下限レベルを正しく入力してください"  : ""}
+                        id="demo-helper-text-aligned"
+                        defaultValue={rangeValue.min}
+                        // onChange={(e) => setHealthData({ ...healthData, weight: e.target.value })}
+                        onChange={(e) => setRangeValue({ ...rangeValue, min: Number(e.target.value)})}
+                    />
+                    から
+                    <TextField
+                        error={false}
+                        type = 'number'
+                        min="4" max="1020"
+                        helperText= {false ? "対戦相手希望上限レベルを正しく入力してください" : ""}
+                        id="demo-helper-text-aligned-no-helper"
+                        defaultValue={rangeValue.max}
+                        onChange={(e) => setRangeValue({ ...rangeValue, max: Number(e.target.value)})}
+                    />
+                    の範囲で対戦部屋を作成
+                </Box>
+
                 <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() }
                     onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
                     対戦の部屋を作る
