@@ -17,7 +17,7 @@ import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../
 import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
-import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
 import characterInfo from "./character_info.json";
 import Slider from '@mui/material/Slider';
@@ -194,8 +194,8 @@ export default function Battle() {
     useEffect(() => {(async function() {
         // 現在対戦申し込み中の場合は、ダイアログを表示
         setDialogOpen(await isInProposal());
-        const _myCharacterList = await getOwnedCharacterWithIDList()
-        setMyCharacterList(_myCharacterList)
+        const _myCharacterList = await getOwnedCharacterWithIDList();
+        setMyCharacterList(_myCharacterList);
         if(_myCharacterList.length < selectedNum){
             const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
             enqueueSnackbar(message, {

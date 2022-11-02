@@ -75,10 +75,15 @@ async function defeatByFoul () {
     const blindingFactor1 = getRandomBytes32();
     await commitChoice(1 - playerId, levelPoint, choice, blindingFactor1, addressIndex2);
 
-    await revealChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+    try {
+        await revealChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+    } catch (err) {
+        console.log(err);
+    }
 
-    // console.log(await getMatchState(addressIndex));
-    // console.log(await getMatchState(addressIndex2));
+    for (let i = 0; i < 7; i++) {
+        console.log(await getMatchState(i));
+    }
 }
 
 export { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, defeatByFoul };
