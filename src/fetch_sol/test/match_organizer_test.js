@@ -24,6 +24,7 @@ async function makeProposers () {
 async function cancelProposals () {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
         if (isInProposal(addressIndex)) {
+            console.log('cancel...')
             cancelProposal(addressIndex);
         } else {
             console.log(addressIndex.toString() + " is not in proposal.")

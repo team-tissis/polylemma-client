@@ -49,7 +49,7 @@ function editButtonstyle() {
     }
 }
 
-function BattleAccount({id}){
+function BattleAccount({proposerToBattle}){
     const myCharacters = useSelector(selectMyCharacter);
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
@@ -60,9 +60,12 @@ function BattleAccount({id}){
         setOpen(false);
     };
 
-    async function handleClickStartBattle (id) {
+    async function handleClickStartBattle () {
+        const proposalAddressIndex = 0;
         const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
-        await requestChallenge(id, fixedSlotsOfChallenger);
+        console.log({対戦を申し込む相手のアドレス: proposerToBattle[proposalAddressIndex], 
+                    対戦時に使うキャラのアドレス: fixedSlotsOfChallenger})
+        await requestChallenge(proposerToBattle[proposalAddressIndex], fixedSlotsOfChallenger);
         navigate('/battle_main');
     };
 
@@ -72,11 +75,12 @@ function BattleAccount({id}){
                 <CardMedia component="img" height="200"
                     image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
                 <CardContent>
-                <Typography gutterBottom variant="h5" component="div">アカウント{id}</Typography>
-                <Typography variant="body1" color="text.primary">要素1: AA</Typography>
-                <Typography variant="body1" color="text.primary">要素2: AA</Typography>
-                {/* <Typography variant="body1" color="text.primary">レベル: AA</Typography>
-                <Typography variant="body1" color="text.primary">特性: AA</Typography> */}
+                <Typography gutterBottom variant="h5" component="div">アカウント</Typography>
+                <Typography variant="body1" color="text.primary">アドレス: {proposerToBattle[0]}</Typography>
+                <Typography variant="body1" color="text.primary">要求レベル下限: {proposerToBattle[1]}</Typography>
+                <Typography variant="body1" color="text.primary">要求レベル上限: {proposerToBattle[2]}</Typography>
+                <Typography variant="body1" color="text.primary">キャラクターレベル合計値 {proposerToBattle[3]}</Typography>
+                {/* <Typography variant="body1" color="text.primary">ブロック番号: {proposerToBattle[4]}</Typography> */}
                 </CardContent>
             </CardActionArea>
         </Card>
@@ -91,12 +95,12 @@ function BattleAccount({id}){
             </DialogTitle>
             <DialogContent>
             <DialogContentText id="alert-dialog-description">
-                アカウント{id}と対戦しますか？
+                アカウントと対戦しますか？
             </DialogContentText>
             </DialogContent>
             <DialogActions>
             <Button onClick={handleClose}>やめる</Button>
-            <Button onClick={() => handleClickStartBattle(id)} autoFocus>
+            <Button onClick={() => handleClickStartBattle()} autoFocus>
                 対戦する
             </Button>
             </DialogActions>
@@ -107,14 +111,17 @@ function BattleAccount({id}){
 export default function MatchMake() {
     // const initData = [0,1,2,3,4,5,6,7,8,9,10];
     const initData = [3,4,5,6];
+    const navigate = useNavigate();
     const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
     const [selectedData, setSelectedData] = useState([0,1,2,3]);
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
-    const navigate = useNavigate();
+
+    const [putProposalAccounts, setPutProposalAccounts] = useState([]);
 
     useEffect(() => {(async function() {
-        await getProposalList();
+        setPutProposalAccounts(await getProposalList());
+        // setPutProposalAccounts();
     })();}, [stateChange]);
 
     function handleUpdate(){
@@ -126,9 +133,9 @@ export default function MatchMake() {
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-            <>{initData.map((param, index) => (
+            <>{putProposalAccounts.map((proposalAccount, index) => (
                 <Grid item xs={12} sm={4} md={4} key={index}>
-                    <BattleAccount id={param}/>
+                    <BattleAccount proposerToBattle={proposalAccount}/>
                 </Grid>
             ))}</>
         </Grid>

@@ -198,7 +198,8 @@ export default function Battle() {
             }
         </Grid>
         {isChanging ?
-            <Button variant="contained" size="large" color="secondary" style={ editButtonstyle() } onClick={() => handleUpdate() }>
+            <Button variant="contained" size="large" color="secondary"
+                style={ editButtonstyle() } onClick={() => handleUpdate() }>
                 変更を保存する
             </Button>
             :
@@ -243,6 +244,12 @@ export default function Battle() {
             </Button>
             </DialogActions>
         </Dialog>
+
+        <Button variant="contained" size="large" style={{margin: 10}}
+            onClick={() => dispatch(myCharacterRemove())} disabled={isChanging}>
+            [開発用] 自分のキャラクターの登録を初期化する<br/>
+            ボタンクリック後リロード
+        </Button><br/>
 
         <Button variant="contained" size="large"
             onClick={() => devHanldeProposal()} disabled={isChanging}>
