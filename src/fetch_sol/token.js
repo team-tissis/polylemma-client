@@ -78,4 +78,4 @@ async function getOwnedCharacterWithIDList (addressIndex) {
     return ownedCharacters;
 }
 
-export { totalSupply, getNumberOfOwnedTokens, updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList };
+export { totalSupply, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList };
