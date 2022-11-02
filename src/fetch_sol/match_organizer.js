@@ -45,6 +45,14 @@ async function isInBattle (addressIndex) {
     return message;
 }
 
+async function setNonProposal (addressIndex) {
+    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const myAddress = await signer.getAddress();
+    const message = await contract.setNonProposal(myAddress);
+    console.log({ setNonProposal: message });
+    return message;
+}
+
 async function isNonProposal (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
@@ -66,5 +74,5 @@ async function cancelProposal (addressIndex) {
 }
 
 export { proposeBattle, getProposalList, getMatchState,
-         isInProposal, isInBattle, isNonProposal, requestChallenge,
+         isInProposal, isInBattle, setNonProposal, isNonProposal, requestChallenge,
          cancelProposal };
