@@ -5,7 +5,7 @@ async function getGachaFee (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getGachaFee();
     console.log({ getGachaFee: message });
-    return message.toString();
+    return message.toNumber();
 }
 
 async function gacha (name, addressIndex) {
@@ -33,7 +33,7 @@ async function gacha (name, addressIndex) {
         const [ account, tokenId, characterInfo ] = event.args;
         console.log(`${account} got token of ${tokenId}.`);
         console.log({ characterInfo: characterInfo });
-        return tokenId.toString();
+        return tokenId.toNumber();
     }
 }
 
