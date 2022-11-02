@@ -232,11 +232,11 @@ export default function Battle() {
         await cancelProposal();
     }
 
-    async function devHanldeCharacter(){
+    async function devHandleCharacter(){
         await createCharacters(fixedSlotsOfChallengers);
     }
 
-    async function devHanldeProposal(){
+    async function devHandleProposal(){
         await makeProposers(fixedSlotsOfChallengers);
         // setDialogOpen(false);
         // await cancelProposal();
@@ -330,12 +330,12 @@ export default function Battle() {
         </Dialog>
 
         <Button variant="contained" size="large"
-            onClick={() => devHanldeCharacter()} disabled={isChanging}>
+            onClick={() => devHandleCharacter()} disabled={isChanging}>
             [開発用] ユーザー2~4のキャラを用意する
         </Button>
 
         <Button variant="contained" size="large"
-            onClick={() => devHanldeProposal()} disabled={isChanging}>
+            onClick={() => devHandleProposal()} disabled={isChanging}>
             [開発用] ユーザー2~4の3名を対戦可能状態にする
         </Button>
 
