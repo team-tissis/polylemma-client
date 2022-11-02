@@ -4,11 +4,11 @@ const CAHARCTER_MIN_LV = 1
 const CAHARCTER_MAX_LV = 255
 const CAHARCTER_NUM = 4
 
-async function proposeBattle (fixedSlotsOfProposer, addressIndex) {
+async function proposeBattle (fixedSlotsOfProposer, requestRange, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.proposeBattle(
-        CAHARCTER_MIN_LV * CAHARCTER_NUM,
-        CAHARCTER_MAX_LV * CAHARCTER_NUM,
+        requestRange.min,
+        requestRange.max,
         fixedSlotsOfProposer
     );
     console.log({ proposeBattle: message });
