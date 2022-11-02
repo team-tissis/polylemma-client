@@ -14,7 +14,9 @@ import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
-import { commitPlayerSeed, commitChoice, revealChoice, getNonce, getFixedSlotCharInfo } from '../../fetch_sol/battle_field.js';
+import { getRandomBytes32 } from '../../fetch_sol/utils.js';
+import { totalSupply } from '../../fetch_sol/token.js';
+import { commitPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -126,19 +128,46 @@ export default function BattleMain(){
     const [extraLevel, setExtraLevel] = useState(0);
     const myCharacters = useSelector(selectMyCharacter);
 
+    const myPlayerId = getPlayerIdFromAddress();
+    // myCharacters = getFixedSlotCharacterInfo(myPlayerId);
+    // opponentCharacters = getFixedSlotCharacterInfo(1-myPlayerId);
+    const seed = getRandomBytes32();
+    const [nonce, setNonce] = useState();
+    const [mod, setMod] = useState();
+    const [randomSlot, setRandomSlot] = useState();
+
     useEffect(() => {
-        console.log({自分のキャラ: myCharacters.charactersList})
-        console.log("読み込み中........")
-    },[thisCharacter])
+        console.log({自分のキャラ: myCharacters.charactersList});
+        console.log("読み込み中........");
+    },[thisCharacter]);
+
+    useEffect(() => {(async function() {
+        try {
+            await commitPlayerSeed(myPlayerId, seed);
+        } catch (e) {
+            // TODO: Error handling
+        }
+
+        const tmpNonce = await getNonce(myPlayerId);
+        setNonce(tmpNonce);
+        const tmpMod = await totalSupply();
+        setMod(tmpMod);
+        // setHoge で設定したやつは useEffect が終わるまで更新されない…
+        setRandomSlot(await getRandomSlot(tmpNonce, seed, tmpMod));
+    })();}, []);
 
     const navigate = useNavigate();
-    async function handleFinishBattle () {
+    async function devHandleFinishBattle () {
         await defeatByFoul();
         navigate('../');
     }
 
+    async function handleCommit () {
+        // TODO
+    }
+
     return(<>
-    <Button variant="contained" size="large" color="secondary" onClick={() => handleFinishBattle() }>
+    <Button variant="contained" size="large" color="secondary" onClick={() => devHandleFinishBattle() }>
         バトルを終了する
     </Button>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
@@ -187,7 +216,7 @@ export default function BattleMain(){
         </Grid>
 
         {thisCharacter &&
-            <Fab variant="extended" style={ handleButtonStyle() } color="primary" aria-label="add">
+            <Fab variant="extended" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleCommit()}>
                 勝負するキャラクターを確定する
             </Fab>
         }
