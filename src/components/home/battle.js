@@ -22,7 +22,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
 import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { makeProposers } from '../../fetch_sol/test/match_organizer_test';
+import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -165,16 +165,32 @@ export default function Battle() {
         }
     }
 
+    // 開発用・後で消す
     async function declineProposal(){
         setDialogOpen(false);
         await cancelProposal();
     }
 
-    // 開発用・後で消す
+    async function devHanldeCharacter(){
+        await createCharacters();
+    }
+
     async function devHanldeProposal(){
         await makeProposers();
         // setDialogOpen(false);
         // await cancelProposal();
+    }
+
+    // 開発テスト用: Proposalを取り下げる
+    async function handleDeclinePros () {
+        await cancelProposals();
+    }
+
+    // 開発テスト用: 自分に対戦を申し込む
+    // TODO: event を listen してマッチを成立させないといけない
+    async function handleProposeToMe () {
+        await requestChallengeToMe();
+        navigate('/battle_main');
     }
 
     return(<>
@@ -217,7 +233,7 @@ export default function Battle() {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title" style={{ textAlign: 'center'}}>
-            対戦相手を探しています。
+                対戦相手を探しています。
             </DialogTitle>
             <DialogContent>
                 <div style={{width: '100%', textAlign: 'center'}}>
@@ -239,6 +255,9 @@ export default function Battle() {
             </DialogContentText>
             </DialogContent>
             <DialogActions>
+            <Button variant="outlined" color="secondary" onClick={() => handleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+                [dev]自分に対戦を申し込ませる
+            </Button>
             <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
                 対戦申告を取り下げる
             </Button>
@@ -252,8 +271,17 @@ export default function Battle() {
         </Button><br/>
 
         <Button variant="contained" size="large"
+            onClick={() => devHanldeCharacter()} disabled={isChanging}>
+            [開発用] ユーザー2~4のキャラを用意する
+        </Button>
+
+        <Button variant="contained" size="large"
             onClick={() => devHanldeProposal()} disabled={isChanging}>
             [開発用] ユーザー2~4の3名を対戦可能状態にする
+        </Button>
+
+        <Button variant="outlined" color="secondary" onClick={() => handleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+            [dev]全ユーザーのProposalを取り下げる
         </Button>
 
         { (charactersForBattle.length >= selectedNum) &&

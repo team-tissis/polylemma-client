@@ -54,11 +54,11 @@ async function isNonProposal (addressIndex) {
     return message.toString();
 }
 
-async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger) {
+async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger, addressIndex) {
     // TODO: signer and proposerAddress need to be fixed
-    const signer = getSigner();
+    // const signer = getSigner();
     // const myAddress = await signer.getAddress();
-    const { contract } = getContract("PLMMatchOrganizer");
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);
     console.log({ requestChallenge: message });
     return message.toString();
