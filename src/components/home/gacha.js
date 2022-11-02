@@ -16,7 +16,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { balanceOf, mint } from '../../fetch_sol/coin.js';
-import { totalSupply } from '../../fetch_sol/token.js';
+import { getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
 import { gacha, getGachaFee } from '../../fetch_sol/gacha.js';
 import TextField from '@mui/material/TextField';
 
@@ -60,14 +60,14 @@ export default function GachaGacha(){
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
         setCurrentCoin(await balanceOf());
-        setCurrentToken(await totalSupply());
+        setCurrentToken(await getNumberOfOwnedTokens());
     })();}, []);
 
     const handleClickGacha = async () => {
         setOpen(true);
         const newTokenId = await gacha(characterName);
         setCurrentCoin(await balanceOf());
-        setCurrentToken(await totalSupply());
+        setCurrentToken(await getNumberOfOwnedTokens());
         setAddedTokenId(newTokenId);
     };
 
