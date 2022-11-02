@@ -226,17 +226,18 @@ export default function Battle() {
     }
 
     // 開発用・後で消す
+    const fixedSlotsOfChallengers = Array();
     async function declineProposal(){
         setDialogOpen(false);
         await cancelProposal();
     }
 
     async function devHanldeCharacter(){
-        await createCharacters();
+        await createCharacters(fixedSlotsOfChallengers);
     }
 
     async function devHanldeProposal(){
-        await makeProposers();
+        await makeProposers(fixedSlotsOfChallengers);
         // setDialogOpen(false);
         // await cancelProposal();
     }
