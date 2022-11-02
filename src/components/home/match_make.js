@@ -16,7 +16,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import { getProposalList } from '../../fetch_sol/match_organizer.js';
+import { getProposalList, requestChallenge } from '../../fetch_sol/match_organizer.js';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -30,7 +30,7 @@ function style() {
     return {
         position: 'fixed',
         bottom: 10,
-        right: '35%', 
+        right: '35%',
         width: '30%',
         fontSize: 20,
         fontWeight: 600
@@ -41,7 +41,7 @@ function editButtonstyle() {
     return {
         position: 'fixed',
         bottom: 50,
-        right: 30, 
+        right: 30,
         fontSize: 20,
         fontWeight: 600
     }
@@ -51,10 +51,16 @@ function BattleAccount({id}){
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {
-      setOpen(true);
+        setOpen(true);
     };
     const handleClose = () => {
-      setOpen(false);
+        setOpen(false);
+    };
+
+    async function handleClickStartBattle (id) {
+        const fixedSlotsOfChallenger = [1, 2, 3, 4]; // TODO: 情報を受け取る
+        await requestChallenge(id, fixedSlotsOfChallenger);
+        navigate('/battle_main');
     };
 
     return(<>
@@ -87,7 +93,7 @@ function BattleAccount({id}){
             </DialogContent>
             <DialogActions>
             <Button onClick={handleClose}>やめる</Button>
-            <Button onClick={() => navigate('/battle_main')} autoFocus>
+            <Button onClick={handleClickStartBattle(id)} autoFocus>
                 対戦する
             </Button>
             </DialogActions>
@@ -96,26 +102,22 @@ function BattleAccount({id}){
 }
 
 export default function MatchMake() {
-    const initData = [0,1,2,3,4,5,6,7,8,9,10];
+    // const initData = [0,1,2,3,4,5,6,7,8,9,10];
+    const initData = [3,4,5,6];
     const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
     const [selectedData, setSelectedData] = useState([0,1,2,3]);
     const [isChanging, setIsChanging] = useState(false);
     const [stateChange, setStateChange] = useState(0);
     const navigate = useNavigate();
-    
+
     useEffect(() => {(async function() {
         await getProposalList();
     })();}, [stateChange]);
-    
-    useEffect(() => {
-        /* 第1引数には実行させたい副作用関数を記述*/
-        console.log('')
-    },[stateChange])
 
     function handleUpdate(){
-        setMainCharacters(selectedData)
-        setIsChanging(false)
-        setStateChange((prev) => prev + 1)
+        setMainCharacters(selectedData);
+        setIsChanging(false);
+        setStateChange((prev) => prev + 1);
     }
 
     return(<>
