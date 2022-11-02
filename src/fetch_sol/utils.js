@@ -17,6 +17,10 @@ function getSeedString (myAddress, seed) {
     return ethers.utils.solidityKeccak256(["address", "bytes32"], [myAddress, seed]);
 }
 
+function calcRandomSlotId (nonce, seed, mod) {
+    return ethers.BigNumber.from(ethers.utils.solidityKeccak256(["bytes32", "bytes32"], [nonce, seed])).mod(mod).toNumber();
+}
+
 function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
     return ethers.utils.solidityKeccak256(["address", "uint8", "uint8", "bytes32"], [myAddress, levelPoint, choice, blindingFactor]);
 }
@@ -54,4 +58,4 @@ function getContract (contractName, addressIndex) {
     return { contractAddress, signer, contract };
 }
 
-export { stringToBytes32, getRandomBytes32, getSeedString, getCommitString, getContract };
+export { stringToBytes32, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract };

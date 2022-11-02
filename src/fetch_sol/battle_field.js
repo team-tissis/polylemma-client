@@ -1,4 +1,5 @@
-import { getSeedString, getCommitString, getContract } from "./utils.js";
+import { getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
+import { getCurrentCharacterInfo } from "./token.js";
 
 async function commitPlayerSeed (playerId, seed, addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
@@ -29,6 +30,12 @@ async function getNonce (playerId, addressIndex) {
     return message;
 }
 
+async function getRandomSlot (nonce, seed, mod) {
+    const randomSlotId = calcRandomSlotId(nonce, seed, mod);
+    console.log({ randomSlotId: randomSlotId });
+    return await getCurrentCharacterInfo(randomSlotId);
+}
+
 async function getFixedSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.getFixedSlotCharInfo(playerId);
@@ -45,4 +52,4 @@ async function getPlayerIdFromAddress (addressIndex) {
 }
 
 
-export { commitPlayerSeed, commitChoice, revealChoice, getNonce, getFixedSlotCharInfo, getPlayerIdFromAddress };
+export { commitPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress };
