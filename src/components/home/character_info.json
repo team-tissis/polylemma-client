@@ -1,0 +1,84 @@
+{
+    "characterType": {
+        "fire": {
+            "jaName": "ほのお",
+            "borderColor": "#8B0000",
+            "backgroundColor": "#FF4F50"
+        },
+        "water": {
+            "jaName": "みず",
+            "borderColor": "#00008B",
+            "backgroundColor": "#1E90FF"
+        },
+        "grass": {
+            "jaName": "くさ",
+            "borderColor": "#006400",
+            "backgroundColor": "#00FF7F"
+        }
+    },
+    "attributes": [
+        {
+            "id": 0,
+            "title": "特性なし",
+            "description": "",
+            "rareAmount": 1,
+            "backgroundColor": "#DDDDDD"
+        },
+        {
+            "id": 1,
+            "title": "必勝",
+            "description": "対戦相手のキャラクターと同じレベルだった場合、絶対に勝利",
+            "rareAmount": 4,
+            "backgroundColor": "#FF9999"
+        },
+        {
+            "id": 2,
+            "title": "前半強い",
+            "description": "バトルの前半に出すと、与えるダメージが大きくなる x 回目に出すと y ％ の確率で f(x) 倍",
+            "rareAmount": 3,
+            "backgroundColor": "#99FFFF"
+        },
+        {
+            "id": 3,
+            "title": "コイン倍増",
+            "description": "勝利時に得られるコインが増える(1.2倍)",
+            "rareAmount": 3,
+            "backgroundColor": "#FFFF99"
+        },
+        {
+            "id": 4,
+            "title": "LP増加",
+            "description": "自分に付与されたレベルポイントを増やす(1.5倍)",
+            "rareAmount": 3,
+            "backgroundColor": "#00EE00"
+        },
+        {
+            "id": 5,
+            "title": "急所",
+            "description": "急所に当たりやすい(20% の確率で 1.2倍)",
+            "rareAmount": 2,
+            "backgroundColor": "#9933FF"
+        },
+        {
+            "id": 6,
+            "title": "属性の効果をなくす",
+            "description": "相手がどの属性でも自分が相手に与えるダメージは 1 倍",
+            "rareAmount": 2,
+            "backgroundColor": "#FF773E"
+        },
+        {
+            "id": 7,
+            "title": "与えるダメージに関係なく勝敗が決まる",
+            "description": "自分が勝利する確率が 5 %",
+            "rareAmount": 1,
+            "backgroundColor": "#17F9AD"
+        },
+        {
+            "id": 8,
+            "title": "RS にレア度が高いキャラが出やすくなる",
+            "description": "レア度 x のキャラが出る確率が f(20) %",
+            "rareAmount": 4,
+            "backgroundColor": "#BAD3FF"
+        }
+    ]
+}

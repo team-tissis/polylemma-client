@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './card.css';
 import 'react-tabs/style/react-tabs.css';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -23,6 +24,7 @@ import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
 import { proposeBattle, getProposalList, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
+import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -67,11 +69,14 @@ const selectedNum = 4;
 
 function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
+    const thisCharacterAbility = character.abilityIds[0];
+    const charaType = characterInfo.characterType[character.characterType];
+    console.log({タイプのCSS: charaType})
     var color = 'white'
     const result = charactersForBattle.filter(cha => cha.id === character.id);
     const alreadySelected = (result.length > 0) ? true : false;
     if( isChanging && alreadySelected){
-        color = '#CCFFFF'
+        color = 'black'
     }
 
     function handleChange(){
@@ -95,8 +100,35 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
         setStateChange((prev) => prev + 1)
     }
 
-    return(
-        <Card style={{backgroundColor: color}} onClick={ isChanging ? () => handleChange() : null}>
+    return(<>
+        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
+            <div class="card_name">
+                キャラクター名をここに書く
+            </div>
+            <div class="box">
+                <p>
+                    { character.level }
+                </p>
+            </div>
+            <div class="character_type_box" 
+                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
+                { charaType['jaName'] }
+            </div>
+            <div class="img_box" style={{backgroundColor: color}}>
+                <img className='img_div' src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            </div>
+            <div class="attribute_box">
+                { characterInfo.attributes[thisCharacterAbility]["title"] }
+            </div>
+            <div class="detail_box">
+                <div style={{margin: 10}}>
+                    { characterInfo.attributes[thisCharacterAbility]["description"] }<br/>
+                    属性: ここに属性の名前を書く<br/>
+                </div>
+            </div>
+        </div>
+
+        {/* <Card style={{backgroundColor: color}} onClick={ isChanging ? () => handleChange() : null}>
         <CardActionArea>
             <CardMedia component="img" height="200"
                 image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
@@ -108,8 +140,8 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
             <Typography variant="body1" color="text.primary">特性: { character.abilityIds }</Typography>
             </CardContent>
         </CardActionArea>
-    </Card>
-    )
+        </Card> */}
+    </>)
 }
 
 
@@ -125,6 +157,7 @@ export default function Battle() {
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
+        // スマコンのアドレスを取得
         // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
         // もし服魔れていなかったら dispatch(myCharacterRemove()); で削除
         console.log({自分が選択しているキャラ: myCharacters.charactersList})
@@ -135,6 +168,7 @@ export default function Battle() {
         // 現在対戦申し込み中の場合は、ダイアログを表示
         setDialogOpen(await isInProposal());
         const _myCharacterList = await getOwnedCharacterWithIDList()
+        console.log({受け取ったデータ: _myCharacterList})
         setMyCharacterList(_myCharacterList)
         if(_myCharacterList.length < selectedNum){
             const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
