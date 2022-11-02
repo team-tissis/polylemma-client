@@ -61,7 +61,8 @@ function editButtonstyle() {
         bottom: 50,
         right: 30,
         fontSize: 20,
-        fontWeight: 600
+        fontWeight: 600,
+        zIndex: 20
     }
 }
 
@@ -71,7 +72,6 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
     const { enqueueSnackbar } = useSnackbar();
     const thisCharacterAbility = character.abilityIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    console.log({タイプのCSS: charaType})
     var color = 'white'
     const result = charactersForBattle.filter(cha => cha.id === character.id);
     const alreadySelected = (result.length > 0) ? true : false;
@@ -164,31 +164,42 @@ export default function Battle() {
         setCharactersForBattle(myCharacters.charactersList)
     }, []);
 
+    // キャラクターを所持していないのに、キャラがバトル画面で表示されてしまうバグの修正
     useEffect(() => {(async function() {
-        // 現在対戦申し込み中の場合は、ダイアログを表示
-        setDialogOpen(await isInProposal());
         const _myCharacterList = await getOwnedCharacterWithIDList()
-
         // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
+        const updatedCharactersForBattle = []
+        var hasToUpdateState = false
         for (let step = 0; step < myCharacters.charactersList.length; step++) {
             // const thisChara = _myCharacterList[step];
             const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.charactersList[step].id);
             if (_myCharacterList.find(char => char.id === myCharacters.charactersList[step].id)) {
                 console.log({存在しました: myCharacters.charactersList[step]})
                 if( myCharacters.charactersList[step].level == matchedCharaFromAPI.level ){
+                    updatedCharactersForBattle.push(matchedCharaFromAPI)
                     continue
                 } else {
                     // 育成が反映されていないので更新する必要がある
+                    updatedCharactersForBattle.push(matchedCharaFromAPI)
+                    hasToUpdateState = true
                     continue
                 }
             } else {
-                console.log({存在しませんでした: myCharacters.charactersList[step]})
-                // dispatch(myCharacterRemove());
-                // break
+                hasToUpdateState = true
+                continue
             }
         }
+        if(hasToUpdateState){
+            dispatch(setCurrentMyCharacter(updatedCharactersForBattle)); //更新
+            setCharactersForBattle(updatedCharactersForBattle)
+        }
         // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
-        
+    })();}, []);
+
+    useEffect(() => {(async function() {
+        // 現在対戦申し込み中の場合は、ダイアログを表示
+        setDialogOpen(await isInProposal());
+        const _myCharacterList = await getOwnedCharacterWithIDList()
         setMyCharacterList(_myCharacterList)
         if(_myCharacterList.length < selectedNum){
             const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
