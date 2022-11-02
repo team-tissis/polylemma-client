@@ -1,17 +1,17 @@
 import { stringToBytes32, getContract } from "./utils.js";
 import { approve } from "./coin.js";
 
-async function getGachaFee () {
-    const { contract } = getContract("PLMDealer");
+async function getGachaFee (addressIndex) {
+    const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getGachaFee();
     console.log({ getGachaFee: message });
     return message.toString();
 }
 
-async function gacha (name) {
-    const { contractAddress, signer, contract } = getContract("PLMDealer");
+async function gacha (name, addressIndex) {
+    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
     const coinForGacha = await getGachaFee();
-    await approve(contractAddress, coinForGacha);
+    await approve(contractAddress, coinForGacha, addressIndex);
     const message = await contract.gacha(stringToBytes32(name));
     console.log({ gacha: message });
 

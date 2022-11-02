@@ -1,21 +1,21 @@
 import { getContract } from "./utils.js";
 
-async function balanceOf () {
-    const { signer, contract } = getContract("PLMCoin");
+async function balanceOf (addressIndex) {
+    const { signer, contract } = getContract("PLMCoin", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.balanceOf(myAddress);
     console.log({ balanceOf: message });
     return message.toString();
 }
 
-async function approve (contractAddress, approvedCoin) {
-    const { contract } = getContract("PLMCoin");
+async function approve (contractAddress, approvedCoin, addressIndex) {
+    const { contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.approve(contractAddress, approvedCoin);
     console.log({ approve: message });
 }
 
-async function mint () {
-    const { signer, contract } = getContract("PLMCoin");
+async function mint (addressIndex) {
+    const { signer, contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.mint(100);
     console.log({ mint: message });
 
@@ -38,7 +38,7 @@ async function mint () {
     }
     // event の listen 終了
 
-    return { newCoin: await balanceOf() };
+    return { newCoin: await balanceOf(addressIndex) };
 }
 
 export { balanceOf, approve, mint};

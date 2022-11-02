@@ -173,7 +173,7 @@ export default function Battle() {
 
     // 開発用・後で消す
     async function devHanldeProposal(){
-        await testProposal()
+        await testProposal();
         // setDialogOpen(false);
         // await cancelProposal();
     }
@@ -253,7 +253,7 @@ export default function Battle() {
         { (charactersForBattle.length >= selectedNum) &&
             <>
                 {/* 自分のスタミナをスマコン側から確認する && スタミナがなければボタンは押せない */}
-                <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() } 
+                <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() }
                     onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
                     対戦の部屋を作る
                 </Button>
