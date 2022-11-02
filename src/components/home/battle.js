@@ -122,8 +122,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
             </div>
             <div class="detail_box">
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAbility]["description"] }<br/>
-                    属性: ここに属性の名前を書く<br/>
+                    { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>
             </div>
         </div>
