@@ -14,6 +14,7 @@ import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
+import { commitPlayerSeed, commitChoice, revealChoice, getNonce, getFixedSlotCharInfo } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({

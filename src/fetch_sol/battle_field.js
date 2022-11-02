@@ -22,4 +22,27 @@ async function revealChoice (playerId, levelPoint, choice, blindingFactor, addre
     console.log({ revealChoice: message });
 }
 
-export { commitPlayerSeed, commitChoice, revealChoice };
+async function getNonce (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.getNonce(playerId);
+    console.log({ getNonce: message });
+    return message;
+}
+
+async function getFixedSlotCharInfo (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.getFixedSlotCharInfo(playerId);
+    console.log({ getFixedSlotCharInfo: message });
+    return message;
+}
+
+async function getPlayerIdFromAddress (addressIndex) {
+    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const myAddress = await signer.getAddress();
+    const message = await contract.getPlayerIdFromAddress(myAddress);
+    console.log({ getPlayerIdFromAddress: message });
+    return message;
+}
+
+
+export { commitPlayerSeed, commitChoice, revealChoice, getNonce, getFixedSlotCharInfo, getPlayerIdFromAddress };
