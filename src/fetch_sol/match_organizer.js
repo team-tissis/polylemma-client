@@ -75,27 +75,6 @@ async function cancelProposal (addressIndex) {
     return message.toString();
 }
 
-// // 後で消す: 開発用1
-// // 3名のユーザーを対戦可能にする
-// async function devProposeBattle (fixedSlotsOfProposer, addressIndex) {
-//     const { signer, contract } = getContract("PLMMatchOrganizer", 2);
-//     const message = await contract.proposeBattle(
-//         CAHARCTER_MIN_LV*CAHARCTER_NUM,
-//         CAHARCTER_MAX_LV*CAHARCTER_NUM,
-//         fixedSlotsOfProposer
-//     );
-//     console.log({ proposeBattle: message });
-//     return message.toString();
-// }
-// // 後で消す: 開発用2
-// // 3名のユーザーを対戦可能状態を取り下げる
-// async function devCancelPropose (addressIndex) {
-//     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
-//     const message = await contract.cancelProposal();
-//     console.log({ cancelProposal: message });
-//     return message.toString();
-// }
-
 export { proposeBattle, getProposalList, getMatchState,
         isInProposal, isInBattle, isNonProposal, requestChallenge,
         settleBattle, cancelProposal };
