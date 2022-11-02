@@ -1,4 +1,4 @@
-import { getSigner, getContract } from "./utils.js";
+import { getContract } from "./utils.js";
 
 const CAHARCTER_MIN_LV = 1
 const CAHARCTER_MAX_LV = 255
@@ -12,7 +12,6 @@ async function proposeBattle (fixedSlotsOfProposer, requestRange, addressIndex) 
         fixedSlotsOfProposer
     );
     console.log({ proposeBattle: message });
-    return message.toString();
 }
 
 async function getProposalList (addressIndex) {
@@ -43,7 +42,7 @@ async function isInBattle (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.isInBattle(myAddress);
     console.log({ isInBattle: message });
-    return message.toString();
+    return message;
 }
 
 async function isNonProposal (addressIndex) {
@@ -51,30 +50,21 @@ async function isNonProposal (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.isNonProposal(myAddress);
     console.log({ isNonProposal: message });
-    return message.toString();
+    return message;
 }
 
 async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);
     console.log({ requestChallenge: message });
-    return message.toString();
-}
-
-async function settleBattle (addressIndex) {
-    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.settleBattle();
-    console.log({ settleBattle: message });
-    return message.toString();
 }
 
 async function cancelProposal (addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.cancelProposal();
     console.log({ cancelProposal: message });
-    return message.toString();
 }
 
 export { proposeBattle, getProposalList, getMatchState,
-        isInProposal, isInBattle, isNonProposal, requestChallenge,
-        settleBattle, cancelProposal };
+         isInProposal, isInBattle, isNonProposal, requestChallenge,
+         cancelProposal };
