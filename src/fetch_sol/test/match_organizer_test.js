@@ -1,7 +1,9 @@
-import { getContract } from '../../fetch_sol/utils.js';
+import { getRandomBytes32, getSeedString, getCommitString, getContract } from '../../fetch_sol/utils.js';
 import { charge } from '../../fetch_sol/dealer.js';
 import { gacha } from '../../fetch_sol/gacha.js';
-import { proposeBattle, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { proposeBattle, getMatchState, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { commitPlayerSeed, commitChoice, revealChoice } from '../../fetch_sol/battle_field.js';
+import { MovingSharp } from '@mui/icons-material';
 
 
 async function createCharacters (fixedSlotsOfChallengers) {
@@ -53,4 +55,30 @@ async function requestChallengeToMe () {
     await requestChallenge(myAddress, fixedSlotsOfChallenger, addressIndex);
 }
 
-export { createCharacters, makeProposers, cancelProposals, requestChallengeToMe };
+async function defeatByFoul () {
+    const playerId = 0;
+    const addressIndex = 1;
+    const addressIndex2 = 2;
+
+    const seed = getRandomBytes32();
+    await commitPlayerSeed(playerId, seed, addressIndex);
+
+    // 相手の playerId と addressIndex が欲しい
+    const seed2 = getRandomBytes32();
+    await commitPlayerSeed(1 - playerId, seed2, addressIndex2);
+
+    const levelPoint = 255;
+    const choice = 1;
+    const blindingFactor = getRandomBytes32();
+    await commitChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+
+    const blindingFactor1 = getRandomBytes32();
+    await commitChoice(1 - playerId, levelPoint, choice, blindingFactor1, addressIndex2);
+
+    await revealChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+
+    // console.log(await getMatchState(addressIndex));
+    // console.log(await getMatchState(addressIndex2));
+}
+
+export { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, defeatByFoul };
