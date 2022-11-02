@@ -135,8 +135,8 @@ export default function BattleMain(){
     const myCharacters = useSelector(selectMyCharacter);
 
     const [myPlayerId, setMyPlayerId] = useState();
-    // const [myCharacters, setMyCharacters] = getFixedSlotCharacterInfo(myPlayerId);
-    // const [opponentCharacters, setOpponentCharacters] = getFixedSlotCharacterInfo(1-myPlayerId);
+    // const [myCharacters, setMyCharacters] = useState();
+    // const [opponentCharacters, setOpponentCharacters] = useState();
     const seed = getRandomBytes32();
     const [nonce, setNonce] = useState();
     const [mod, setMod] = useState();
@@ -158,6 +158,9 @@ export default function BattleMain(){
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
+
+        // setMyCharacters(await getFixedSlotCharacterInfo(tmpMyPlayerId));
+        // setOpponentCharacters(await getFixedSlotCharacterInfo(1-tmpMyPlayerId));
 
         try {
             await commitPlayerSeed(tmpMyPlayerId, seed);
