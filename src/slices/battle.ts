@@ -23,15 +23,16 @@ const currentBattleSlice = createSlice({
         // TODO something
     },
     setOneBattle(state, action: PayloadAction<IEachBattleStatus>) {
+        console.log({今までのIDS: state.doneCharacterIds, 今回選択したID: action.payload.thisCharacterId})
         state.nonce = [...state.nonce, action.payload.thisNonce];
         state.seed = [...state.seed, action.payload.thisSeed];
         state.doneCharacterIds = [...state.doneCharacterIds, action.payload.thisCharacterId];
     },
     battleRemove(state)  {
-      state.status = initialState.status;
-      state.nonce = initialState.nonce;
-      state.seed = initialState.seed;
-      state.doneCharacterIds = initialState.doneCharacterIds;
+      state.status = 0;
+      state.nonce = [];
+      state.seed = [];
+      state.doneCharacterIds = [];
     },
   },
 });
