@@ -16,7 +16,7 @@ import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { commitPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress, roundResult, battleResult } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -137,14 +137,14 @@ export default function BattleMain(){
     const [myPlayerId, setMyPlayerId] = useState();
     // const [myCharacters, setMyCharacters] = useState();
     // const [opponentCharacters, setOpponentCharacters] = useState();
-    const seed = getRandomBytes32();
+    const [myPlayerSeed, setMyPlayerSeed] = useState();
     const [nonce, setNonce] = useState();
     const [mod, setMod] = useState();
     const [randomSlot, setRandomSlot] = useState();
 
     // for debug
     const addressIndex = 2;
-    const seedCOM = getRandomBytes32();
+    const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [nonceCOM, setNonceCOM] = useState();
     const [randomSlotCOM, setRandomSlotCOM] = useState();
     const [choice, setChoice] = useState(0);
@@ -159,11 +159,14 @@ export default function BattleMain(){
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
 
+        const tmpMyPlayerSeed = getRandomBytes32();
+        setMyPlayerSeed(tmpMyPlayerSeed);
+
         // setMyCharacters(await getFixedSlotCharacterInfo(tmpMyPlayerId));
         // setOpponentCharacters(await getFixedSlotCharacterInfo(1-tmpMyPlayerId));
 
         try {
-            await commitPlayerSeed(tmpMyPlayerId, seed);
+            await commitPlayerSeed(tmpMyPlayerId, tmpMyPlayerSeed);
         } catch (e) {
             // TODO: Error handling
         }
@@ -173,17 +176,22 @@ export default function BattleMain(){
         const tmpMod = await totalSupply();
         setMod(tmpMod);
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
-        setRandomSlot(await getRandomSlot(tmpNonce, seed, tmpMod));
+        setRandomSlot(await getRandomSlot(tmpNonce, tmpMyPlayerSeed, tmpMod));
 
         // for debug
+        const tmpCOMPlayerSeed = getRandomBytes32();
+        setCOMPlayerSeed(tmpCOMPlayerSeed);
         try {
-            await commitPlayerSeed(1-tmpMyPlayerId, seedCOM, addressIndex);
+            await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
         } catch (e) {
             // TODO: Error handling
         }
         const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
         setNonce(tmpNonceCOM);
-        setRandomSlot(await getRandomSlot(tmpNonceCOM, seedCOM, tmpMod, addressIndex));
+        setRandomSlot(await getRandomSlot(tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
+
+        roundResult();
+        battleResult();
     })();}, []);
 
     const navigate = useNavigate();
@@ -196,6 +204,9 @@ export default function BattleMain(){
     async function handleCommitCOM() {
         const blindingFactor = getRandomBytes32();
         await commitChoice(1-myPlayerId, levelPoint, choice, blindingFactor, addressIndex);
+        if (choice === 4) {
+            await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
+        }
         try {
             await revealChoice(1-myPlayerId, levelPoint, choice, blindingFactor, addressIndex);
         } catch (err) {
@@ -209,6 +220,9 @@ export default function BattleMain(){
 
         await handleCommitCOM();
 
+        if (choice === 4) {
+            await revealPlayerSeed(myPlayerId, myPlayerSeed);
+        }
         try {
             await revealChoice(myPlayerId, levelPoint, choice, blindingFactor);
         } catch (err) {
