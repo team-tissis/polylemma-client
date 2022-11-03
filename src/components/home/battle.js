@@ -14,6 +14,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
+import { battleRemove } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from '../../fetch_sol/utils.js';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
@@ -24,10 +25,6 @@ import { useSnackbar } from 'notistack';
 import characterInfo from "./character_info.json";
 import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
-// 以下テスト用
-import { getRandomBytes32 } from '../../fetch_sol/utils.js';
-import { commitPlayerSeed, commitChoice, revealChoice, getNonce,
-        getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -127,20 +124,6 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
                 </div>
             </div>
         </div>
-
-        {/* <Card style={{backgroundColor: color}} onClick={ isChanging ? () => handleChange() : null}>
-        <CardActionArea>
-            <CardMedia component="img" height="200"
-                image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
-            <CardContent>
-            <Typography gutterBottom variant="h5" component="div">キャラID: {character.id}</Typography>
-            <Typography variant="body1" color="text.primary">レア度: { character.rarity }</Typography>
-            <Typography variant="body1" color="text.primary">属性: { character.characterType }</Typography>
-            <Typography variant="body1" color="text.primary">レベル: { character.level }</Typography>
-            <Typography variant="body1" color="text.primary">特性: { character.abilityIds }</Typography>
-            </CardContent>
-        </CardActionArea>
-        </Card> */}
     </>)
 }
 
@@ -148,7 +131,6 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
 export default function Battle() {
     const dispatch = useDispatch();
     const myCharacters = useSelector(selectMyCharacter);
-    const battleStatus = useSelector(selectBattleStatus);
 
     const [charactersForBattle, setCharactersForBattle] = useState([]);
     const [isChanging, setIsChanging] = useState(false);
@@ -160,6 +142,9 @@ export default function Battle() {
     const [rangeValue, setRangeValue] = useState({min: 4, max: 1020});
 
     const [matched, setMatched] = useState(false);
+    
+    // 対戦情報ステータスを初期化する
+    dispatch(battleRemove());
 
     useEffect(() => {
         // スマコンのアドレスを取得
@@ -223,6 +208,8 @@ export default function Battle() {
 
     useEffect(() => {(async function() {
         if (matched) {
+            // 対戦情報ステータスを初期化する
+            dispatch(battleRemove());
             navigate('/battle_main');
         }
     })();}, [matched]);
@@ -277,7 +264,6 @@ export default function Battle() {
     async function devHandleResetStates () {
         await resetStates();
     }
-
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>

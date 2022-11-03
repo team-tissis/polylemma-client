@@ -13,6 +13,7 @@ import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { selectMyCharacter } from '../../slices/myCharacter.ts';
+import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { totalSupply } from '../../fetch_sol/token.js';
@@ -131,6 +132,8 @@ const UrgeWithPleasureComponent = () => (
 )
 
 export default function BattleMain(){
+    const dispatch = useDispatch();
+
     const [thisCharacter, setThisCharacter] = useState();
     const totalLevelPoint = 10;
     const [levelPoint, setLevelPoint] = useState(0);
@@ -144,6 +147,9 @@ export default function BattleMain(){
     const [mod, setMod] = useState();
     const [randomSlot, setRandomSlot] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
+
+    // battleに出現させたキャラクターの順番の配列
+    const battleStatus = useSelector(selectBattleStatus);
 
     // for debug
     const addressIndex = 2;
@@ -236,6 +242,8 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
+        
+        dispatch(setOneBattle({ thisNonce: '', thisSeed: '', thisCharacterId: choice}))
 
         choiceCommitted(1-myPlayerId, round, setCommitted);
         if (isCOM) {
