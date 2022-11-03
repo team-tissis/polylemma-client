@@ -16,7 +16,8 @@ import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress, battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult } from '../../fetch_sol/battle_field.js';
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress,
+         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -152,8 +153,7 @@ export default function BattleMain(){
     const [choice, setChoice] = useState(0);
     const [round, setRound] = useState(0);
     const [committed, setCommitted] = useState(false);
-
-    const isCOM = false;
+    const [isCOM, setIsCOM] = useState(false);
 
     useEffect(() => {
         console.log({自分のキャラ: myCharacters.charactersList});
@@ -205,6 +205,7 @@ export default function BattleMain(){
         choiceRevealed();
         roundResult();
         battleResult();
+        battleCanceled();
     }, []);
 
     const navigate = useNavigate();
@@ -232,11 +233,10 @@ export default function BattleMain(){
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
 
+        choiceCommitted(1-myPlayerId, round, setCommitted);
         if (isCOM) {
             await handleCommitCOM();
         }
-
-        choiceCommitted(1-myPlayerId, round, setCommitted);
     }
 
     useEffect(() => {(async function() {
@@ -258,6 +258,9 @@ export default function BattleMain(){
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => devHandleFinishBattle() }>
         バトルを終了する
+    </Button>
+    <Button variant="contained" size="large" color="secondary" onClick={() => setIsCOM((isCOM) => !isCOM)}>
+        COMと対戦: {isCOM ? "YES" : "NO"}
     </Button>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={6}>
