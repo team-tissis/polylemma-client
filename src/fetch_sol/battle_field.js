@@ -1,12 +1,18 @@
 import { getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
 import { getCurrentCharacterInfo } from "./token.js";
 
-async function commitPlayerSeed (playerId, seed, addressIndex) {
+async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
-    const commitString = getSeedString(myAddress, seed);
+    const commitString = getSeedString(myAddress, playerSeed);
     const message = await contract.commitPlayerSeed(playerId, commitString);
     console.log({ commitPlayerSeed: message });
+}
+
+async function revealPlayerSeed (playerId, playerSeed, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.revealPlayerSeed(playerId, playerSeed);
+    console.log({ revealPlayerSeed: message });
 }
 
 async function commitChoice (playerId, levelPoint, choice, blindingFactor, addressIndex) {
@@ -58,5 +64,30 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
+async function roundResult (addressIndex) {
+    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    // const myAddress = await signer.getAddress();
+    const filter = contract.filters.RoundResult(null, null, null, null, null, null);
+    contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
+        if (isDraw) {
+            console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
+        } else {
+            console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
+        }
+    });
+}
 
-export { commitPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress };
+async function battleResult (addressIndex) {
+    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    // const myAddress = await signer.getAddress();
+    const filter = contract.filters.BattleResult(null, null, null, null, null, null);
+    contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
+        if (isDraw) {
+            console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
+        } else {
+            console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+        }
+    });
+}
+
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress, roundResult, battleResult };

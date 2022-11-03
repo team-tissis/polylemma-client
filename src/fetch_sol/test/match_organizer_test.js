@@ -2,7 +2,7 @@ import { getRandomBytes32, getSeedString, getCommitString, getContract } from '.
 import { charge } from '../../fetch_sol/dealer.js';
 import { gacha } from '../../fetch_sol/gacha.js';
 import { proposeBattle, getMatchState, isInProposal, setNonProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { commitPlayerSeed, commitChoice, revealChoice, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
+import { commitChoice, revealChoice, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
 import { MovingSharp } from '@mui/icons-material';
 
 
@@ -58,14 +58,8 @@ async function requestChallengeToMe () {
 async function defeatByFoul () {
     const addressIndex = 1;
     const playerId = await getPlayerIdFromAddress(addressIndex);
+    // // 相手の playerId と addressIndex が欲しい
     const addressIndex2 = 2;
-
-    const seed = getRandomBytes32();
-    await commitPlayerSeed(playerId, seed, addressIndex);
-
-    // 相手の playerId と addressIndex が欲しい
-    const seed2 = getRandomBytes32();
-    await commitPlayerSeed(1 - playerId, seed2, addressIndex2);
 
     const levelPoint = 255;
     const choice = 1;
