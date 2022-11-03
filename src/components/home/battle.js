@@ -28,7 +28,6 @@ import TextField from '@mui/material/TextField';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { commitPlayerSeed, commitChoice, revealChoice, getNonce,
         getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
-import { selectBattleStatus, setCurrentBattle, setOneBattle, battleRemove } from '../../slices/battle.ts';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -279,31 +278,9 @@ export default function Battle() {
         await resetStates();
     }
 
-    async function nonceSeedTest(){
-        const seed = getRandomBytes32();
-        console.log({seed})
-        const tmpNonce = getRandomBytes32();
-        console.log({tmpNonce})
-        const thisCharacterId = 2
-        // setCurrentBattle
-        dispatch(setCurrentBattle(
-            {
-                number: 1,
-                nonce: ['a', 'b', 'c'],
-                seed: ['a', 'b', 'c'],
-                doneCharacterIds: [1,2,3]
-            })); // Nonce, seed, 選択したキャラIDを引数に持たせる
-        // dispatch(setCurrentMyCharacter(setCurrentBattle));  // 全更新: 使わないかも
-        // dispatch(setOneBattle({thisNonce: seed, thisSeed: tmpNonce, thisCharacterId: thisCharacterId})); // Nonce, seed, 選択したキャラIDを引数に持たせる
-        // dispatch(battleRemove());  // 初期化: 引数なし
-    }
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
-        <Button variant="contained" size="large"
-            onClick={() => nonceSeedTest()} disabled={isChanging}>
-            [開発用] のんすシードテスト
-        </Button>
 
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {isChanging ?
