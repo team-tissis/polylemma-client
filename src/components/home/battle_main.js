@@ -189,10 +189,12 @@ export default function BattleMain(){
         const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
         setNonce(tmpNonceCOM);
         setRandomSlot(await getRandomSlot(tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
+    })();}, []);
 
+    useEffect(() => {
         roundResult();
         battleResult();
-    })();}, []);
+    }, []);
 
     const navigate = useNavigate();
     async function devHandleFinishBattle () {

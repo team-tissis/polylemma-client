@@ -64,7 +64,7 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
-async function roundResult (addressIndex) {
+function roundResult (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     // const myAddress = await signer.getAddress();
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
@@ -77,7 +77,7 @@ async function roundResult (addressIndex) {
     });
 }
 
-async function battleResult (addressIndex) {
+function battleResult (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     // const myAddress = await signer.getAddress();
     const filter = contract.filters.BattleResult(null, null, null, null, null, null);
