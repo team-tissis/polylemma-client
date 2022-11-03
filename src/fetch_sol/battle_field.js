@@ -75,7 +75,7 @@ function battleStarted (myAddress, setMatched, addressIndex) {
     });
 }
 
-function playerSeedCommitted (playerId, addressIndex) {
+function playerSeedCommitted (opponentPlayerId, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.PlayerSeedCommitted(null);
     contract.on(filter, (playerId) => {
@@ -83,7 +83,7 @@ function playerSeedCommitted (playerId, addressIndex) {
     });
 }
 
-function playerSeedRevealed (playerId, addressIndex) {
+function playerSeedRevealed (opponentPlayerId, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.PlayerSeedRevealed(null, null, null);
     contract.on(filter, (numRounds, playerId, playerSeed) => {
@@ -91,15 +91,20 @@ function playerSeedRevealed (playerId, addressIndex) {
     });
 }
 
-function choiceCommitted (playerId, addressIndex) {
+function choiceCommitted (opponentPlayerId, currentRound, setCommitted, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.ChoiceCommitted(null, null);
     contract.on(filter, (numRounds, playerId) => {
         console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
+        console.log(playerId, opponentPlayerId);
+        console.log(currentRound, numRounds);
+        if (playerId === opponentPlayerId && currentRound == numRounds) {
+            setCommitted(true);
+        }
     });
 }
 
-function choiceRevealed (playerId, addressIndex) {
+function choiceRevealed (opponentPlayerId, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
