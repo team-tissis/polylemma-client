@@ -15,10 +15,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
 import { useSelector, useDispatch } from 'react-redux';
+import { getContract } from '../../fetch_sol/utils.js';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
-import { useSnackbar } from 'notistack';
 import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { battleStarted } from '../../fetch_sol/battle_field.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, resetStates } from '../../fetch_sol/test/match_organizer_test.js';
+import { useSnackbar } from 'notistack';
 import characterInfo from "./character_info.json";
 import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
@@ -158,6 +160,8 @@ export default function Battle() {
     const { enqueueSnackbar } = useSnackbar();
     const [rangeValue, setRangeValue] = useState({min: 4, max: 1020});
 
+    const [matched, setMatched] = useState(false);
+
     useEffect(() => {
         // スマコンのアドレスを取得
         // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
@@ -218,6 +222,12 @@ export default function Battle() {
         setStateChange((prev) => prev + 1);
     }
 
+    useEffect(() => {(async function() {
+        if (matched) {
+            navigate('/battle_main');
+        }
+    })();}, [matched]);
+
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
         dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
@@ -227,6 +237,10 @@ export default function Battle() {
             console.log({fixedSlotsOfChallenger});
             await proposeBattle(fixedSlotsOfChallenger, rangeValue);
             setDialogOpen(true);
+
+            const { signer } = getContract("PLMMatchOrganizer");
+            const myAddress = await signer.getAddress();
+            battleStarted(myAddress, setMatched);
         }else if(kind === "searchRooms"){
             navigate('/match_make');
         }
