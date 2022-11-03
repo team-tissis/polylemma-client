@@ -159,7 +159,8 @@ export default function BattleMain(){
 
     const [choice, setChoice] = useState(0);
     const [round, setRound] = useState(0);
-    const [committed, setCommitted] = useState(false);
+    const [opponentCommit, setOpponentCommit] = useState(false);
+    const [myCommit, setMyCommit] = useState(false);
     const [isCOM, setIsCOM] = useState(false);
 
     useEffect(() => {
@@ -190,6 +191,8 @@ export default function BattleMain(){
         setMod(tmpMod);
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
         setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpNonce, tmpMyPlayerSeed, tmpMod));
+
+        choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
     })();}, []);
 
     useEffect(() => {(async function() {
@@ -242,17 +245,17 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
-        
-        dispatch(setOneBattle({ thisNonce: '', thisSeed: '', thisCharacterId: choice}))
 
-        choiceCommitted(1-myPlayerId, round, setCommitted);
+        dispatch(setOneBattle({ thisNonce: '', thisSeed: '', thisCharacterId: choice}))
+        setMyCommit(true);
+
         if (isCOM) {
             await handleCommitCOM();
         }
     }
 
     useEffect(() => {(async function() {
-        if (committed) {
+        if (opponentCommit && myCommit) {
             if (choice === 4) {
                 await revealPlayerSeed(myPlayerId, myPlayerSeed);
             }
@@ -261,11 +264,13 @@ export default function BattleMain(){
             } catch (err) {
                 console.log(err);
             }
+            choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
             setChoice(choice + 1);
             setRound(round + 1);
-            setCommitted(false);
+            setOpponentCommit(false);
+            setMyCommit(false);
         }
-    })();}, [committed]);
+    })();}, [opponentCommit, myCommit]);
 
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => devHandleFinishBattle() }>

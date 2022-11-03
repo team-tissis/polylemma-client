@@ -1,5 +1,4 @@
 import { getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
-import { getCurrentCharacterInfo } from "./token.js";
 
 async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
@@ -118,13 +117,13 @@ function playerSeedRevealed (opponentPlayerId, addressIndex) {
     });
 }
 
-function choiceCommitted (opponentPlayerId, currentRound, setCommitted, addressIndex) {
+function choiceCommitted (opponentPlayerId, currentRound, setCommit, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.ChoiceCommitted(null, null);
     contract.on(filter, (numRounds, playerId) => {
         console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
-        if (playerId === opponentPlayerId && currentRound == numRounds) {
-            setCommitted(true);
+        if (playerId === opponentPlayerId && currentRound === numRounds) {
+            setCommit(true);
         }
     });
 }
