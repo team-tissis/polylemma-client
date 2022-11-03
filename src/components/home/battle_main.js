@@ -184,18 +184,6 @@ export default function BattleMain(){
         setMod(tmpMod);
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
         setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpNonce, tmpMyPlayerSeed, tmpMod));
-
-
-        // const tmpCOMPlayerSeed = getRandomBytes32();
-        // setCOMPlayerSeed(tmpCOMPlayerSeed);
-        // try {
-        //     await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
-        // } catch (e) {
-        //     // TODO: Error handling
-        // }
-        // const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
-        // setNonce(tmpNonceCOM);
-        // setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
     })();}, []);
 
     useEffect(() => {(async function() {
