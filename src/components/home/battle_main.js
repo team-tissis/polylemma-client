@@ -149,7 +149,7 @@ export default function BattleMain(){
     const [randomSlotCOM, setRandomSlotCOM] = useState();
     const [choice, setChoice] = useState(0);
 
-    const isCOM = true;
+    const isCOM = false;
 
     useEffect(() => {
         console.log({自分のキャラ: myCharacters.charactersList});

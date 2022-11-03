@@ -64,11 +64,14 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
-function battleStarted (myAddress, addressIndex) {
+function battleStarted (myAddress, setMatched, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.BattleStarted(null, null);
     contract.on(filter, (aliceAddr, bobAddr) => {
         console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
+        if (aliceAddr === myAddress) {
+            setMatched(true);
+        }
     });
 }
 
