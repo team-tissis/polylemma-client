@@ -64,9 +64,48 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
+function battleStarted (myAddress, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const filter = contract.filters.BattleStarted(null, null);
+    contract.on(filter, (aliceAddr, bobAddr) => {
+        console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
+    });
+}
+
+function playerSeedCommitted (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const filter = contract.filters.PlayerSeedCommitted(null);
+    contract.on(filter, (playerId) => {
+        console.log(`Player${playerId} has committed.`);
+    });
+}
+
+function playerSeedRevealed (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const filter = contract.filters.PlayerSeedRevealed(null, null, null);
+    contract.on(filter, (numRounds, playerId, playerSeed) => {
+        console.log(`Round ${numRounds+1}: Player${playerId}'s seed has revealed.`);
+    });
+}
+
+function choiceCommitted (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const filter = contract.filters.ChoiceCommitted(null, null);
+    contract.on(filter, (numRounds, playerId) => {
+        console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
+    });
+}
+
+function choiceRevealed (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const filter = contract.filters.ChoiceRevealed(null, null, null, null);
+    contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
+        console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+    });
+}
+
 function roundResult (addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
-    // const myAddress = await signer.getAddress();
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
         if (isDraw) {
@@ -78,8 +117,7 @@ function roundResult (addressIndex) {
 }
 
 function battleResult (addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
-    // const myAddress = await signer.getAddress();
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.BattleResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
         if (isDraw) {
@@ -90,4 +128,5 @@ function battleResult (addressIndex) {
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress, roundResult, battleResult };
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress,
+         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult };
