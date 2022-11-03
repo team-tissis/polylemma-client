@@ -16,9 +16,7 @@ import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
-import { totalSupply } from '../../fetch_sol/token.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce,
-         getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getTotalSupplyAtBattleStart,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
@@ -143,8 +141,6 @@ export default function BattleMain(){
     // const [myCharacters, setMyCharacters] = useState();
     // const [opponentCharacters, setOpponentCharacters] = useState();
     const [myPlayerSeed, setMyPlayerSeed] = useState();
-    const [nonce, setNonce] = useState();
-    const [mod, setMod] = useState();
     const [randomSlot, setRandomSlot] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
 
@@ -154,7 +150,6 @@ export default function BattleMain(){
     // for debug
     const addressIndex = 2;
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
-    const [nonceCOM, setNonceCOM] = useState();
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
     const [choice, setChoice] = useState(0);
@@ -184,13 +179,8 @@ export default function BattleMain(){
             // TODO: Error handling
         }
 
-        const tmpNonce = await getNonce(tmpMyPlayerId);
-        setNonce(tmpNonce);
-        // const tmpMod = await totalSupply();
-        const tmpMod = await getTotalSupplyAtBattleStart();
-        setMod(tmpMod);
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
-        setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpNonce, tmpMyPlayerSeed, tmpMod));
+        setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed));
 
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
     })();}, []);
@@ -205,9 +195,7 @@ export default function BattleMain(){
             } catch (e) {
                 // TODO: Error handling
             }
-            const tmpNonceCOM = await getNonce(1-myPlayerId, addressIndex);
-            setNonce(tmpNonceCOM);
-            setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpNonceCOM, tmpCOMPlayerSeed, mod, addressIndex));
+            setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
     })();}, [isCOM]);
 

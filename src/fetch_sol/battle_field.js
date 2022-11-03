@@ -50,19 +50,6 @@ async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
     return message;
 }
 
-async function getMyRandomSlot (playerId, nonce, seed, mod, addressIndex) {
-    const randomSlotId = calcRandomSlotId(nonce, seed, mod);
-    console.log({ randomSlotId: randomSlotId });
-    const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
-    return {
-        id: randomSlotId,
-        characterType: message['characterType'],
-        level: message['level'],
-        rarity: message['rarity'],
-        abilityIds: message['abilityIds'],
-    };
-}
-
 // Reveal 後に相手のランダムスロットの内容を取得する関数
 async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
@@ -84,6 +71,21 @@ async function getTotalSupplyAtBattleStart (addressIndex) {
     const message = await contract.getTotalSupplyAtBattleStart();
     console.log({ getTotalSupplyAtBattleStart: message });
     return message;
+}
+
+async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
+    const nonce = await getNonce(playerId);
+    const mod = await getTotalSupplyAtBattleStart();
+    const randomSlotId = calcRandomSlotId(nonce, playerSeed, mod);
+    console.log({ randomSlotId: randomSlotId });
+    const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
+    return {
+        id: randomSlotId,
+        characterType: message['characterType'],
+        level: message['level'],
+        rarity: message['rarity'],
+        abilityIds: message['abilityIds'],
+    };
 }
 
 ///////////////////////////////////////
@@ -168,6 +170,5 @@ function battleCanceled (addressIndex) {
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce,
-         getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getTotalSupplyAtBattleStart,
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled };
