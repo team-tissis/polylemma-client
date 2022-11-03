@@ -16,7 +16,7 @@ import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress, roundResult, battleResult } from '../../fetch_sol/battle_field.js';
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress, battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -195,6 +195,11 @@ export default function BattleMain(){
     })();}, []);
 
     useEffect(() => {
+        battleStarted();
+        playerSeedCommitted();
+        playerSeedRevealed();
+        choiceCommitted();
+        choiceRevealed();
         roundResult();
         battleResult();
     }, []);
