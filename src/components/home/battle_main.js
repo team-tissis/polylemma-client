@@ -149,6 +149,7 @@ export default function BattleMain(){
     const [randomSlotCOM, setRandomSlotCOM] = useState();
     const [choice, setChoice] = useState(0);
 
+    const isCOM = true;
 
     useEffect(() => {
         console.log({自分のキャラ: myCharacters.charactersList});
@@ -179,16 +180,18 @@ export default function BattleMain(){
         setRandomSlot(await getRandomSlot(tmpNonce, tmpMyPlayerSeed, tmpMod));
 
         // for debug
-        const tmpCOMPlayerSeed = getRandomBytes32();
-        setCOMPlayerSeed(tmpCOMPlayerSeed);
-        try {
-            await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
-        } catch (e) {
-            // TODO: Error handling
+        if (isCOM) {
+            const tmpCOMPlayerSeed = getRandomBytes32();
+            setCOMPlayerSeed(tmpCOMPlayerSeed);
+            try {
+                await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+            } catch (e) {
+                // TODO: Error handling
+            }
+            const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
+            setNonce(tmpNonceCOM);
+            setRandomSlotCOM(await getRandomSlot(tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
         }
-        const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
-        setNonce(tmpNonceCOM);
-        setRandomSlot(await getRandomSlot(tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
     })();}, []);
 
     useEffect(() => {
@@ -220,7 +223,9 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
 
-        await handleCommitCOM();
+        if (isCOM) {
+            await handleCommitCOM();
+        }
 
         if (choice === 4) {
             await revealPlayerSeed(myPlayerId, myPlayerSeed);
