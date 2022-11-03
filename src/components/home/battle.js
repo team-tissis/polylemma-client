@@ -142,7 +142,7 @@ export default function Battle() {
     const [rangeValue, setRangeValue] = useState({min: 4, max: 1020});
 
     const [matched, setMatched] = useState(false);
-    
+
     // 対戦情報ステータスを初期化する
     dispatch(battleRemove());
 
