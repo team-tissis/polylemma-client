@@ -141,13 +141,17 @@ export default function BattleMain(){
     const [nonce, setNonce] = useState();
     const [mod, setMod] = useState();
     const [randomSlot, setRandomSlot] = useState();
+    const [myBlindingFactor, setMyBlindingFactor] = useState();
 
     // for debug
     const addressIndex = 2;
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [nonceCOM, setNonceCOM] = useState();
     const [randomSlotCOM, setRandomSlotCOM] = useState();
+
     const [choice, setChoice] = useState(0);
+    const [round, setRound] = useState(0);
+    const [committed, setCommitted] = useState(false);
 
     const isCOM = false;
 
@@ -195,10 +199,9 @@ export default function BattleMain(){
     })();}, []);
 
     useEffect(() => {
-        battleStarted();
         playerSeedCommitted();
         playerSeedRevealed();
-        choiceCommitted();
+        // choiceCommitted();
         choiceRevealed();
         roundResult();
         battleResult();
@@ -227,22 +230,30 @@ export default function BattleMain(){
     async function handleCommit() {
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
+        setMyBlindingFactor(blindingFactor);
 
         if (isCOM) {
             await handleCommitCOM();
         }
 
-        if (choice === 4) {
-            await revealPlayerSeed(myPlayerId, myPlayerSeed);
-        }
-        try {
-            await revealChoice(myPlayerId, levelPoint, choice, blindingFactor);
-        } catch (err) {
-            console.log(err);
-        }
-
-        setChoice(choice + 1);
+        choiceCommitted(1-myPlayerId, round, setCommitted);
     }
+
+    useEffect(() => {(async function() {
+        if (committed) {
+            if (choice === 4) {
+                await revealPlayerSeed(myPlayerId, myPlayerSeed);
+            }
+            try {
+                await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
+            } catch (err) {
+                console.log(err);
+            }
+            setChoice(choice + 1);
+            setRound(round + 1);
+            setCommitted(false);
+        }
+    })();}, [committed]);
 
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => devHandleFinishBattle() }>
