@@ -16,7 +16,8 @@ import { selectMyCharacter } from '../../slices/myCharacter.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { totalSupply } from '../../fetch_sol/token.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce,
+         getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getTotalSupplyAtBattleStart,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 
@@ -178,25 +179,40 @@ export default function BattleMain(){
 
         const tmpNonce = await getNonce(tmpMyPlayerId);
         setNonce(tmpNonce);
-        const tmpMod = await totalSupply();
+        // const tmpMod = await totalSupply();
+        const tmpMod = await getTotalSupplyAtBattleStart();
         setMod(tmpMod);
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
-        setRandomSlot(await getRandomSlot(tmpNonce, tmpMyPlayerSeed, tmpMod));
+        setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpNonce, tmpMyPlayerSeed, tmpMod));
 
+
+        // const tmpCOMPlayerSeed = getRandomBytes32();
+        // setCOMPlayerSeed(tmpCOMPlayerSeed);
+        // try {
+        //     await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+        // } catch (e) {
+        //     // TODO: Error handling
+        // }
+        // const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
+        // setNonce(tmpNonceCOM);
+        // setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
+    })();}, []);
+
+    useEffect(() => {(async function() {
         // for debug
         if (isCOM) {
             const tmpCOMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(tmpCOMPlayerSeed);
             try {
-                await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+                await commitPlayerSeed(1-myPlayerId, tmpCOMPlayerSeed, addressIndex);
             } catch (e) {
                 // TODO: Error handling
             }
-            const tmpNonceCOM = await getNonce(1-tmpMyPlayerId, addressIndex);
+            const tmpNonceCOM = await getNonce(1-myPlayerId, addressIndex);
             setNonce(tmpNonceCOM);
-            setRandomSlotCOM(await getRandomSlot(tmpNonceCOM, tmpCOMPlayerSeed, tmpMod, addressIndex));
+            setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpNonceCOM, tmpCOMPlayerSeed, mod, addressIndex));
         }
-    })();}, []);
+    })();}, [isCOM]);
 
     useEffect(() => {
         playerSeedCommitted();
