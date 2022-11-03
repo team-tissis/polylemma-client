@@ -64,6 +64,10 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
+///////////////////////////////////////
+/// FUNCTIONS ABOUT EVENT LISTENING ///
+///////////////////////////////////////
+
 function battleStarted (myAddress, setMatched, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const filter = contract.filters.BattleStarted(null, null);
@@ -136,5 +140,13 @@ function battleResult (addressIndex) {
     });
 }
 
+function battleCanceled (addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const filter = contract.filters.BattleCanceled(null);
+    contract.on(filter, (cause) => {
+        console.log(`Battle has been canceled because of Player${cause}.`);
+    });
+}
+
 export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress,
-         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult };
+         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled };
