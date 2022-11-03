@@ -36,10 +36,25 @@ async function getNonce (playerId, addressIndex) {
     return message;
 }
 
-async function getRandomSlot (nonce, seed, mod) {
+async function getFixedSlotCharInfo (playerId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.getFixedSlotCharInfo(playerId);
+    console.log({ getFixedSlotCharInfo: message });
+    return message;
+}
+
+// 自分のランダムスロットの内容を取得する関数
+async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.getVirtualRandomSlotCharInfo(playerId, tokenId);
+    console.log({ getVirtualRandomSlotCharInfo: message });
+    return message;
+}
+
+async function getMyRandomSlot (playerId, nonce, seed, mod, addressIndex) {
     const randomSlotId = calcRandomSlotId(nonce, seed, mod);
     console.log({ randomSlotId: randomSlotId });
-    const message = await getCurrentCharacterInfo(randomSlotId);
+    const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
     return {
         id: randomSlotId,
         characterType: message['characterType'],
@@ -49,10 +64,11 @@ async function getRandomSlot (nonce, seed, mod) {
     };
 }
 
-async function getFixedSlotCharInfo (playerId, addressIndex) {
+// Reveal 後に相手のランダムスロットの内容を取得する関数
+async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.getFixedSlotCharInfo(playerId);
-    console.log({ getFixedSlotCharInfo: message });
+    const message = await contract.getRandomSlotCharInfo(playerId);
+    console.log({ getRandomSlotCharInfo: message });
     return message;
 }
 
@@ -61,6 +77,13 @@ async function getPlayerIdFromAddress (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.getPlayerIdFromAddress(myAddress);
     console.log({ getPlayerIdFromAddress: message });
+    return message;
+}
+
+async function getTotalSupplyAtBattleStart (addressIndex) {
+    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const message = await contract.getTotalSupplyAtBattleStart();
+    console.log({ getTotalSupplyAtBattleStart: message });
     return message;
 }
 
@@ -100,8 +123,6 @@ function choiceCommitted (opponentPlayerId, currentRound, setCommitted, addressI
     const filter = contract.filters.ChoiceCommitted(null, null);
     contract.on(filter, (numRounds, playerId) => {
         console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
-        console.log(playerId, opponentPlayerId);
-        console.log(currentRound, numRounds);
         if (playerId === opponentPlayerId && currentRound == numRounds) {
             setCommitted(true);
         }
@@ -148,5 +169,6 @@ function battleCanceled (addressIndex) {
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce, getRandomSlot, getFixedSlotCharInfo, getPlayerIdFromAddress,
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getNonce,
+         getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getTotalSupplyAtBattleStart,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled };
