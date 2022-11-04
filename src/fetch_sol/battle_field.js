@@ -40,7 +40,22 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getFixedSlotCharInfo(playerId);
     console.log({ getFixedSlotCharInfo: message });
-    return message;
+    // return message;
+    const response = [];
+    message.forEach(async mes => 
+        response.push({
+            name: bytes32ToString(mes['name']),
+            imgURI: await getImgURI(mes['imgId'], addressIndex),
+            // fromBlock: mes['fromBlock'],
+            characterType: mes['characterType'],
+            level: mes['level'],
+            rarity: mes['rarity'],
+            attributeIds: mes['attributeIds'],
+            isRandomSlot: false, // reduxに保存用
+            battleDone: false // reduxに保存用
+        })
+    );
+    return response;
 }
 
 // 自分のランダムスロットの内容を取得する関数
@@ -87,7 +102,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         characterType: message['characterType'],
         level: message['level'],
         rarity: message['rarity'],
-        abilityIds: message['abilityIds'],
+        attributeIds: message['attributeIds'],
         isRandomSlot: true,
         battleDone: false,
         index: 4

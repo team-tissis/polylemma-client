@@ -38,7 +38,7 @@ function bottomBoxstyle() {
 }
 
 function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenId, setLevelBefore}) {
-    const thisCharacterAbility = character.abilityIds[0];
+    const thisCharacterAbility = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (selectedTokenId === character.id) ? 'grey' : 'white'
     const handleClickCharacter = async (id) => {

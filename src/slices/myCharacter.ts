@@ -10,21 +10,36 @@ interface IMyCharacter {
   rarity: number;
   isRandomSlot: boolean;
   battleDone: boolean;
-  abilityIds: null | number[];
+  attributeIds: null | number[];
   characterType: String;
 }
 interface IMyCharacterList {
   charactersList: IMyCharacter[];
   hasRandomSlot: boolean;
+  tmpMyPlayerSeed: null | string;
 }
 
-const initialState: IMyCharacterList = { charactersList: [] , hasRandomSlot: false };
+const initialState: IMyCharacterList = { charactersList: [] , hasRandomSlot: false , tmpMyPlayerSeed: null};
 const currentMyCharacterSlice = createSlice({
   name: 'currentMyCharacter',
   initialState,
   reducers: {
     setCurrentMyCharacter(state, action: PayloadAction<IMyCharacter[]>) {
-      state.charactersList = action.payload
+      // TODO: 各キャラにindexを振る
+      const _tmpCharacterList = action.payload;
+      const resultCharacterList: IMyCharacter[] = []
+      for (let charaIndex = 0; charaIndex < _tmpCharacterList.length - 1; charaIndex++) {
+        // _tmpCharacterList[charaIndex].index = charaIndex
+        resultCharacterList.push({
+            ..._tmpCharacterList[charaIndex],
+            index: charaIndex
+        })
+      }
+      state.charactersList = resultCharacterList
+      state.hasRandomSlot = true;
+    },
+    setTmpMyPlayerSeed(state, action: PayloadAction<string>) {
+      state.tmpMyPlayerSeed = action.payload
     },
     addRandomSlotToCurrentMyCharacter(state, action: PayloadAction<IMyCharacter>) {
     // addRandomSlotToCurrentMyCharacter(state, action: any) {
@@ -43,6 +58,7 @@ const currentMyCharacterSlice = createSlice({
       // バトルステータスをfalseにする
       resetedMyCharacters.forEach(character => character.battleDone = false);
       state.charactersList = resetedMyCharacters;
+      state.tmpMyPlayerSeed = null;
     },
     choiceCharacterInBattle(state, action: PayloadAction<number>) {
       const _characterIndex: number = action.payload
@@ -57,6 +73,6 @@ const currentMyCharacterSlice = createSlice({
 
 // export const selectMyCharacter = (state: RootState): IMyCharacter[] => state.myCharacter;
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter,
+export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
                 notInBattleVerifyCharacters, choiceCharacterInBattle, myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

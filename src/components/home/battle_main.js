@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle } from '../../slices/myCharacter.ts';
+import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setTmpMyPlayerSeed, setCurrentMyCharacter } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
@@ -42,11 +42,8 @@ function handleButtonStyle() {
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisCharacter, setThisCharacter, levelPoint}){
-    // const _myCharacters = useSelector(selectMyCharacter);
-    // listenToRoundRes == 'freeze'
-    const thisCharacterAbility = character.abilityIds[0];
+    const thisCharacterAbility = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    // const _myCharacters[]
     const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
@@ -58,7 +55,6 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
     } else if(_thisCharacterBattleDone) {
         _cardStyleColor = 'silver'
     }
-
 
     function handleCharacterChoice() {
         if(listenToRoundRes === 'freeze'){
@@ -201,16 +197,28 @@ export default function BattleMain(){
     const [isCOM, setIsCOM] = useState(true);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
 
+    const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
+
     useEffect(() => {
         console.log("commit and reveal........");
     },[listenToRoundRes]);
 
     useEffect(() => {(async function() {
+        
+        console.log("あああああああああああああああああああああああああああああああああああああああああああああああ")
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
-
+        
         const tmpMyPlayerSeed = getRandomBytes32();
         setMyPlayerSeed(tmpMyPlayerSeed);
+
+        // seedが登録されていない場合、登録する
+        if(myCharacters.tmpMyPlayerSeed == null){
+            dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
+        }
+        // 対戦に使うキャラ5体(RSを含む)をresuxに追加
+        const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
+        console.log({fixedSlotCharInfo})
 
         // setMyCharacters(await getFixedSlotCharacterInfo(tmpMyPlayerId));
         // setOpponentCharacters(await getFixedSlotCharacterInfo(1-tmpMyPlayerId));
@@ -223,13 +231,18 @@ export default function BattleMain(){
 
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
         const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
+        const characterList = [...fixedSlotCharInfo, _myRandomSlot]
+        console.log({_myRandomSlot})
+
+        dispatch(setCurrentMyCharacter(characterList))
+        console.log({対戦に使用するキャラ: characterList})
         // hasRandomSlot && 全てのキャラがRSでない
-        if(myCharacters.hasRandomSlot){
-            // DO NOTHING
-        } else {
-            // RSを追加する
-            dispatch(addRandomSlotToCurrentMyCharacter(_myRandomSlot));
-        }
+        // if(myCharacters.hasRandomSlot){
+        //     // DO NOTHING
+        // } else {
+        //     // RSを追加する
+        //     dispatch(addRandomSlotToCurrentMyCharacter(_myRandomSlot));
+        // }
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
 
         if (isCOM) {

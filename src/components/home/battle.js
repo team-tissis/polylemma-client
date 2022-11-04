@@ -70,7 +70,7 @@ const selectedNum = 4;
 
 function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
-    const thisCharacterAbility = character.abilityIds[0];
+    const thisCharacterAbility = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     var color = 'white'
     const result = charactersForBattle.filter(cha => cha.id === character.id);

@@ -17,7 +17,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function NFTCard({character}){
-    const thisCharacterAbility = character.abilityIds[0];
+    const thisCharacterAbility = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
 
     return(<>

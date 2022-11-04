@@ -33,7 +33,7 @@ async function getAllCharacterInfo (addressIndex) {
             characterType: message[i]['characterType'],
             level: message[i]['level'],
             rarity: message[i]['rarity'],
-            abilityIds: message[i]['abilityIds'],
+            attributeIds: message[i]['attributeIds'],
             isRandomSlot: false
         });
     }
@@ -91,7 +91,7 @@ async function getOwnedCharacterWithIDList (addressIndex) {
             characterType: characterInfo['characterType'],
             level: characterInfo['level'],
             rarity: characterInfo['rarity'],
-            abilityIds: characterInfo['abilityIds'],
+            attributeIds: characterInfo['attributeIds'],
             isRandomSlot: false
         });
     }
