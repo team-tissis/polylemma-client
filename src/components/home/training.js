@@ -20,6 +20,7 @@ import { useSnackbar } from 'notistack';
 
 function bottomBoxstyle() {
     return {
+        zIndex: 30,
         position: 'fixed',
         borderStyle: 'solid',
         borderColor: '#CCCCCC',
@@ -36,10 +37,10 @@ function bottomBoxstyle() {
     }
 }
 
-function NFTCard({character, setNecessaryExp, setSelectedTokenId, setLevelBefore}) {
+function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenId, setLevelBefore}) {
     const thisCharacterAbility = character.abilityIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-
+    const _backgroundColor = (selectedTokenId==character.id) ? 'grey' : 'white'
     const handleClickCharacter = async (id) => {
         setNecessaryExp(await getNecessaryExp(id));
         setSelectedTokenId(id);
@@ -60,7 +61,7 @@ function NFTCard({character, setNecessaryExp, setSelectedTokenId, setLevelBefore
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div class="img_box">
+            <div class="img_box" style={{backgroundColor: _backgroundColor}}>
                 <img className='img_div' src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
             </div>
             <div class="attribute_box">
@@ -89,13 +90,6 @@ export default function ModelTraining(){
         setMyCharacterList(await getOwnedCharacterWithIDList())
         setCurrentCoin(await balanceOf());
     })();}, [isLoading]);
-
-    // const handleClickCharacter = async (id) => {
-    //     setNecessaryExp(await getNecessaryExp(id));
-    //     setSelectedTokenId(id);
-    //     const characterBefore = await getCurrentCharacterInfo(id);
-    //     setLevelBefore(characterBefore.level);
-    // }
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
@@ -140,7 +134,7 @@ export default function ModelTraining(){
             {myCharacterList.map((character, index) => (<>
                 <Grid item xs={3} sm={3} md={3} key={index}>
                     <NFTCard character={character}  setNecessaryExp={setNecessaryExp} 
-                        setSelectedTokenId={setSelectedTokenId} setLevelBefore={setLevelBefore}/>
+                        selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId} setLevelBefore={setLevelBefore}/>
                 </Grid>
             </>))}
 
