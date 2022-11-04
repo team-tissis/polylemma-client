@@ -165,6 +165,9 @@ export default function Battle() {
             const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.charactersList[step].id);
             if (_myCharacterList.find(char => char.id === myCharacters.charactersList[step].id)) {
                 console.log({存在しました: myCharacters.charactersList[step]})
+                if(myCharacters.isRandomSlot){
+                    continue
+                }
                 if( myCharacters.charactersList[step].level === matchedCharaFromAPI.level ){
                     updatedCharactersForBattle.push(matchedCharaFromAPI)
                     continue
