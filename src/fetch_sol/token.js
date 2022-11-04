@@ -101,7 +101,7 @@ async function getOwnedCharacterWithIDList (addressIndex) {
             bondLevel: await calcCurrentBondLevel(characterInfo),
             rarity: characterInfo['rarity'],
             attributeIds: characterInfo['attributeIds'],
-            isRandomSlot: false
+            // isRandomSlot: false
         });
     }
     console.log({ ownedCharacters: ownedCharacters });

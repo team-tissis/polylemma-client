@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setTmpMyPlayerSeed, setCurrentMyCharacter } from '../../slices/myCharacter.ts';
+import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
@@ -237,7 +237,7 @@ export default function BattleMain(){
         const characterList = [...fixedSlotCharInfo, _myRandomSlot]
         console.log({_myRandomSlot})
 
-        dispatch(setCurrentMyCharacter(characterList))
+        dispatch(set5BattleCharacter(characterList))
         console.log({対戦に使用するキャラ: characterList})
         // hasRandomSlot && 全てのキャラがRSでない
         // if(myCharacters.hasRandomSlot){

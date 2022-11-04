@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store.ts';
 
-interface IMyCharacter {
-  id: number;
+// interface IMyCharacter {
+interface IBattleCharacter {
   index:  number;
   name: string;
   imgURI: string;
@@ -13,21 +13,41 @@ interface IMyCharacter {
   attributeIds: null | number[];
   characterType: String;
 }
+
+interface IMyCharacter {
+  id: number;
+  index:  number;
+  name: string;
+  imgURI: string;
+  level: number;
+  rarity: number;
+  attributeIds: null | number[];
+  characterType: String;
+}
+
 interface IMyCharacterList {
-  charactersList: IMyCharacter[];
+  charactersList: IBattleCharacter[];
+  requestCharacterList: IMyCharacter[];
   hasRandomSlot: boolean;
   tmpMyPlayerSeed: null | string;
 }
 
-const initialState: IMyCharacterList = { charactersList: [] , hasRandomSlot: false , tmpMyPlayerSeed: null};
+const initialState: IMyCharacterList = { charactersList: [] , requestCharacterList: [], hasRandomSlot: false , tmpMyPlayerSeed: null};
 const currentMyCharacterSlice = createSlice({
   name: 'currentMyCharacter',
   initialState,
   reducers: {
-    setCurrentMyCharacter(state, action: PayloadAction<IMyCharacter[]>) {
+    set4Characters(state, action: PayloadAction<IMyCharacter[]>) {
+      // TODO: 各キャラにindexを振る
+      state.requestCharacterList = action.payload;
+      // 実際の対戦キャラは初期化
+      state.charactersList = []
+    },
+    // set5BattleCharacter(state, action: PayloadAction<IMyCharacter[]>) {
+    set5BattleCharacter(state, action: PayloadAction<IBattleCharacter[]>) {
       // TODO: 各キャラにindexを振る
       const _tmpCharacterList = action.payload;
-      const resultCharacterList: IMyCharacter[] = []
+      const resultCharacterList: IBattleCharacter[] = []
       for (let charaIndex = 0; charaIndex < _tmpCharacterList.length - 1; charaIndex++) {
         // _tmpCharacterList[charaIndex].index = charaIndex
         resultCharacterList.push({
@@ -41,8 +61,7 @@ const currentMyCharacterSlice = createSlice({
     setTmpMyPlayerSeed(state, action: PayloadAction<string>) {
       state.tmpMyPlayerSeed = action.payload
     },
-    addRandomSlotToCurrentMyCharacter(state, action: PayloadAction<IMyCharacter>) {
-    // addRandomSlotToCurrentMyCharacter(state, action: any) {
+    addRandomSlotToCurrentMyCharacter(state, action: PayloadAction<IBattleCharacter>) {
       state.charactersList = [...state.charactersList, action.payload]
       state.hasRandomSlot = true;
       // indexを割り振る
@@ -52,12 +71,6 @@ const currentMyCharacterSlice = createSlice({
     },
     notInBattleVerifyCharacters(state) {
       state.hasRandomSlot = false;
-      const resetedMyCharacters = state.charactersList.filter((character, index) => {
-        return character.isRandomSlot === false;
-      });
-      // バトルステータスをfalseにする
-      resetedMyCharacters.forEach(character => character.battleDone = false);
-      state.charactersList = resetedMyCharacters;
       state.tmpMyPlayerSeed = null;
     },
     choiceCharacterInBattle(state, action: PayloadAction<number>) {
@@ -72,6 +85,6 @@ const currentMyCharacterSlice = createSlice({
 });
 
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
+export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
                 notInBattleVerifyCharacters, choiceCharacterInBattle, myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

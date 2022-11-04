@@ -13,7 +13,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { setCurrentMyCharacter, myCharacterRemove, notInBattleVerifyCharacters, selectMyCharacter } from '../../slices/myCharacter.ts'
+import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter } from '../../slices/myCharacter.ts'
 import { battleRemove } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from '../../fetch_sol/utils.js';
@@ -150,8 +150,8 @@ export default function Battle() {
         // スマコンのアドレスを取得
         // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
         // もし服魔れていなかったら dispatch(myCharacterRemove()); で削除
-        console.log({自分が選択しているキャラ: myCharacters.charactersList})
-        setCharactersForBattle(myCharacters.charactersList)
+        console.log({自分が選択しているキャラ: myCharacters.requestCharacterList})
+        setCharactersForBattle(myCharacters.requestCharacterList)
     }, []);
 
     // キャラクターを所持していないのに、キャラがバトル画面で表示されてしまうバグの修正
@@ -163,15 +163,14 @@ export default function Battle() {
 
         // [修正]　バトルが終わった後なのに手持ちにRSがないか/あった場合は削除
         dispatch(notInBattleVerifyCharacters()); //更新
-        for (let step = 0; step < myCharacters.charactersList.length; step++) {
+        for (let step = 0; step < myCharacters.requestCharacterList.length; step++) {
             // const thisChara = _myCharacterList[step];
-            const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.charactersList[step].id);
-            if (_myCharacterList.find(char => char.id === myCharacters.charactersList[step].id)) {
-                console.log({存在しました: myCharacters.charactersList[step]})
+            const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.requestCharacterList[step].id);
+            if (_myCharacterList.find(char => char.id === myCharacters.requestCharacterList[step].id)) {
                 if(myCharacters.isRandomSlot){
                     continue
                 }
-                if( myCharacters.charactersList[step].level === matchedCharaFromAPI.level ){
+                if( myCharacters.requestCharacterList[step].level === matchedCharaFromAPI.level ){
                     updatedCharactersForBattle.push(matchedCharaFromAPI)
                     continue
                 } else {
@@ -186,7 +185,7 @@ export default function Battle() {
             }
         }
         if(hasToUpdateState){
-            dispatch(setCurrentMyCharacter(updatedCharactersForBattle)); //更新
+            dispatch(set4Characters(updatedCharactersForBattle)); //更新
             setCharactersForBattle(updatedCharactersForBattle)
         }
         // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
@@ -207,7 +206,7 @@ export default function Battle() {
     })();}, [stateChange]);
 
     function handleUpdate(){
-        dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
+        dispatch(set4Characters(charactersForBattle)); //更新
         setIsChanging(false);
         setStateChange((prev) => prev + 1);
     }
@@ -222,9 +221,9 @@ export default function Battle() {
 
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
-        dispatch(setCurrentMyCharacter(charactersForBattle)); //更新
+        dispatch(set4Characters(charactersForBattle)); //更新
         if(kind === "makeOwnRoom"){
-            const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
+            const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
             // proposeBattleで自分が対戦要求ステータスに変更される
             console.log({fixedSlotsOfChallenger});
             await proposeBattle(fixedSlotsOfChallenger, rangeValue);
