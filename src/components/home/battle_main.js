@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
@@ -23,7 +23,7 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixe
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from '../../fetch_sol/battle_field.js';
 import characterInfo from "./character_info.json";
 import {setCurrentBattle, resetBattleStatus, setReduxChoice, setReduxOpponentCommit, 
-    setReduxMyCommit, setReduxMySeedRevealed, setReduxListenToRoundRes, selectBattleStatus} from '../../slices/battle.ts';
+    setReduxMyCommit, setReduxMySeedRevealed, setReduxListenToRoundRes, selectBattleStatus, setReduxBlindingFactor} from '../../slices/battle.ts';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -44,6 +44,7 @@ function handleButtonStyle() {
 }
 
 function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
+    const dispatch = useDispatch();
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _thisCharacterBattleDone = character.battleDone;
@@ -58,6 +59,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
     function handleCharacterChoice() {
         if(listenToRoundRes === 'freeze'){ return }
         if(_thisCharacterBattleDone){ return }
+        dispatch(setReduxChoice(character.index))
         setChoice(character.index)
     }
 
@@ -221,6 +223,7 @@ const UrgeWithPleasureComponent = () => (
 
 export default function BattleMain(){
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [levelPoint, setLevelPoint] = useState(0);
 
@@ -238,70 +241,25 @@ export default function BattleMain(){
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
-    const [choice, setChoice] = useState(0);
     // COMPUTER側の選択したキャラ
     const [comChoice, setComChoice] = useState(0);
     const [round, setRound] = useState(0);
+
+    // ここ5つのステータスはバトルが終わるまで持っておく
+    const [choice, setChoice] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
     const [mySeedRevealed, setMySeedRevealed] = useState(false);
-    const [isCOM, setIsCOM] = useState(true);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
+
+    const [isCOM, setIsCOM] = useState(true);
     const [roundDetail, setRoundDetail] = useState(null);
     const [battleDetail, setBattleDetail] = useState(null);
     const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
+    const [isPressed, setIsPressed] = useState(false);
 
     // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
     const [opponentRevealed, setOpponentRevealed] = useState(null);
-
-    useEffect(() => {
-        dispatch(setReduxChoice(choice))
-        console.log("setReduxChoice........");
-    },[choice]);
-
-    useEffect(() => {
-        dispatch(setReduxOpponentCommit(opponentCommit))
-        console.log("setReduxOpponentCommit........");
-    },[opponentCommit]);
-
-    useEffect(() => {
-        dispatch(setReduxMyCommit(myCommit))
-        console.log("setReduxMyCommit........");
-    },[myCommit]);
-
-    useEffect(() => {
-        dispatch(setReduxMySeedRevealed(mySeedRevealed))
-        console.log("setReduxMySeedRevealed........");
-    },[mySeedRevealed]);
-
-    useEffect(() => {
-        dispatch(setReduxListenToRoundRes(listenToRoundRes))
-        console.log("setReduxListenToRoundRes........");
-    },[listenToRoundRes]);
-
-    useEffect(() => {
-        // reduxに結果を反映
-        if(roundDetail != null){
-            dispatch(oneRoundDone(roundDetail))
-        }
-    },[roundDetail]);
-
-    // 相手が何round目に何を出したかを"choiceRevealed"で検知する(levelPoint, choice, numRounds)
-    // 相手の出したキャラの検知と、もしRSを出しとき、RSキャラの詳細情報を取得する
-    useEffect(() => {(async function() {
-        console.log("opponentRevealed........");
-        console.log({opponentRevealed})
-        // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
-        if(opponentRevealed.choice == 4){
-            const opponentPlayerId = 1 - myCharacters.playerId;
-            const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
-            console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
-            dispatch(setOpponentRsFullInfo(opponentRSInfo));
-        }
-        if( opponentRevealed != null) {
-            dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
-        }
-    })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
@@ -311,7 +269,7 @@ export default function BattleMain(){
         }
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
         choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
-        choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
+        choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit, dispatch, setReduxOpponentCommit); // 上記変更に伴い変更
 
         if (isCOM) {
             const tmpCOMPlayerSeed = getRandomBytes32();
@@ -349,24 +307,34 @@ export default function BattleMain(){
 
     })();}, []);
 
-    const navigate = useNavigate();
-    // useEffect(() => {(async function() {
-    //     if (await isInBattle() === false) {
-    //         navigate('../');
-    //     }
 
-    //     // for debug
-    //     if (isCOM) {
-    //         const tmpCOMPlayerSeed = getRandomBytes32();
-    //         setCOMPlayerSeed(tmpCOMPlayerSeed);
-    //         try {
-    //             await commitPlayerSeed(1-myPlayerId, tmpCOMPlayerSeed, addressIndex);
-    //         } catch (e) {
-    //             console.log(e);
-    //         }
-    //         setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpCOMPlayerSeed, addressIndex));
-    //     }
-    // })();}, [isCOM]);
+    // commitはしたが、revealがまだの時にroundResultを呼ぶ
+    useEffect(() => {
+        if(battleStatus.myCommit && !battleStatus.mySeedRevealed){
+            roundResult(roundResultList.latestRound, battleStatus.choice, setListenToRoundRes, 
+                        setChoice, dispatch, setReduxChoice, setReduxListenToRoundRes,  setRoundDetail);
+        }
+    }, []);
+
+
+   // 相手が何round目に何を出したかを"choiceRevealed"で検知する(levelPoint, choice, numRounds)
+    // 相手の出したキャラの検知と、もしRSを出しとき、RSキャラの詳細情報を取得する
+    useEffect(() => {(async function() {
+        console.log("opponentRevealed........");
+        console.log({opponentRevealed})
+        if(opponentRevealed != null){
+            // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
+            if(opponentRevealed.choice == 4){
+                const opponentPlayerId = 1 - myCharacters.playerId;
+                const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
+                console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
+                dispatch(setOpponentRsFullInfo(opponentRSInfo));
+            }
+            if( opponentRevealed != null) {
+                dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
+            }
+        }
+    })();}, [opponentRevealed]);
 
     useEffect(() => {
         playerSeedCommitted();
@@ -375,6 +343,14 @@ export default function BattleMain(){
         battleResult(setBattleDetail);
         battleCanceled();
     }, []);
+
+    useEffect(() => {
+        // reduxに結果を反映
+        if(roundDetail != null){
+            dispatch(oneRoundDone(roundDetail))
+        }
+    },[roundDetail]);
+
 
     async function handleForceInitBattle () {
         dispatch(notInBattleVerifyCharacters());
@@ -402,15 +378,11 @@ export default function BattleMain(){
     }
 
     async function handleSeedCommit () {
+        setIsPressed(true)
         // リロードしてモンスターが変わらないように修正
         if(myCharacters.charactersList.length == 0){
             const tmpMyPlayerSeed = getRandomBytes32();
             setMyPlayerSeed(tmpMyPlayerSeed);
-            // seedが登録されていない場合、登録する
-            if(myCharacters.tmpMyPlayerSeed == null){
-                dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
-            }
-
             // 対戦に使うキャラ5体(RSを含む)をreduxに追加
             const fixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
             try {
@@ -427,6 +399,7 @@ export default function BattleMain(){
             const characterList = [...fixedSlotCharInfo, _myRandomSlot]
             dispatch(set5BattleCharacter(characterList))
         }
+        setIsPressed(false)
     }
 
     // for debug
@@ -469,13 +442,21 @@ export default function BattleMain(){
     }
 
     async function handleChoiceCommit() {
+        setIsPressed(true)
         setListenToRoundRes('freeze');
+        dispatch(setReduxListenToRoundRes('freeze'))
         // reduxに保存して、使ったことのないものを使用する
         const blindingFactor = getRandomBytes32();
         try {
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
 
             setMyBlindingFactor(blindingFactor);
+            
+            // myCommitがまだの時は更新する
+            if(battleStatus.myCommit == false){
+                dispatch(setReduxBlindingFactor(blindingFactor))
+            }
+
             // どのキャラを選んだか？の情報を追加
             dispatch(choiceCharacterInBattle(choice));
             // 次に自動選択するindexを調べてstateを変更する
@@ -485,9 +466,10 @@ export default function BattleMain(){
                     break;
                 }
             }
-            roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
+            roundResult(round, nextIndex, setListenToRoundRes, setChoice, dispatch, setReduxChoice, setReduxListenToRoundRes,  setRoundDetail);
 
             setMyCommit(true);
+            dispatch(setReduxMyCommit(true)) // 上記変更に伴い変更
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -500,9 +482,11 @@ export default function BattleMain(){
         if (isCOM) {
             await handleChoiceCommitCOM();
         }
+        setIsPressed(false)
     }
 
     async function handleSeedReveal() {
+        setIsPressed(true)
         const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
         try {
             await revealPlayerSeed(myPlayerId, _myPlayerSeed);
@@ -515,25 +499,52 @@ export default function BattleMain(){
             }
         }
         setMySeedRevealed(true);
+        dispatch(setReduxMySeedRevealed(true)) // 上記変更に伴い変更
+        setIsPressed(false)
     }
 
     async function handleChoiceReveal() {
+        setIsPressed(true)
+        // {myPlayerId: 0, levelPoint: 0, myBlindingFactor: '0x115b85521b3d53243ba0f6d709dd9e435b8579396450220af70a0774cdfdeccd'}
+        // {myPlayerId: 0, levelPoint: 0, myBlindingFactor: undefined}
+
+        console.log({myPlayerId: myPlayerId, levelPoint: levelPoint, myBlindingFactor: battleStatus.myBlindingFactor})
+        await revealChoice(myCharacters.playerId, levelPoint, battleStatus.choice, battleStatus.myBlindingFactor);
+        // await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
         setMySeedRevealed(false);
-        const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
-        try {
-            await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
-        } catch (e) {
-            console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
-        }
-        choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
-        setRound(round + 1);
+        dispatch(setReduxMySeedRevealed(false)) // 上記変更に伴い変更
+        
+        choiceCommitted(1 - myCharacters.playerId, roundResultList.latestRound + 1, setOpponentCommit, dispatch, setReduxOpponentCommit); // 上記変更に伴い変更
+        // choiceCommitted(1 - myPlayerId, round+1, setOpponentCommit, dispatch, setReduxOpponentCommit); // 上記変更に伴い変更
+        setRound(roundResultList.latestRound + 1);
+        
         setOpponentCommit(false);
+        dispatch(setReduxOpponentCommit(false)); // 上記変更に伴い変更
         setMyCommit(false);
+        dispatch(setReduxMyCommit(false)) // 上記変更に伴い変更
+
+        // try {
+        //     await revealChoice(myPlayerId, levelPoint, battleStatus.choice, myBlindingFactor);
+        //     await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
+        //     setMySeedRevealed(false);
+        //     dispatch(setReduxMySeedRevealed(false)) // 上記変更に伴い変更
+
+        //     choiceCommitted(1-myPlayerId, round+1, setOpponentCommit, dispatch, setReduxOpponentCommit); // 上記変更に伴い変更
+        //     setRound(round + 1);
+            
+        //     setOpponentCommit(false);
+        //     dispatch(setReduxOpponentCommit(false)); // 上記変更に伴い変更
+        //     setMyCommit(false);
+        //     dispatch(setReduxMyCommit(false))
+        // } catch (e) {
+        //     console.log({error: e});
+        //     if (e.message.substr(0, 18) === "transaction failed") {
+        //         alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+        //     } else {
+        //         alert("不明なエラーが発生しました。");
+        //     }
+        // }
+        setIsPressed(false)
     }
 
     return(<>
@@ -599,47 +610,65 @@ export default function BattleMain(){
             }
         </Grid>
         
+        <>myCharacters.charactersList.length ==  {myCharacters.charactersList.length}</>
+        <>battleStatus.choice = {battleStatus.choice} </>
+
         {myCharacters.charactersList.length == 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
         }
-{/* 
         {myCharacters.charactersList.length != 0 && battleStatus.choice != null && battleStatus.listenToRoundRes !== 'freeze' &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
-
         {battleStatus.opponentCommit && battleStatus.myCommit && !battleStatus.mySeedRevealed && battleStatus.choice == 4 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 RS を公開する
             </Button>
         }
-
-        {battleStatus.opponentCommit && battleStatus.myCommit && (battleStatus.choice != 4 || (battleStatus.choice == 4) && battleStatus.mySeedRevealed) &&
+        {battleStatus.opponentCommit && battleStatus.myCommit && (battleStatus.choice != 4 || (battleStatus.choice == 4 && battleStatus.mySeedRevealed)) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトルする
             </Button>
-        } */}
-
-        {myCharacters.charactersList.length != 0 && choice != null && listenToRoundRes !== 'freeze' &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
-                勝負するキャラクターを確定する
-            </Button>
         }
+        
 
-        {opponentCommit && myCommit && !mySeedRevealed && choice == 4 &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
-                ランダムスロットを公開する
-            </Button>
-        }
 
-        {opponentCommit && myCommit && (choice != 4 || (choice == 4) && mySeedRevealed) &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
-                バトル結果を見る
+        {/* { isPressed ? <>
+            <Button variant="contained" disabled size="large" style={ handleButtonStyle() } color="primary" aria-label="add">
+                処理中です、ページをリロードしないでください
             </Button>
-        }
+        </> : <>
+            {myCharacters.charactersList.length == 0 &&
+                <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" 
+                onClick={() => handleSeedCommit() }>
+                    バトルを開始する
+                </Button>
+            }
+
+            {(myCharacters.charactersList.length != 0 && choice != null && listenToRoundRes !== 'freeze') &&
+                <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" 
+                onClick={() => handleChoiceCommit()}>
+                    勝負するキャラクターを確定する
+                </Button>
+            }
+
+            {opponentCommit && myCommit && !mySeedRevealed && choice == 4 &&
+                <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" 
+                onClick={() => handleSeedReveal()}>
+                    ランダムスロットを公開する
+                </Button>
+            }
+
+            {opponentCommit && myCommit && (choice != 4 || (choice == 4 && mySeedRevealed)) &&
+                <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" 
+                onClick={() => handleChoiceReveal()}>
+                    バトル結果を見る
+                </Button>
+            }
+        </>} */}
 
         <h2>バトル方法</h2><hr/>
 
