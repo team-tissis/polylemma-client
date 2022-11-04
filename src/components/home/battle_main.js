@@ -47,11 +47,7 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
     const _backgroundColor = (thisCharacter == character.id) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
-
-    useEffect(() => {
-        console.log({character});
-        console.log("レベルを読み込み中........");
-    },[levelPoint])
+    const _cardStyleColor = _isRandomSlot ? 'grey' : 'orange'
 
     return(<>
         <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
@@ -59,8 +55,12 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
             <div class="card_name">
                 キャラクター名をここに書く
             </div>
-            <div class="box" style={{backgroundColor: _isRandomSlot ? 'red' : 'orange', fontSize: 14}}>
-                <p>{ character.level }</p>
+            <div class="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
+                {(thisCharacter == character.id) ? <>
+                    <p>{ character.level + levelPoint}</p>
+                </> : <>
+                    <p>{ character.level}</p>
+                </>}
             </div>
             <div class="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
