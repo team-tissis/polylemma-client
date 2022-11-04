@@ -5,7 +5,7 @@ import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { getOwnedCharacterWithIDList , getAllCharacterInfo} from '../../fetch_sol/token.js';
+import { getAllCharacterInfo} from '../../fetch_sol/token.js';
 import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -21,24 +21,24 @@ function NFTCard({character}){
     const charaType = characterInfo.characterType[character.characterType];
 
     return(<>
-        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} >
-            <div class="card_name">
-                キャラクター名をここに書く
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} >
+            <div className="card_name">
+                <p>{ character.name }</p>
             </div>
-            <div class="box">
+            <div className="box">
                 <p>{ character.level }</p>
             </div>
-            <div class="character_type_box" 
+            <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div class="img_box" >
-                <img className='img_div' src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            <div className="img_box" >
+                <img className='img_div' src={ character.imgURI } alt="sample"/>
             </div>
-            <div class="attribute_box">
+            <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
             </div>
-            <div class="detail_box">
+            <div className="detail_box">
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>

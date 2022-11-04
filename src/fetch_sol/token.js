@@ -24,8 +24,21 @@ async function getNumberOfOwnedTokens (addressIndex) {
 async function getAllCharacterInfo (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getAllCharacterInfo();
-    console.log({ getAllCharacterInfo: message });
-    return message;
+    const allCharacterInfo = [];
+    for (let i = 0; i < message.length; i++) {
+        allCharacterInfo.push({
+            id: i,
+            name: bytes32ToString(message[i]['name']),
+            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
+            characterType: message[i]['characterType'],
+            level: message[i]['level'],
+            rarity: message[i]['rarity'],
+            abilityIds: message[i]['abilityIds'],
+            isRandomSlot: false
+        });
+    }
+    console.log({ allCharacterInfo: allCharacterInfo });
+    return allCharacterInfo;
 }
 
 async function updateLevel (tokenId, addressIndex) {
@@ -62,7 +75,7 @@ async function getCurrentCharacterInfo (tokenId, addressIndex) {
 async function getImgURI (imgId, addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getImgURI(imgId);
-    console.log({ getImgURI: message });
+    // console.log({ getImgURI: message });
     return message;
 }
 
