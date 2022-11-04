@@ -1,4 +1,4 @@
-import { getContract } from "./utils.js";
+import { bytes32ToString, getContract } from "./utils.js";
 import { approve } from "./coin.js";
 
 async function totalSupply (addressIndex) {
@@ -24,8 +24,21 @@ async function getNumberOfOwnedTokens (addressIndex) {
 async function getAllCharacterInfo (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getAllCharacterInfo();
-    console.log({ getAllCharacterInfo: message });
-    return message;
+    const allCharacterInfo = [];
+    for (let i = 0; i < message.length; i++) {
+        allCharacterInfo.push({
+            id: i,
+            name: bytes32ToString(message[i]['name']),
+            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
+            characterType: message[i]['characterType'],
+            level: message[i]['level'],
+            rarity: message[i]['rarity'],
+            abilityIds: message[i]['abilityIds'],
+            isRandomSlot: false
+        });
+    }
+    console.log({ allCharacterInfo: allCharacterInfo });
+    return allCharacterInfo;
 }
 
 async function updateLevel (tokenId, addressIndex) {
@@ -55,28 +68,36 @@ async function getNecessaryExp (tokenId, addressIndex) {
 async function getCurrentCharacterInfo (tokenId, addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getCurrentCharacterInfo(tokenId);
-    console.log({ getCurrentCharacterInfo: message });
+    // console.log({ getCurrentCharacterInfo: message });
+    return message;
+}
+
+async function getImgURI (imgId, addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
+    const message = await contract.getImgURI(imgId);
+    // console.log({ getImgURI: message });
     return message;
 }
 
 async function getOwnedCharacterWithIDList (addressIndex) {
-    const myTokens = await getAllTokenOwned(addressIndex);
-    const myTokenIds = myTokens.map(myToken => Number(myToken));
-    const ownedCharacterInfoList = await getAllCharacterInfo(addressIndex);
+    const myTokenIds = (await getAllTokenOwned(addressIndex)).map(myToken => myToken.toNumber());
     const ownedCharacters = []
-    if (myTokenIds.length > 1) {
-        for (let i = 0; i < myTokenIds.length; i++) {
-            ownedCharacters.push({
-                id: myTokenIds[i],
-                characterType: ownedCharacterInfoList[i]['characterType'],
-                level: ownedCharacterInfoList[i]['level'],
-                rarity: ownedCharacterInfoList[i]['rarity'],
-                abilityIds: ownedCharacterInfoList[i]['abilityIds'],
-                isRandomSlot: false
-            });
-        }
+    for (let i = 0; i < myTokenIds.length; i++) {
+        const characterInfo = await getCurrentCharacterInfo(myTokenIds[i], addressIndex);
+        ownedCharacters.push({
+            id: myTokenIds[i],
+            name: bytes32ToString(characterInfo['name']),
+            imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
+            characterType: characterInfo['characterType'],
+            level: characterInfo['level'],
+            rarity: characterInfo['rarity'],
+            abilityIds: characterInfo['abilityIds'],
+            isRandomSlot: false
+        });
     }
+    console.log({ ownedCharacters: ownedCharacters });
     return ownedCharacters;
 }
 
-export { totalSupply, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList };
+export { totalSupply, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp,
+         getCurrentCharacterInfo, getImgURI, getOwnedCharacterWithIDList };

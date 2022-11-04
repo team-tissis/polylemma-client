@@ -63,29 +63,29 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
         setThisCharacter(character.id)
     }
     return(<>
-        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
-            onClick={() => handleCharacterChoice() } >
-            <div class="card_name">
-                キャラクター名をここに書く
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}}
+            onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
+            <div className="card_name">
+                <p>{ character.name }</p>
             </div>
-            <div class="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
-                {(character.index == choice) ? <>
+            <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
+                {(thisCharacter == character.id) ? <>
                     <p>{ character.level + levelPoint}</p>
                 </> : <>
                     <p>{ character.level}</p>
                 </>}
             </div>
-            <div class="character_type_box"
+            <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div class="img_box" style={{backgroundColor: _backgroundColor}}>
-                <img className='img_div' style={{width: '100%', height: 'auto'}} src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            <div className="img_box" style={{backgroundColor: _backgroundColor}}>
+                <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
             </div>
-            <div class="attribute_box">
+            <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
             </div>
-            <div class="detail_box" style={{fontSize: 12}}>
+            <div className="detail_box" style={{fontSize: 12}}>
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>
@@ -278,6 +278,10 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
+<<<<<<< HEAD
+=======
+
+>>>>>>> ada628d0e3274edd1a9efbfb514c176689fbc4ac
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice))
         // 次に自動選択するindexを調べてstateを変更する

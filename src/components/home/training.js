@@ -49,25 +49,25 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
     }
 
     return(<>
-        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}}
             onClick={ () => handleClickCharacter(character.id) }>
-            <div class="card_name">
-                キャラクター名をここに書く
+            <div className="card_name">
+                <p>{ character.name }</p>
             </div>
-            <div class="box">
+            <div className="box">
                 <p>{ character.level }</p>
             </div>
-            <div class="character_type_box"
+            <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div class="img_box" style={{backgroundColor: _backgroundColor}}>
-                <img className='img_div' src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            <div className="img_box" style={{backgroundColor: _backgroundColor}}>
+                <img className='img_div' src={ character.imgURI } alt="sample"/>
             </div>
-            <div class="attribute_box">
+            <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
             </div>
-            <div class="detail_box">
+            <div className="detail_box">
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>
@@ -133,7 +133,7 @@ export default function ModelTraining(){
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {myCharacterList.map((character, index) => (<>
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <NFTCard character={character}  setNecessaryExp={setNecessaryExp} 
+                    <NFTCard character={character}  setNecessaryExp={setNecessaryExp}
                         selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId} setLevelBefore={setLevelBefore}/>
                 </Grid>
             </>))}
