@@ -85,7 +85,9 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         level: message['level'],
         rarity: message['rarity'],
         abilityIds: message['abilityIds'],
-        isRandomSlot: true
+        isRandomSlot: true,
+        battleDone: false,
+        index: 4
     };
 }
 
@@ -139,10 +141,13 @@ function choiceRevealed (opponentPlayerId, addressIndex) {
     });
 }
 
-function roundResult (addressIndex) {
+function roundResult (setListenToRoundRes, setChoice, nextIndex, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
+        setListenToRoundRes('can_choice')
+        console.log(`choiceを${nextIndex}に変更`);
+        setChoice(nextIndex)
         if (isDraw) {
             console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
         } else {

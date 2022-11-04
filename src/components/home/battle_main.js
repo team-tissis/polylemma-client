@@ -41,27 +41,35 @@ function handleButtonStyle() {
 
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
-function NFTCharactorCard({setChoice, character, thisCharacter, setThisCharacter, levelPoint}){
+function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisCharacter, setThisCharacter, levelPoint}){
+    // const _myCharacters = useSelector(selectMyCharacter);
+    // listenToRoundRes == 'freeze'
     const thisCharacterAbility = character.abilityIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    const _backgroundColor = (thisCharacter == character.id) ? 'grey' : 'white';
+    // const _myCharacters[]
+    const _backgroundColor = (character.index == choice) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
     const _cardStyleColor = _isRandomSlot ? 'grey' : 'orange'
 
     function handleCharacterChoice() {
+        if(listenToRoundRes == 'freeze'){
+            return
+        }
+        if(_thisCharacterBattleDone){
+            return
+        }
         setChoice(character.index)
         setThisCharacter(character.id)
     }
-
     return(<>
         <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
-            onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
+            onClick={() => handleCharacterChoice() } >
             <div class="card_name">
                 キャラクター名をここに書く
             </div>
             <div class="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
-                {(thisCharacter == character.id) ? <>
+                {(character.index == choice) ? <>
                     <p>{ character.level + levelPoint}</p>
                 </> : <>
                     <p>{ character.level}</p>
@@ -71,7 +79,6 @@ function NFTCharactorCard({setChoice, character, thisCharacter, setThisCharacter
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            {/* <div class="img_box"> */}
             <div class="img_box" style={{backgroundColor: _backgroundColor}}>
                 <img className='img_div' style={{width: '100%', height: 'auto'}} src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
             </div>
@@ -84,17 +91,6 @@ function NFTCharactorCard({setChoice, character, thisCharacter, setThisCharacter
                 </div>
             </div>
         </div>
-
-        {/* <Paper onClick={_thisCharacterBattleDone ? null : () => setThisCharacter(character.id) } elevation={10}
-            style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
-            トークンID {character.id} <br/>
-            { _isRandomSlot && <>[ランダムスロットキャラ]</> }
-            {(levelPoint > 0)&(thisCharacter === character.id) ?
-                <>レベル {character.level + levelPoint}( +{levelPoint}.Lv )<br/></>
-                : <>レベル {character.level}.Lv<br/></>
-            }
-            属性: {character.characterType}
-        </Paper> */}
     </>)
 }
 
@@ -126,14 +122,14 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors, thisCharacter, setThisCharacter, setChoice, totalLevelPoint, levelPoint, setLevelPoint}){
+function PlayerI({myCharactors, thisCharacter, setThisCharacter, listenToRoundRes,  choice, setChoice, totalLevelPoint, levelPoint, setLevelPoint}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard setChoice={setChoice} character={myCharactor}
-                        thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
+                    <NFTCharactorCard choice={choice} setChoice={setChoice} character={myCharactor}
+                        listenToRoundRes={listenToRoundRes} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
                 </Grid>
             ))}
         </Grid>
@@ -193,15 +189,16 @@ export default function BattleMain(){
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
     const [choice, setChoice] = useState(null);
+    const [nextIndex, setNextIndex] = useState(null);
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
     const [isCOM, setIsCOM] = useState(false);
+    const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
 
     useEffect(() => {
-        console.log({自分のキャラ: myCharacters.charactersList});
-        console.log("読み込み中........");
-    },[thisCharacter]);
+        console.log("commit and reveal........");
+    },[listenToRoundRes, choice]);
 
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
@@ -226,10 +223,8 @@ export default function BattleMain(){
             // DO NOTHING
         } else {
             // RSを追加する
-            console.log({自分の対戦カードにRSを追加します: _myRandomSlot})
             dispatch(addRandomSlotToCurrentMyCharacter(_myRandomSlot));
         }
-
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
     })();}, []);
 
@@ -252,7 +247,7 @@ export default function BattleMain(){
         playerSeedRevealed();
         // choiceCommitted();
         choiceRevealed();
-        roundResult();
+        roundResult(setListenToRoundRes, setChoice, nextIndex);
         battleResult();
         battleCanceled();
     }, []);
@@ -279,14 +274,24 @@ export default function BattleMain(){
     }
 
     async function handleCommit() {
+        setListenToRoundRes('freeze')
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
-        
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice))
+        // 次に自動選択するindexを調べてstateを変更する
+        for (let step = 0; step < myCharacters.charactersList.length - 1; step++) {
+            if(myCharacters.charactersList[step].battleDone == false){
+                if(step != choice){
+                    console.log(`${step}番目が次の出力です`)
+                    setNextIndex(step)
+                }
+                break;
+            }
+        }
         setMyCommit(true);
-
+        // 勝敗が決まるまでボタンを押せないようにする
         if (isCOM) {
             await handleCommitCOM();
         }
@@ -303,7 +308,6 @@ export default function BattleMain(){
                 console.log(err);
             }
             choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
-            // setChoice(choice + 1);
             setRound(round + 1);
             setOpponentCommit(false);
             setMyCommit(false);
@@ -324,7 +328,9 @@ export default function BattleMain(){
                 <div style={{height: 100}}/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
                 <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
-                        setChoice={setChoice} totalLevelPoint={totalLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
+                        listenToRoundRes={listenToRoundRes}
+                        choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint} 
+                        levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
         <Grid item xs={10} md={3}>
@@ -364,7 +370,7 @@ export default function BattleMain(){
         </Grid>
 
         {thisCharacter &&
-            <Fab variant="extended" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleCommit()}>
+            <Fab variant="extended" style={ handleButtonStyle() } disabled={listenToRoundRes == 'freeze'} color="primary" aria-label="add" onClick={() => handleCommit()}>
                 勝負するキャラクターを確定する
             </Fab>
         }
