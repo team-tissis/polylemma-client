@@ -52,7 +52,7 @@ export default function Header() {
             maxStamina: staminaMax,
             staminaPerBattle: staminaPerBattle,
             restoreStaminaFee: restoreStaminaFee,
-            currentStaminapercentage: (currentStamina/staminaMax)*100
+            currentStaminapercentage: Math.round((currentStamina/staminaMax)*100)
         })
     })()},[]);
 
