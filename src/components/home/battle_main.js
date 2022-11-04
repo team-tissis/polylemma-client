@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, addRandomSlotToCurrentMyCharacter } from '../../slices/myCharacter.ts';
+import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, choiceCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
@@ -42,6 +42,7 @@ function handleButtonStyle() {
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoint}){
     const _isRandomSlot = character.isRandomSlot;
+    const _thisCharacterBattleDone = character.battleDone;
 
     useEffect(() => {
         console.log({character});
@@ -49,7 +50,7 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
     },[levelPoint])
 
     return(<>
-        <Paper onClick={() => setThisCharacter(character.id) } elevation={10}
+        <Paper onClick={_thisCharacterBattleDone ? null : () => setThisCharacter(character.id) } elevation={10}
             style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
             トークンID {character.id} <br/>
             { _isRandomSlot && <>[ランダムスロットキャラ]</> }
@@ -238,8 +239,10 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
-
-        dispatch(setOneBattle({ thisNonce: '', thisSeed: '', thisCharacterId: choice}))
+        
+        // どのキャラを選んだか？の情報を追加
+        dispatch(choiceCharacterInBattle(choice))
+        // dispatch(setOneBattle({ thisNonce: '', thisSeed: '', thisCharacterId: choice}))
         setMyCommit(true);
 
         if (isCOM) {
