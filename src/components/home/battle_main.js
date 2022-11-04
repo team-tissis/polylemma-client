@@ -41,7 +41,7 @@ function handleButtonStyle() {
 
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
-function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoint}){
+function NFTCharactorCard({setChoice, character, thisCharacter, setThisCharacter, levelPoint}){
     const thisCharacterAbility = character.abilityIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (thisCharacter == character.id) ? 'grey' : 'white';
@@ -49,9 +49,14 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
     const _thisCharacterBattleDone = character.battleDone;
     const _cardStyleColor = _isRandomSlot ? 'grey' : 'orange'
 
+    function handleCharacterChoice() {
+        setChoice(character.index)
+        setThisCharacter(character.id)
+    }
+
     return(<>
         <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
-            onClick={_thisCharacterBattleDone ? null : () => setThisCharacter(character.id) } >
+            onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
             <div class="card_name">
                 キャラクター名をここに書く
             </div>
@@ -121,13 +126,13 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalLevelPoint, levelPoint, setLevelPoint}){
+function PlayerI({myCharactors, thisCharacter, setThisCharacter, setChoice, totalLevelPoint, levelPoint, setLevelPoint}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard character={myCharactor}
+                    <NFTCharactorCard setChoice={setChoice} character={myCharactor}
                         thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
                 </Grid>
             ))}
@@ -187,7 +192,7 @@ export default function BattleMain(){
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
-    const [choice, setChoice] = useState(0);
+    const [choice, setChoice] = useState(null);
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
@@ -280,7 +285,6 @@ export default function BattleMain(){
         
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice))
-        // dispatch(setOneBattle({ thisNonce: '', thisSeed: '', thisCharacterId: choice}))
         setMyCommit(true);
 
         if (isCOM) {
@@ -299,7 +303,7 @@ export default function BattleMain(){
                 console.log(err);
             }
             choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
-            setChoice(choice + 1);
+            // setChoice(choice + 1);
             setRound(round + 1);
             setOpponentCommit(false);
             setMyCommit(false);
@@ -318,8 +322,9 @@ export default function BattleMain(){
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
                 <div style={{height: 100}}/>
+                [dev]左から数えて {choice} 番目のトークンが選択されました。
                 <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
-                        totalLevelPoint={totalLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
+                        setChoice={setChoice} totalLevelPoint={totalLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
         <Grid item xs={10} md={3}>

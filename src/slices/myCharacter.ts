@@ -2,13 +2,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store.ts';
 
 interface IMyCharacter {
-  abilityIds: null | number[];
-  characterType: String;
   id: number;
+  index:  number;
   level: number;
   rarity: number;
   isRandomSlot: boolean;
   battleDone: boolean;
+  abilityIds: null | number[];
+  characterType: String;
 }
 interface IMyCharacterList {
   charactersList: IMyCharacter[];
@@ -27,6 +28,10 @@ const currentMyCharacterSlice = createSlice({
     // addRandomSlotToCurrentMyCharacter(state, action: any) {
       state.charactersList = [...state.charactersList, action.payload]
       state.hasRandomSlot = true;
+      // indexを割り振る
+      for (let charaIndex = 0; charaIndex < state.charactersList.length - 1; charaIndex++) {
+        state.charactersList[charaIndex].index = charaIndex
+      }
     },
     notInBattleVerifyCharacters(state) {
       state.hasRandomSlot = false;
@@ -35,18 +40,6 @@ const currentMyCharacterSlice = createSlice({
       });
       // バトルステータスをfalseにする
       resetedMyCharacters.forEach(character => character.battleDone = false);
-      // if(character.isRandomSlot == false){
-      //   {
-      //     abilityIds: character.abilityIds,
-      //     characterType: character.characterType,
-      //     id: character.id,
-      //     level: character.level,
-      //     rarity: character.rarity,
-      //     isRandomSlot: character.isRandomSlot,
-      //     battleDone: false
-      //   }
-      // }
-      
       state.charactersList = resetedMyCharacters;
     },
     choiceCharacterInBattle(state, action: PayloadAction<number>) {

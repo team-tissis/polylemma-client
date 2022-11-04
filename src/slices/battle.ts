@@ -5,16 +5,16 @@ interface IBattle {
     status: number;
     nonce: string[];
     seed: string[];
-    doneCharacterIds: number[];
+    doneCharacterIndexes: number[];
 }
 
 interface IEachBattleStatus {
     thisNonce: string;
     thisSeed: string;
-    thisCharacterId: number;
+    thisCharacterIndex: number;
 }
 
-const initialState: IBattle = { status: 0, nonce: [], seed: [], doneCharacterIds: [] };
+const initialState: IBattle = { status: 0, nonce: [], seed: [], doneCharacterIndexes: [] };
 const currentBattleSlice = createSlice({
   name: 'currentBattle',
   initialState,
@@ -23,16 +23,15 @@ const currentBattleSlice = createSlice({
         // TODO something
     },
     setOneBattle(state, action: PayloadAction<IEachBattleStatus>) {
-        console.log({今までのIDS: state.doneCharacterIds, 今回選択したID: action.payload.thisCharacterId})
         state.nonce = [...state.nonce, action.payload.thisNonce];
         state.seed = [...state.seed, action.payload.thisSeed];
-        state.doneCharacterIds = [...state.doneCharacterIds, action.payload.thisCharacterId];
+        state.doneCharacterIndexes = [...state.doneCharacterIndexes, action.payload.thisCharacterIndex];
     },
     battleRemove(state)  {
       state.status = 0;
       state.nonce = [];
       state.seed = [];
-      state.doneCharacterIds = [];
+      state.doneCharacterIndexes = [];
     },
   },
 });
