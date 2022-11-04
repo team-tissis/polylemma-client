@@ -23,7 +23,7 @@ function getSeedString (myAddress, seed) {
 }
 
 function calcRandomSlotId (nonce, seed, mod) {
-    return ethers.BigNumber.from(ethers.utils.solidityKeccak256(["bytes32", "bytes32"], [nonce, seed])).mod(mod).toNumber();
+    return ethers.BigNumber.from(ethers.utils.solidityKeccak256(["bytes32", "bytes32"], [nonce, seed])).mod(mod).toNumber() + 1;
 }
 
 function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
