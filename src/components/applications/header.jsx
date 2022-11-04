@@ -18,7 +18,7 @@ import { balanceOf } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
          extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged ,
-         getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, consumeStaminaForBattle,
+         getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
        } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
 import ProgressBar from './progress_bar'
