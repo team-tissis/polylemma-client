@@ -19,6 +19,7 @@ import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
+import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -41,6 +42,9 @@ function handleButtonStyle() {
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoint}){
+    const thisCharacterAbility = character.abilityIds[0];
+    const charaType = characterInfo.characterType[character.characterType];
+
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
 
@@ -50,7 +54,32 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
     },[levelPoint])
 
     return(<>
-        <Paper onClick={_thisCharacterBattleDone ? null : () => setThisCharacter(character.id) } elevation={10}
+        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
+            onClick={_thisCharacterBattleDone ? null : () => setThisCharacter(character.id) } >
+            <div class="card_name">
+                キャラクター名をここに書く
+            </div>
+            <div class="box" style={{backgroundColor: _isRandomSlot ? 'red' : 'orange'}}>
+                <p>{ character.level }</p>
+            </div>
+            <div class="character_type_box"
+                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
+                { charaType['jaName'] }
+            </div>
+            <div class="img_box">
+                <img className='img_div' style={{width: '100%', height: 'auto'}} src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            </div>
+            <div class="attribute_box">
+                { characterInfo.attributes[thisCharacterAbility]["title"] }
+            </div>
+            <div class="detail_box">
+                <div style={{margin: 10}}>
+                    { characterInfo.attributes[thisCharacterAbility]["description"] }
+                </div>
+            </div>
+        </div>
+
+        {/* <Paper onClick={_thisCharacterBattleDone ? null : () => setThisCharacter(character.id) } elevation={10}
             style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
             トークンID {character.id} <br/>
             { _isRandomSlot && <>[ランダムスロットキャラ]</> }
@@ -59,9 +88,11 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
                 : <>レベル {character.level}.Lv<br/></>
             }
             属性: {character.characterType}
-        </Paper>
+        </Paper> */}
     </>)
 }
+
+
 
 function PlayerYou({opponentCharacters}){
     opponentCharacters = [1,2,3,4]
@@ -76,7 +107,12 @@ function PlayerYou({opponentCharacters}){
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
                 {opponentCharacters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard character={character}/>
+                    <Paper elevation={10} style={{backgroundColor: 'silver', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
+                        トークンID {character.id} <br/>
+                        レベル {character.level}
+                        属性: {character.characterType}
+                    </Paper>
+                    {/* <NFTCharactorCard character={character}/> */}
                 </Grid>
                 ))}
             </Grid>
