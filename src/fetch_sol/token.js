@@ -21,6 +21,13 @@ async function getNumberOfOwnedTokens (addressIndex) {
     return myTokens.length;
 }
 
+async function calcCurrentBondLevel (char, addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
+    const message = await contract.calcCurrentBondLevel(char['level'], char['fromBlock']);
+    console.log({ calcCurrentBondLevel: message });
+    return message;
+}
+
 async function getAllCharacterInfo (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getAllCharacterInfo();
@@ -32,8 +39,9 @@ async function getAllCharacterInfo (addressIndex) {
             imgURI: await getImgURI(message[i]['imgId'], addressIndex),
             characterType: message[i]['characterType'],
             level: message[i]['level'],
+            bondLevel: await calcCurrentBondLevel(message[i]),
             rarity: message[i]['rarity'],
-            abilityIds: message[i]['abilityIds'],
+            attributeIds: message[i]['attributeIds'],
             isRandomSlot: false
         });
     }
@@ -90,8 +98,9 @@ async function getOwnedCharacterWithIDList (addressIndex) {
             imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
             characterType: characterInfo['characterType'],
             level: characterInfo['level'],
+            bondLevel: await calcCurrentBondLevel(characterInfo),
             rarity: characterInfo['rarity'],
-            abilityIds: characterInfo['abilityIds'],
+            attributeIds: characterInfo['attributeIds'],
             isRandomSlot: false
         });
     }
