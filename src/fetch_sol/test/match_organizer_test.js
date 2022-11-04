@@ -63,13 +63,23 @@ async function defeatByFoul () {
     const levelPoint = 255;
     const choice = 1;
     const blindingFactor = getRandomBytes32();
-    await commitChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+    try {
+        await commitChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+    } catch (e) {}
 
     const blindingFactor1 = getRandomBytes32();
-    await commitChoice(1 - playerId, levelPoint, choice, blindingFactor1, addressIndex2);
+    try {
+        await commitChoice(1 - playerId, levelPoint, choice, blindingFactor1, addressIndex2);
+    } catch (e) {}
 
     try {
         await revealChoice(playerId, levelPoint, choice, blindingFactor, addressIndex);
+    } catch (err) {
+        console.log(err);
+    }
+
+    try {
+        await revealChoice(1 - playerId, levelPoint, choice, blindingFactor1, addressIndex2);
     } catch (err) {
         console.log(err);
     }
