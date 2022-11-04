@@ -43,12 +43,6 @@ async function restoreFullStamina (addressIndex) {
     console.log({ restoreFullStamina: message });
 }
 
-async function consumeStaminaForBattle (addressIndex) {
-    const { contract } = getContract("PLMDealer", addressIndex);
-    const message = await contract.consumeStaminaForBattle();
-    console.log({ consumeStaminaForBattle: message });
-}
-
 ////////////////////////////////////
 /// FUNCTIONS ABOUT SUBSCRIPTION ///
 ////////////////////////////////////
@@ -120,6 +114,6 @@ async function accountCharged (setAddedCoin, addressIndex) {
     });
 }
 
-export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, consumeStaminaForBattle,
+export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
          getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
          charge, accountCharged };
