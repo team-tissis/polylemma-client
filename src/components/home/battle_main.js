@@ -94,8 +94,6 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
     </>)
 }
 
-
-
 function PlayerYou({opponentCharacters}){
     opponentCharacters = [1,2,3,4]
     const randomSlot = 'a'
