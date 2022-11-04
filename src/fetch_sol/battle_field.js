@@ -36,6 +36,13 @@ async function getNonce (playerId, addressIndex) {
     return message;
 }
 
+async function getBondLevelAtBattleStart (char, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getBondLevelAtBattleStart(char['level'], char['fromBlock']);
+    console.log({ getBondLevelAtBattleStart: message });
+    return message;
+}
+
 async function getFixedSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getFixedSlotCharInfo(playerId);
@@ -101,6 +108,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],
         level: message['level'],
+        bondLevel: await getBondLevelAtBattleStart(message),
         rarity: message['rarity'],
         attributeIds: message['attributeIds'],
         isRandomSlot: true,

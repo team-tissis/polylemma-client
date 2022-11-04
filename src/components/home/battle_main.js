@@ -16,6 +16,7 @@ import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerify
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
+import { isInBattle } from '../../fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getRemainingLevelPoint,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
 import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
@@ -42,7 +43,9 @@ function handleButtonStyle() {
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisCharacter, setThisCharacter, levelPoint}){
-    const thisCharacterAbility = character.attributeIds[0];
+    // const _myCharacters = useSelector(selectMyCharacter);
+    // listenToRoundRes == 'freeze'
+    const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
@@ -50,7 +53,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
 
     // 未使用は '#FFDBC9': 使用したら 'silver' : 選択色は '#FFAD90'
     var _cardStyleColor = '#FFDBC9'
-    if(character.index == choice) {
+    if(character.index === choice) {
         _cardStyleColor = '#FFAD90'
     } else if(_thisCharacterBattleDone) {
         _cardStyleColor = 'silver'
@@ -67,7 +70,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
         setThisCharacter(character.id)
     }
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}}
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
             onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
             <div className="card_name">
                 <p>{ character.name }</p>
@@ -87,11 +90,11 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
                 <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
             </div>
             <div className="attribute_box">
-                { characterInfo.attributes[thisCharacterAbility]["title"] }
+                { characterInfo.attributes[thisCharacterAttribute]["title"] }
             </div>
             <div className="detail_box" style={{fontSize: 12}}>
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAbility]["description"] }
+                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
                 </div>
             </div>
         </div>
@@ -256,15 +259,21 @@ export default function BattleMain(){
             setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
 
-        for (let step = 0; step < myCharacters.charactersList.length; step++) {
-            if(myCharacters.charactersList[step].battleDone === false){
-                setChoice(step);
+        for (let nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
+            if(myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined'){
+                setChoice(nextIndex);
+                setThisCharacter(myCharacters.charactersList[nextIndex].id);
                 break;
             }
         }
     })();}, []);
 
+    const navigate = useNavigate();
     useEffect(() => {(async function() {
+        if (await isInBattle() === false) {
+            navigate('../');
+        }
+
         // for debug
         if (isCOM) {
             const tmpCOMPlayerSeed = getRandomBytes32();
@@ -286,7 +295,6 @@ export default function BattleMain(){
         battleCanceled();
     }, []);
 
-    const navigate = useNavigate();
     async function devHandleFinishBattle () {
         dispatch(notInBattleVerifyCharacters());
         await defeatByFoul();
@@ -315,15 +323,14 @@ export default function BattleMain(){
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice));
         // 次に自動選択するindexを調べてstateを変更する
-        console.log(`${myCharacters.charactersList.length} 個`);
-        let step;
-        for (step = 0; step < myCharacters.charactersList.length; step++) {
-            if(myCharacters.charactersList[step].battleDone === false && step !== choice){
+        let nextIndex;
+        for (nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
+            if((myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined') && nextIndex !== choice){
                 break;
             }
         }
-        console.log(`${step}番目が次の出力です`);
-        roundResult(round, step, setListenToRoundRes, setChoice);
+        console.log(`${nextIndex}番目が次の出力です`);
+        roundResult(round, nextIndex, setListenToRoundRes, setChoice);
         setMyCommit(true);
         // 勝敗が決まるまでボタンを押せないようにする
         if (isCOM) {

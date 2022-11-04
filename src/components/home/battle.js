@@ -70,7 +70,7 @@ const selectedNum = 4;
 
 function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
-    const thisCharacterAbility = character.attributeIds[0];
+    const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     var color = 'white'
     const result = charactersForBattle.filter(cha => cha.id === character.id);
@@ -101,7 +101,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
             <div className="card_name">
                 <p>{ character.name }</p>
             </div>
@@ -116,11 +116,11 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
                 <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
             <div className="attribute_box">
-                { characterInfo.attributes[thisCharacterAbility]["title"] }
+                { characterInfo.attributes[thisCharacterAttribute]["title"] }
             </div>
             <div className="detail_box">
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAbility]["description"] }
+                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
                 </div>
             </div>
         </div>

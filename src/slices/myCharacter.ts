@@ -71,7 +71,6 @@ const currentMyCharacterSlice = createSlice({
   },
 });
 
-// export const selectMyCharacter = (state: RootState): IMyCharacter[] => state.myCharacter;
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
 export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
                 notInBattleVerifyCharacters, choiceCharacterInBattle, myCharacterRemove } = currentMyCharacterSlice.actions;
