@@ -50,7 +50,15 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
     const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
-    const _cardStyleColor = _isRandomSlot ? 'grey' : 'orange'
+
+    // 未使用は '#FFDBC9': 使用したら 'silver' : 選択色は '#FFAD90'
+    var _cardStyleColor = '#FFDBC9'
+    if(character.index == choice) {
+        _cardStyleColor = '#FFAD90'
+    } else if(_thisCharacterBattleDone) {
+        _cardStyleColor = 'silver'
+    }
+
 
     function handleCharacterChoice() {
         if(listenToRoundRes === 'freeze'){
@@ -68,7 +76,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
             <div className="card_name">
                 <p>{ character.name }</p>
             </div>
-            <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
+            <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
                 {(thisCharacter === character.id) ? <>
                     <p>{ character.level + levelPoint}</p>
                 </> : <>
