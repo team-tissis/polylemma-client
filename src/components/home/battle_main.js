@@ -276,10 +276,6 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
-<<<<<<< HEAD
-=======
-
->>>>>>> ada628d0e3274edd1a9efbfb514c176689fbc4ac
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice))
         // 次に自動選択するindexを調べてstateを変更する
