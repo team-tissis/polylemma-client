@@ -13,9 +13,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import characterInfo from "./character_info.json";
 import { balanceOf } from '../../fetch_sol/coin.js';
 import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
@@ -38,6 +36,44 @@ function bottomBoxstyle() {
     }
 }
 
+function NFTCard({character, setNecessaryExp, setSelectedTokenId, setLevelBefore}) {
+    const thisCharacterAbility = character.abilityIds[0];
+    const charaType = characterInfo.characterType[character.characterType];
+
+    const handleClickCharacter = async (id) => {
+        setNecessaryExp(await getNecessaryExp(id));
+        setSelectedTokenId(id);
+        const characterBefore = await getCurrentCharacterInfo(id);
+        setLevelBefore(characterBefore.level);
+    }
+
+    return(<>
+        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
+            onClick={ () => handleClickCharacter(character.id) }>
+            <div class="card_name">
+                キャラクター名をここに書く
+            </div>
+            <div class="box">
+                <p>{ character.level }</p>
+            </div>
+            <div class="character_type_box"
+                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
+                { charaType['jaName'] }
+            </div>
+            <div class="img_box">
+                <img className='img_div' src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            </div>
+            <div class="attribute_box">
+                { characterInfo.attributes[thisCharacterAbility]["title"] }
+            </div>
+            <div class="detail_box">
+                <div style={{margin: 10}}>
+                    { characterInfo.attributes[thisCharacterAbility]["description"] }
+                </div>
+            </div>
+        </div>
+    </>);
+}
 export default function ModelTraining(){
     const [isLoading, setIsLoading] = useState(0);
     const [selectedTokenId, setSelectedTokenId] = useState();
@@ -54,12 +90,12 @@ export default function ModelTraining(){
         setCurrentCoin(await balanceOf());
     })();}, [isLoading]);
 
-    const handleClickCharacter = async (id) => {
-        setNecessaryExp(await getNecessaryExp(id));
-        setSelectedTokenId(id);
-        const characterBefore = await getCurrentCharacterInfo(id);
-        setLevelBefore(characterBefore.level);
-    }
+    // const handleClickCharacter = async (id) => {
+    //     setNecessaryExp(await getNecessaryExp(id));
+    //     setSelectedTokenId(id);
+    //     const characterBefore = await getCurrentCharacterInfo(id);
+    //     setLevelBefore(characterBefore.level);
+    // }
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
@@ -101,23 +137,12 @@ export default function ModelTraining(){
         <h1>キャラ一覧</h1>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
-            {myCharacterList.map((character, index) => (
+            {myCharacterList.map((character, index) => (<>
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <Card style={{backgroundColor: (character.id===selectedTokenId) ? '#CCFFFF' : 'white'}} onClick={ () => handleClickCharacter(character.id) }>
-                        <CardActionArea>
-                            <CardMedia component="img" height="200"
-                                image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
-                            <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">キャラID {character.id}</Typography>
-                            <Typography variant="body1" color="text.primary">レア度: { character.rarity }</Typography>
-                            <Typography variant="body1" color="text.primary">属性: { character.characterType }</Typography>
-                            <Typography variant="body1" color="text.primary">レベル: { character.level }</Typography>
-                            <Typography variant="body1" color="text.primary">特性: { character.abilityIds }</Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
+                    <NFTCard character={character}  setNecessaryExp={setNecessaryExp} 
+                        setSelectedTokenId={setSelectedTokenId} setLevelBefore={setLevelBefore}/>
                 </Grid>
-            ))}
+            </>))}
 
             <SwipeableDrawer
                 style={{maxWidth: windowWidth*0.1}}
