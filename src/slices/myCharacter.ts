@@ -27,6 +27,13 @@ const currentMyCharacterSlice = createSlice({
       state.charactersList = [...state.charactersList, action.payload]
       state.hasRandomSlot = true;
     },
+    notInBattleVerifyCharacters(state) {
+      state.hasRandomSlot = false;
+      const resetedMyCharacters = state.charactersList.filter((character, index) => {
+        return character.isRandomSlot == false;
+      });
+      state.charactersList = resetedMyCharacters;
+    },
     myCharacterRemove(state)  {
       state.charactersList= []
       state.hasRandomSlot = false;
@@ -36,5 +43,5 @@ const currentMyCharacterSlice = createSlice({
 
 // export const selectMyCharacter = (state: RootState): IMyCharacter[] => state.myCharacter;
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter, myCharacterRemove } = currentMyCharacterSlice.actions;
+export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

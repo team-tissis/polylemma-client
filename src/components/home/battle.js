@@ -13,7 +13,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { setCurrentMyCharacter, myCharacterRemove, selectMyCharacter } from '../../slices/myCharacter.ts'
+import { setCurrentMyCharacter, myCharacterRemove, notInBattleVerifyCharacters, selectMyCharacter } from '../../slices/myCharacter.ts'
 import { battleRemove } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from '../../fetch_sol/utils.js';
@@ -160,6 +160,9 @@ export default function Battle() {
         // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
         const updatedCharactersForBattle = []
         var hasToUpdateState = false
+
+        // [修正]　バトルが終わった後なのに手持ちにRSがないか/あった場合は削除
+        dispatch(notInBattleVerifyCharacters()); //更新
         for (let step = 0; step < myCharacters.charactersList.length; step++) {
             // const thisChara = _myCharacterList[step];
             const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.charactersList[step].id);

@@ -83,7 +83,7 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalLevelPoint, levelPoint, setLevelPoint, randomSlot}){
+function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalLevelPoint, levelPoint, setLevelPoint}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
@@ -93,11 +93,6 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, totalLevelPoint
                         thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
                 </Grid>
             ))}
-            {/* TODO: 描画の方が先に走ってしまうから randomSlot が undefined になってる (多分) */}
-            {/* <Grid item xs={2} sm={2} md={2} key={myCharactors.length}>
-                <NFTCharactorCard character={randomSlot}
-                    thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
-            </Grid> */}
         </Grid>
         <div style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}}>
             プレイヤーA
@@ -144,7 +139,6 @@ export default function BattleMain(){
     // const [myCharacters, setMyCharacters] = useState();
     // const [opponentCharacters, setOpponentCharacters] = useState();
     const [myPlayerSeed, setMyPlayerSeed] = useState();
-    const [randomSlot, setRandomSlot] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
 
     // battleに出現させたキャラクターの順番の配列
@@ -183,15 +177,14 @@ export default function BattleMain(){
         }
 
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
-        const myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
-
-        setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed));
+        const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
+        // hasRandomSlot && 全てのキャラがRSでない
         if(myCharacters.hasRandomSlot){
             // DO NOTHING
         } else {
             // RSを追加する
-            console.log({RSを追加します: myRandomSlot})
-            dispatch(addRandomSlotToCurrentMyCharacter(myRandomSlot));
+            console.log({自分の対戦カードにRSを追加します: _myRandomSlot})
+            dispatch(addRandomSlotToCurrentMyCharacter(_myRandomSlot));
         }
 
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
@@ -285,7 +278,7 @@ export default function BattleMain(){
                 <PlayerYou/>
                 <div style={{height: 100}}/>
                 <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
-                        totalLevelPoint={totalLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} randomSlot={randomSlot}/>
+                        totalLevelPoint={totalLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
         <Grid item xs={10} md={3}>
