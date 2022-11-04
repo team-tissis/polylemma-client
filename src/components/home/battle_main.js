@@ -55,30 +55,29 @@ function NFTCharactorCard({setChoice, character, thisCharacter, setThisCharacter
     }
 
     return(<>
-        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} 
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}}
             onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
-            <div class="card_name">
-                キャラクター名をここに書く
+            <div className="card_name">
+                <p>{ character.name }</p>
             </div>
-            <div class="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
+            <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
                 {(thisCharacter == character.id) ? <>
                     <p>{ character.level + levelPoint}</p>
                 </> : <>
                     <p>{ character.level}</p>
                 </>}
             </div>
-            <div class="character_type_box"
+            <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            {/* <div class="img_box"> */}
-            <div class="img_box" style={{backgroundColor: _backgroundColor}}>
-                <img className='img_div' style={{width: '100%', height: 'auto'}} src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            <div className="img_box" style={{backgroundColor: _backgroundColor}}>
+                <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
             </div>
-            <div class="attribute_box">
+            <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
             </div>
-            <div class="detail_box" style={{fontSize: 12}}>
+            <div className="detail_box" style={{fontSize: 12}}>
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>
@@ -282,7 +281,7 @@ export default function BattleMain(){
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
-        
+
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice))
         setMyCommit(true);
