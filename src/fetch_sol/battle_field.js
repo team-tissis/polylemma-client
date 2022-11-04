@@ -85,6 +85,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         level: message['level'],
         rarity: message['rarity'],
         abilityIds: message['abilityIds'],
+        isRandomSlot: true
     };
 }
 

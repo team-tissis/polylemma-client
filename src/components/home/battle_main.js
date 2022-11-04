@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter } from '../../slices/myCharacter.ts';
+import { selectMyCharacter, addRandomSlotToCurrentMyCharacter } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
@@ -41,6 +41,8 @@ function handleButtonStyle() {
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoint}){
+    const _isRandomSlot = character.isRandomSlot;
+
     useEffect(() => {
         console.log({character});
         console.log("レベルを読み込み中........");
@@ -50,6 +52,7 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
         <Paper onClick={() => setThisCharacter(character.id) } elevation={10}
             style={{backgroundColor: (thisCharacter === character.id) ? '#FFBEDA' : '#30F9B2', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
             トークンID {character.id} <br/>
+            { _isRandomSlot && <>[ランダムスロットキャラ]</> }
             {(levelPoint > 0)&(thisCharacter === character.id) ?
                 <>レベル {character.level + levelPoint}( +{levelPoint}.Lv )<br/></>
                 : <>レベル {character.level}.Lv<br/></>
@@ -180,7 +183,16 @@ export default function BattleMain(){
         }
 
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
+        const myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
+
         setRandomSlot(await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed));
+        if(myCharacters.hasRandomSlot){
+            // DO NOTHING
+        } else {
+            // RSを追加する
+            console.log({RSを追加します: myRandomSlot})
+            dispatch(addRandomSlotToCurrentMyCharacter(myRandomSlot));
+        }
 
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
     })();}, []);
