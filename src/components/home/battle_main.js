@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, choiceCharacterInBattle } from '../../slices/myCharacter.ts';
+import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
@@ -44,7 +44,7 @@ function handleButtonStyle() {
 function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoint}){
     const thisCharacterAbility = character.abilityIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-
+    const _backgroundColor = (thisCharacter == character.id) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
 
@@ -59,20 +59,21 @@ function NFTCharactorCard({character, thisCharacter, setThisCharacter, levelPoin
             <div class="card_name">
                 キャラクター名をここに書く
             </div>
-            <div class="box" style={{backgroundColor: _isRandomSlot ? 'red' : 'orange'}}>
+            <div class="box" style={{backgroundColor: _isRandomSlot ? 'red' : 'orange', fontSize: 14}}>
                 <p>{ character.level }</p>
             </div>
             <div class="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div class="img_box">
+            {/* <div class="img_box"> */}
+            <div class="img_box" style={{backgroundColor: _backgroundColor}}>
                 <img className='img_div' style={{width: '100%', height: 'auto'}} src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
             </div>
             <div class="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
             </div>
-            <div class="detail_box">
+            <div class="detail_box" style={{fontSize: 12}}>
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>
@@ -253,6 +254,7 @@ export default function BattleMain(){
 
     const navigate = useNavigate();
     async function devHandleFinishBattle () {
+        dispatch(notInBattleVerifyCharacters());
         await defeatByFoul();
         navigate('../');
     }
