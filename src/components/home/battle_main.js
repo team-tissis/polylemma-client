@@ -47,13 +47,13 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
     const thisCharacterAbility = character.abilityIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     // const _myCharacters[]
-    const _backgroundColor = (character.index == choice) ? 'grey' : 'white';
+    const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
     const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
     const _cardStyleColor = _isRandomSlot ? 'grey' : 'orange'
 
     function handleCharacterChoice() {
-        if(listenToRoundRes == 'freeze'){
+        if(listenToRoundRes === 'freeze'){
             return
         }
         if(_thisCharacterBattleDone){
@@ -69,7 +69,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
                 <p>{ character.name }</p>
             </div>
             <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14}}>
-                {(thisCharacter == character.id) ? <>
+                {(thisCharacter === character.id) ? <>
                     <p>{ character.level + levelPoint}</p>
                 </> : <>
                     <p>{ character.level}</p>
@@ -187,16 +187,15 @@ export default function BattleMain(){
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
     const [choice, setChoice] = useState(null);
-    const [nextIndex, setNextIndex] = useState(null);
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
-    const [isCOM, setIsCOM] = useState(false);
+    const [isCOM, setIsCOM] = useState(true);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
 
     useEffect(() => {
         console.log("commit and reveal........");
-    },[listenToRoundRes, choice]);
+    },[listenToRoundRes]);
 
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
@@ -224,6 +223,17 @@ export default function BattleMain(){
             dispatch(addRandomSlotToCurrentMyCharacter(_myRandomSlot));
         }
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
+
+        if (isCOM) {
+            const tmpCOMPlayerSeed = getRandomBytes32();
+            setCOMPlayerSeed(tmpCOMPlayerSeed);
+            try {
+                await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+            } catch (e) {
+                // TODO: Error handling
+            }
+            setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
+        }
     })();}, []);
 
     useEffect(() => {(async function() {
@@ -243,9 +253,7 @@ export default function BattleMain(){
     useEffect(() => {
         playerSeedCommitted();
         playerSeedRevealed();
-        // choiceCommitted();
         choiceRevealed();
-        roundResult(setListenToRoundRes, setChoice, nextIndex);
         battleResult();
         battleCanceled();
     }, []);
@@ -272,22 +280,22 @@ export default function BattleMain(){
     }
 
     async function handleCommit() {
-        setListenToRoundRes('freeze')
+        setListenToRoundRes('freeze');
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);
         // どのキャラを選んだか？の情報を追加
-        dispatch(choiceCharacterInBattle(choice))
+        dispatch(choiceCharacterInBattle(choice));
         // 次に自動選択するindexを調べてstateを変更する
-        for (let step = 0; step < myCharacters.charactersList.length - 1; step++) {
-            if(myCharacters.charactersList[step].battleDone == false){
-                if(step != choice){
-                    console.log(`${step}番目が次の出力です`)
-                    setNextIndex(step)
-                }
+        console.log(`${myCharacters.charactersList.length} 個`);
+        let step;
+        for (step = 0; step < myCharacters.charactersList.length; step++) {
+            if(myCharacters.charactersList[step].battleDone === false && step !== choice){
                 break;
             }
         }
+        console.log(`${step}番目が次の出力です`);
+        roundResult(round, step, setListenToRoundRes, setChoice);
         setMyCommit(true);
         // 勝敗が決まるまでボタンを押せないようにする
         if (isCOM) {
@@ -323,11 +331,10 @@ export default function BattleMain(){
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
-                <div style={{height: 100}}/>
-                [dev]左から数えて {choice} 番目のトークンが選択されました。
+                <div style={{height: 100}}/>[dev]左から数えて {choice} 番目のトークンが選択されました。
                 <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
                         listenToRoundRes={listenToRoundRes}
-                        choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint} 
+                        choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint}
                         levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
@@ -368,7 +375,7 @@ export default function BattleMain(){
         </Grid>
 
         {thisCharacter &&
-            <Fab variant="extended" style={ handleButtonStyle() } disabled={listenToRoundRes == 'freeze'} color="primary" aria-label="add" onClick={() => handleCommit()}>
+            <Fab variant="extended" style={ handleButtonStyle() } disabled={listenToRoundRes === 'freeze'} color="primary" aria-label="add" onClick={() => handleCommit()}>
                 勝負するキャラクターを確定する
             </Fab>
         }

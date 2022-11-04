@@ -38,7 +38,7 @@ const currentMyCharacterSlice = createSlice({
     notInBattleVerifyCharacters(state) {
       state.hasRandomSlot = false;
       const resetedMyCharacters = state.charactersList.filter((character, index) => {
-        return character.isRandomSlot == false;
+        return character.isRandomSlot === false;
       });
       // バトルステータスをfalseにする
       resetedMyCharacters.forEach(character => character.battleDone = false);

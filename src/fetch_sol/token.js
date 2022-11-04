@@ -27,7 +27,7 @@ async function getAllCharacterInfo (addressIndex) {
     const allCharacterInfo = [];
     for (let i = 0; i < message.length; i++) {
         allCharacterInfo.push({
-            id: i,
+            id: i + 1,
             name: bytes32ToString(message[i]['name']),
             imgURI: await getImgURI(message[i]['imgId'], addressIndex),
             characterType: message[i]['characterType'],

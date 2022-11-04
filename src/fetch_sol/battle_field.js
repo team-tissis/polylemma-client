@@ -151,17 +151,19 @@ function choiceRevealed (opponentPlayerId, addressIndex) {
     });
 }
 
-function roundResult (setListenToRoundRes, setChoice, nextIndex, addressIndex) {
+function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
-        setListenToRoundRes('can_choice')
-        console.log(`choiceを${nextIndex}に変更`);
-        setChoice(nextIndex)
-        if (isDraw) {
-            console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
-        } else {
-            console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
+        if (currentRound === numRounds && nextIndex !== null) {
+            setListenToRoundRes('can_choice');
+            console.log(`choiceを${nextIndex}に変更`);
+            setChoice(nextIndex);
+            if (isDraw) {
+                console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
+            } else {
+                console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
+            }
         }
     });
 }
