@@ -81,7 +81,7 @@ async function getSubscFeePerUnitPeriod (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getSubscFeePerUnitPeriod();
     console.log({ getSubscFeePerUnitPeriod: message });
-    return message.toString();
+    return message.toNumber();
 }
 
 async function getSubscUnitPeriodBlockNum (addressIndex) {
@@ -92,8 +92,7 @@ async function getSubscUnitPeriodBlockNum (addressIndex) {
 }
 
 async function extendSubscPeriod (addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
-    const myAddress = await signer.getAddress();
+    const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
     const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(addressIndex);
     await approve(contractAddress, subscFeePerUnitPeriod, addressIndex);
     const message = await contract.extendSubscPeriod();
