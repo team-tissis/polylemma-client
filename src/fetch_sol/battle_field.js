@@ -1,4 +1,5 @@
-import { getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
+import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
+import { getImgURI } from "./token.js";
 
 async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMBattleField", addressIndex);
@@ -81,6 +82,8 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
     return {
         id: randomSlotId,
+        name: bytes32ToString(message['name']),
+        imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],
         level: message['level'],
         rarity: message['rarity'],

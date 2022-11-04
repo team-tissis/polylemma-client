@@ -101,24 +101,24 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
     }
 
     return(<>
-        <div class="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
-            <div class="card_name">
-                キャラクター名をここに書く
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
+            <div className="card_name">
+                <p>{ character.name }</p>
             </div>
-            <div class="box">
+            <div className="box">
                 <p>{ character.level }</p>
             </div>
-            <div class="character_type_box"
+            <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div class="img_box" style={{backgroundColor: color}}>
-                <img className='img_div' src="https://www.picng.com/upload/sun/png_sun_7636.png" alt="sample"/>
+            <div className="img_box" style={{backgroundColor: color}}>
+                <img className='img_div' src={ character.imgURI } alt="sample"/>
             </div>
-            <div class="attribute_box">
+            <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
             </div>
-            <div class="detail_box">
+            <div className="detail_box">
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAbility]["description"] }
                 </div>
