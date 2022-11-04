@@ -4,6 +4,7 @@ import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
+import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
 function stringToBytes32 (str) {
     return ethers.utils.formatBytes32String(str);
@@ -36,6 +37,7 @@ function getAbi (contractName) {
     else if (contractName === "PLMDealer") return dealerArtifact.abi;
     else if (contractName === "PLMToken") return tokenArtifact.abi;
     else if (contractName === "PLMMatchOrganizer") return matchOrganizerArtifact.abi;
+    else if (contractName === "PLMBattleField") return battleFieldArtifact.abi;
 }
 
 function getSigner (addressIndex) {

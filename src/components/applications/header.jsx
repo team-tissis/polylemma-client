@@ -36,7 +36,7 @@ export default function Header() {
     const [charging, setCharging] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
-    const [staminaDetail, setstaminaDetail] = useState({
+    const [staminaDetail, setStaminaDetail] = useState({
         currentStamina: 0, maxStamina: 0,
         staminaPerBattle: 0, restoreStaminaFee: 0,
         currentStaminapercentage: 0
@@ -47,7 +47,7 @@ export default function Header() {
         const staminaMax = await getStaminaMax();
         const staminaPerBattle = await getStaminaPerBattle();
         const restoreStaminaFee = await getRestoreStaminaFee();
-        setstaminaDetail({
+        setStaminaDetail({
             currentStamina: currentStamina,
             maxStamina: staminaMax,
             staminaPerBattle: staminaPerBattle,
@@ -165,6 +165,10 @@ export default function Header() {
         }
 	}
 
+    const handleClickeRstoreStamina = async () => {
+        await restoreFullStamina();
+    };
+
     const handleClickSubscUpdate = async () => {
         await extendSubscPeriod();
         setCurrentCoin(await balanceOf());
@@ -251,8 +255,9 @@ export default function Header() {
                     <div style={{marginTop: 10}}>
                         バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
                         スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
-                        <Button variant="contained" disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) ? true : false}
-                            onClick={handleClickCharge} style={{margin: 10, width: 345}}>
+                        <Button variant="contained"
+                            disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) || (staminaDetail.restoreStaminaFee > currentCoin)}
+                            onClick={handleClickeRstoreStamina} style={{margin: 10, width: 345}}>
                             コインを消費してスタミナを回復する
                         </Button>
                     </div><hr/>
@@ -266,7 +271,7 @@ export default function Header() {
                         <div>サブスク料金: {subscFee}</div>
                         <div>サブスクで更新されるブロック数: {subscBlock}</div>
                     </div>
-                    <Button variant="contained"
+                    <Button variant="contained" disabled={subscFee > currentCoin}
                         onClick={handleClickSubscUpdate} style={{margin: 10, width: 345}}>
                         サブスク期間をアップデートする
                     </Button><hr/>
