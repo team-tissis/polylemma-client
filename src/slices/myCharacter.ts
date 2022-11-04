@@ -4,6 +4,8 @@ import { RootState } from '../store.ts';
 interface IMyCharacter {
   id: number;
   index:  number;
+  name: string;
+  imgURI: string;
   level: number;
   rarity: number;
   isRandomSlot: boolean;
@@ -55,6 +57,6 @@ const currentMyCharacterSlice = createSlice({
 
 // export const selectMyCharacter = (state: RootState): IMyCharacter[] => state.myCharacter;
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter, 
+export const { setCurrentMyCharacter, addRandomSlotToCurrentMyCharacter,
                 notInBattleVerifyCharacters, choiceCharacterInBattle, myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

@@ -10,6 +10,10 @@ function stringToBytes32 (str) {
     return ethers.utils.formatBytes32String(str);
 }
 
+function bytes32ToString (bytes) {
+    return ethers.utils.parseBytes32String(bytes);
+}
+
 function getRandomBytes32 () {
     return ethers.utils.hexlify(ethers.utils.randomBytes(32));
 }
@@ -60,4 +64,4 @@ function getContract (contractName, addressIndex) {
     return { contractAddress, signer, contract };
 }
 
-export { stringToBytes32, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract };
+export { stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract };
