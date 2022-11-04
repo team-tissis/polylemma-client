@@ -16,7 +16,7 @@
             "backgroundColor": "#00FF7F"
         },
         "": {
-            "jaName": "特性なし",
+            "jaName": "属性なし",
             "borderColor": "black",
             "backgroundColor": "silver"
         }
@@ -83,6 +83,13 @@
             "title": "RS にレア度が高いキャラが出やすくなる",
             "description": "レア度 x のキャラが出る確率が f(20) %",
             "rareAmount": 4,
+            "backgroundColor": "#BAD3FF"
+        },
+        {
+            "id": 9,
+            "title": "自分より強いキャラとの対戦で、与えるダメージが小さくても一定確率で絶対に勝利",
+            "description": "(相手のレベル - 自分のレベル) が x (0 < x ≤ 10) の時、f(x) % の確率で勝利",
+            "rareAmount": 5,
             "backgroundColor": "#BAD3FF"
         }
     ]

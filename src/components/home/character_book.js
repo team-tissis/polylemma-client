@@ -17,11 +17,11 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 function NFTCard({character}){
-    const thisCharacterAbility = character.abilityIds[0];
+    const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAbility]["backgroundColor"]}} >
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} >
             <div className="card_name">
                 <p>{ character.name }</p>
             </div>
@@ -36,11 +36,11 @@ function NFTCard({character}){
                 <img className='img_div' src={ character.imgURI } alt="sample"/>
             </div>
             <div className="attribute_box">
-                { characterInfo.attributes[thisCharacterAbility]["title"] }
+                { characterInfo.attributes[thisCharacterAttribute]["title"] }
             </div>
             <div className="detail_box">
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAbility]["description"] }
+                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
                 </div>
             </div>
         </div>
