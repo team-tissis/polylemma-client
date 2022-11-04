@@ -43,8 +43,6 @@ function handleButtonStyle() {
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisCharacter, setThisCharacter, levelPoint}){
-    // const _myCharacters = useSelector(selectMyCharacter);
-    // listenToRoundRes == 'freeze'
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (character.index === choice) ? 'grey' : 'white';

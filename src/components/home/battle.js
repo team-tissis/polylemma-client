@@ -75,9 +75,11 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
     var color = 'white'
     const result = charactersForBattle.filter(cha => cha.id === character.id);
     const alreadySelected = (result.length > 0) ? true : false;
-    if( isChanging && alreadySelected){
+    if(isChanging && alreadySelected){
         color = 'black'
     }
+    const borderColor = (isChanging && alreadySelected) ? 'black' : 'silver'
+    const cardBackColor = (isChanging && alreadySelected) ? 'orange' : '#FFDBC9'
 
     function handleChange(){
         const selectedData = charactersForBattle;
@@ -105,7 +107,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
             <div className="card_name">
                 <p>{ character.name }</p>
             </div>
-            <div className="box">
+            <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor}}>
                 <p>{ character.level }</p>
             </div>
             <div className="character_type_box"
