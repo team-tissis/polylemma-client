@@ -234,6 +234,13 @@ export default function BattleMain(){
             }
             setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
+
+        for (let step = 0; step < myCharacters.charactersList.length; step++) {
+            if(myCharacters.charactersList[step].battleDone === false){
+                setChoice(step);
+                break;
+            }
+        }
     })();}, []);
 
     useEffect(() => {(async function() {
