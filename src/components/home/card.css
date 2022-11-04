@@ -18,7 +18,7 @@
     top: 4%;
     right: 4%;
 
-    background: orange;
+    background: #FFDBC9;
     position: absolute;
     border-radius: 10px;
 }
@@ -31,7 +31,7 @@
     transform:translate(-30%,-30%);
     z-index: 11;
 
-    background: orange;
+    background: #FFDBC9;
     position: absolute;
     border-radius: 50%;
     border: 5px solid grey;

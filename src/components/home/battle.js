@@ -113,7 +113,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
                 { charaType['jaName'] }
             </div>
             <div className="img_box" style={{backgroundColor: color}}>
-                <img className='img_div' src={ character.imgURI } alt="sample"/>
+                <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
             <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAbility]["title"] }
