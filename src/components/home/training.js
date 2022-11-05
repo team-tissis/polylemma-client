@@ -141,7 +141,7 @@ export default function ModelTraining(){
                 </Grid>
             </>))}
 
-            <SwipeableDrawer
+            {/* <SwipeableDrawer
                 style={{maxWidth: windowWidth*0.1}}
                 anchor={'right'}
                 open={state['right']}
@@ -178,7 +178,7 @@ export default function ModelTraining(){
                         </Button>
                     </Grid>
                 </Grid>
-            </SwipeableDrawer>
+            </SwipeableDrawer> */}
 
         </Grid>
         </Box>
@@ -216,9 +216,9 @@ export default function ModelTraining(){
 
                     <Grid item xs={1} sm={0} md={0}/>
                     <Grid item xs={10} sm={2.5} md={2.5}>
-                        <Button variant="contained" onClick={toggleDrawer('right', true)} style={{width: '95%', height: 60, fontSize: 25, marginRight: '5%'}}>
+                        {/* <Button variant="contained" onClick={toggleDrawer('right', true)} style={{width: '95%', height: 60, fontSize: 25, marginRight: '5%'}}>
                             コインを購入
-                        </Button>
+                        </Button> */}
                     </Grid>
                     <Grid item xs={1} sm={1} md={1}/>
                 </Grid>
