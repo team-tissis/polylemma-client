@@ -2,14 +2,14 @@ import { bytes32ToString, getContract } from "./utils.js";
 import { approve } from "./coin.js";
 
 async function totalSupply (addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
+    const { contract } = await getContract("PLMToken", addressIndex);
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
     return message.toNumber();
 }
 
 async function getAllTokenOwned (addressIndex) {
-    const { signer, contract } = getContract("PLMToken", addressIndex);
+    const { signer, contract } = await getContract("PLMToken", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.getAllTokenOwned(myAddress);
     console.log({ getAllTokenOwned: message });
@@ -22,14 +22,14 @@ async function getNumberOfOwnedTokens (addressIndex) {
 }
 
 async function calcCurrentBondLevel (char, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
+    const { contract } = await getContract("PLMToken", addressIndex);
     const message = await contract.calcCurrentBondLevel(char['level'], char['fromBlock']);
     console.log({ calcCurrentBondLevel: message });
     return message;
 }
 
 async function getAllCharacterInfo (addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
+    const { contract } = await getContract("PLMToken", addressIndex);
     const message = await contract.getAllCharacterInfo();
     const allCharacterInfo = [];
     for (let i = 0; i < message.length; i++) {
@@ -50,7 +50,7 @@ async function getAllCharacterInfo (addressIndex) {
 }
 
 async function updateLevel (tokenId, addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMToken", addressIndex);
+    const { contractAddress, signer, contract } = await getContract("PLMToken", addressIndex);
     const coinForLevelUp = getNecessaryExp(tokenId);
     await approve(contractAddress, coinForLevelUp, addressIndex);
     const message = await contract.updateLevel(tokenId);
@@ -67,21 +67,21 @@ async function updateLevel (tokenId, addressIndex) {
 }
 
 async function getNecessaryExp (tokenId, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
+    const { contract } = await getContract("PLMToken", addressIndex);
     const message = await contract.getNecessaryExp(tokenId);
     console.log({ getNecessaryExp: message });
     return message.toString();
 }
 
 async function getCurrentCharacterInfo (tokenId, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
+    const { contract } = await getContract("PLMToken", addressIndex);
     const message = await contract.getCurrentCharacterInfo(tokenId);
     // console.log({ getCurrentCharacterInfo: message });
     return message;
 }
 
 async function getImgURI (imgId, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
+    const { contract } = await getContract("PLMToken", addressIndex);
     const message = await contract.getImgURI(imgId);
     // console.log({ getImgURI: message });
     return message;

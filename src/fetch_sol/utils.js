@@ -32,8 +32,14 @@ function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
-    const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
-    return contractAddress;
+    // const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
+    // return contractAddress;
+
+    if (contractName === "PLMCoin") return "0x469B5262dbF80dfff0b4b84703ffAF88853850fA";
+    else if (contractName === "PLMToken") return "0x76944d941a6B3839823d2cc30CEeEE4a52eBc6a4";
+    else if (contractName === "PLMDealer") return "0x797FF27dBC5C140189fD06b320c0Ad0FC0fFEDC2";
+    else if (contractName === "PLMMatchOrganizer") return "0x3030997522C52723954d7DD06A132c45EdE6B150";
+    else if (contractName === "PLMBattleField") return "0xb644F7722AeCdCcF136CcE979Ec634Eb332e1560";
 }
 
 function getAbi (contractName) {
@@ -44,22 +50,22 @@ function getAbi (contractName) {
     else if (contractName === "PLMBattleField") return battleFieldArtifact.abi;
 }
 
-function getSigner (addressIndex) {
-    const signerIndex = (addressIndex == null) ? 1 : addressIndex;
-    // (多分) MetaMask を経由しないで使う方法
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner(signerIndex);
+async function getSigner (addressIndex) {
+    // const signerIndex = (addressIndex == null) ? 1 : addressIndex;
+    // // (多分) MetaMask を経由しないで使う方法
+    // const provider = new ethers.providers.JsonRpcProvider();
+    // const signer = provider.getSigner(signerIndex);
     // MetaMask を使う方法 (うまくいかない)
-    // const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
-    // const signer = provider.getSigner();
-
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+    await provider.send('eth_requestAccounts', []);
+    const signer = provider.getSigner();
     return signer;
 }
 
-function getContract (contractName, addressIndex) {
+async function getContract (contractName, addressIndex) {
     const contractAddress = getContractAddress(contractName);
     const abi = getAbi(contractName);
-    const signer = getSigner(addressIndex);
+    const signer = await getSigner(addressIndex);
     const contract = new ethers.Contract(contractAddress, abi, signer);
     return { contractAddress, signer, contract };
 }

@@ -52,7 +52,7 @@ async function requestChallengeToMe () {
         fixedSlotsOfChallenger.push(await gacha('hoge' + i.toString(), addressIndex));
     }
 
-    const { signer } = getContract("PLMMatchOrganizer", 1);
+    const { signer } = await getContract("PLMMatchOrganizer", 1);
     const myAddress = await signer.getAddress();
     await requestChallenge(myAddress, fixedSlotsOfChallenger, addressIndex);
 }

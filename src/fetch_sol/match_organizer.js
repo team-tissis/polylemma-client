@@ -1,7 +1,7 @@
 import { getContract } from "./utils.js";
 
 async function proposeBattle (fixedSlotsOfProposer, requestRange, addressIndex) {
-    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.proposeBattle(
         requestRange.min,
         requestRange.max,
@@ -11,14 +11,14 @@ async function proposeBattle (fixedSlotsOfProposer, requestRange, addressIndex) 
 }
 
 async function getProposalList (addressIndex) {
-    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.getProposalList();
     console.log({ getProposalList: message });
     return message;
 }
 
 async function getMatchState (addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { signer, contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.getMatchState(myAddress);
     console.log({ getMatchState: message });
@@ -26,7 +26,7 @@ async function getMatchState (addressIndex) {
 }
 
 async function isInProposal (addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { signer, contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.isInProposal(myAddress);
     console.log({ isInProposal: message });
@@ -34,7 +34,7 @@ async function isInProposal (addressIndex) {
 }
 
 async function isInBattle (addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { signer, contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.isInBattle(myAddress);
     console.log({ isInBattle: message });
@@ -42,7 +42,7 @@ async function isInBattle (addressIndex) {
 }
 
 // async function setNonProposal (addressIndex) {
-//     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+//     const { signer, contract } = await getContract("PLMMatchOrganizer", addressIndex);
 //     const myAddress = await signer.getAddress();
 //     const message = await contract.setNonProposal(myAddress);
 //     console.log({ setNonProposal: message });
@@ -50,7 +50,7 @@ async function isInBattle (addressIndex) {
 // }
 
 async function isNonProposal (addressIndex) {
-    const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { signer, contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
     const message = await contract.isNonProposal(myAddress);
     console.log({ isNonProposal: message });
@@ -58,13 +58,13 @@ async function isNonProposal (addressIndex) {
 }
 
 async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger, addressIndex) {
-    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);
     console.log({ requestChallenge: message });
 }
 
 async function cancelProposal (addressIndex) {
-    const { contract } = getContract("PLMMatchOrganizer", addressIndex);
+    const { contract } = await getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.cancelProposal();
     console.log({ cancelProposal: message });
 }
