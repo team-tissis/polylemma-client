@@ -172,7 +172,6 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remaining
                 marks
                 min={0}
                 max={remainingLevelPoint}
-                // max={totalLevelPoint}
             />
         </Box>
     </Container>
@@ -194,7 +193,6 @@ const UrgeWithPleasureComponent = () => (
 export default function BattleMain(){
     const dispatch = useDispatch();
 
-    const totalLevelPoint = 10;
     const [levelPoint, setLevelPoint] = useState(0);
 
     const myCharacters = useSelector(selectMyCharacter);
