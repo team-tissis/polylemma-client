@@ -200,7 +200,7 @@ export default function BattleMain(){
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
-    const [choice, setChoice] = useState(null);
+    const [choice, setChoice] = useState(0);
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
@@ -229,31 +229,30 @@ export default function BattleMain(){
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
-
+        
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
         choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
-        
-        const tmpMyPlayerSeed = getRandomBytes32();
-        setMyPlayerSeed(tmpMyPlayerSeed);
 
-        // seedが登録されていない場合、登録する
-        if(myCharacters.tmpMyPlayerSeed == null){
-            dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
+        // リロードしてモンスターが変わらないように修正
+        if(myCharacters.charactersList.length == 0){
+            const tmpMyPlayerSeed = getRandomBytes32();
+            setMyPlayerSeed(tmpMyPlayerSeed);
+            // seedが登録されていない場合、登録する
+            if(myCharacters.tmpMyPlayerSeed == null){
+                dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
+            }
+    
+            // 対戦に使うキャラ5体(RSを含む)をreduxに追加
+            const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
+            try {
+                await commitPlayerSeed(tmpMyPlayerId, tmpMyPlayerSeed);
+            } catch (e) {
+                // TODO: Error handling
+            }
+            const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
+            const characterList = [...fixedSlotCharInfo, _myRandomSlot]
+            dispatch(set5BattleCharacter(characterList))
         }
-        // 対戦に使うキャラ5体(RSを含む)をresuxに追加
-        const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
-
-        try {
-            await commitPlayerSeed(tmpMyPlayerId, tmpMyPlayerSeed);
-        } catch (e) {
-            // TODO: Error handling
-        }
-
-        // setHoge で設定したやつは useEffect が終わるまで更新されない…
-        const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
-        const characterList = [...fixedSlotCharInfo, _myRandomSlot]
-
-        dispatch(set5BattleCharacter(characterList))
 
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
 

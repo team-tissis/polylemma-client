@@ -44,6 +44,9 @@ const currentMyCharacterSlice = createSlice({
             state.requestCharacterList = action.payload;
             // 実際の対戦キャラは初期化
             state.charactersList = []
+            state.otherCharactersList = []
+            state.hasRandomSlot = false;
+            state.tmpMyPlayerSeed = null;
         },
         // set5BattleCharacter(state, action: PayloadAction<IMyCharacter[]>) {
         set5BattleCharacter(state, action: PayloadAction<IBattleCharacter[]>) {
@@ -99,7 +102,7 @@ const currentMyCharacterSlice = createSlice({
 });
 
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
+export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed, 
                 choiceOtherCharacterInBattle, setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
                 myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

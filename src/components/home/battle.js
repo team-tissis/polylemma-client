@@ -13,7 +13,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter } from '../../slices/myCharacter.ts'
+import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from '../../slices/myCharacter.ts'
 import { battleRemove } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from '../../fetch_sol/utils.js';
@@ -132,6 +132,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
 
 export default function Battle() {
     const dispatch = useDispatch();
+
     const myCharacters = useSelector(selectMyCharacter);
 
     const [charactersForBattle, setCharactersForBattle] = useState([]);
