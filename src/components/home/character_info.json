@@ -1,17 +1,17 @@
 {
     "characterType": {
         "fire": {
-            "jaName": "ほのお",
+            "jaName": "炎",
             "borderColor": "#8B0000",
             "backgroundColor": "#FF4F50"
         },
         "water": {
-            "jaName": "みず",
+            "jaName": "水",
             "borderColor": "#00008B",
             "backgroundColor": "#1E90FF"
         },
         "grass": {
-            "jaName": "くさ",
+            "jaName": "草",
             "borderColor": "#006400",
             "backgroundColor": "#00FF7F"
         },
@@ -26,70 +26,60 @@
             "id": 0,
             "title": "特性なし",
             "description": "",
-            "rareAmount": 1,
             "backgroundColor": "#DDDDDD"
         },
         {
             "id": 1,
-            "title": "必勝",
-            "description": "対戦相手のキャラクターと同じレベルだった場合、絶対に勝利",
-            "rareAmount": 4,
+            "title": "同レベ強",
+            "description": "対戦相手のキャラクターと同じレベルだった場合、ほぼ確実に勝利",
             "backgroundColor": "#FF9999"
         },
         {
             "id": 2,
-            "title": "前半強い",
-            "description": "バトルの前半に出すと、与えるダメージが大きくなる x 回目に出すと y ％ の確率で f(x) 倍",
-            "rareAmount": 3,
+            "title": "前半強",
+            "description": "攻撃力が高くなることがある（前半に出すほど倍率が高い）",
             "backgroundColor": "#99FFFF"
         },
         {
             "id": 3,
-            "title": "コイン倍増",
-            "description": "勝利時に得られるコインが増える(1.2倍)",
-            "rareAmount": 3,
+            "title": "コイン増",
+            "description": "勝利時に得られるコインを 1.2 倍（デモでは効果なし）",
             "backgroundColor": "#FFFF99"
         },
         {
             "id": 4,
-            "title": "LP増加",
-            "description": "自分に付与されたレベルポイントを増やす(1.5倍)",
-            "rareAmount": 3,
+            "title": "LP 増",
+            "description": "自分に付与されたレベルポイントを 1.5 倍",
             "backgroundColor": "#00EE00"
         },
         {
             "id": 5,
             "title": "急所",
-            "description": "急所に当たりやすい(20% の確率で 1.2倍)",
-            "rareAmount": 2,
+            "description": "20% の確率で急所に当たり、攻撃力が 1.2 倍",
             "backgroundColor": "#9933FF"
         },
         {
             "id": 6,
-            "title": "属性の効果をなくす",
-            "description": "相手がどの属性でも自分が相手に与えるダメージは 1 倍",
-            "rareAmount": 2,
+            "title": "属性無効",
+            "description": "相手の属性に関わらず攻撃力が 1 倍（相手からのダメージは変わらない）",
             "backgroundColor": "#FF773E"
         },
         {
             "id": 7,
-            "title": "与えるダメージに関係なく勝敗が決まる",
+            "title": "ランダム",
             "description": "自分が勝利する確率が 5 %",
-            "rareAmount": 1,
             "backgroundColor": "#17F9AD"
         },
         {
             "id": 8,
-            "title": "RS にレア度が高いキャラが出やすくなる",
-            "description": "レア度 x のキャラが出る確率が f(20) %",
-            "rareAmount": 4,
+            "title": "RS 強",
+            "description": "RS にレア度が高いキャラが出やすい（デモでは効果なし）",
             "backgroundColor": "#BAD3FF"
         },
         {
             "id": 9,
-            "title": "自分より強いキャラとの対戦で、与えるダメージが小さくても一定確率で絶対に勝利",
-            "description": "(相手のレベル - 自分のレベル) が x (0 < x ≤ 10) の時、f(x) % の確率で勝利",
-            "rareAmount": 5,
+            "title": "下克上",
+            "description": "相手が強いほど勝利しやすい（ただし、レベル差が 10 より大きい時はこの効果が発動されない）",
             "backgroundColor": "#BAD3FF"
         }
     ]
