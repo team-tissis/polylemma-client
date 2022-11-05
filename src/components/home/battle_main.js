@@ -12,14 +12,13 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters,
-        choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
-import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle,
+         setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { isInBattle } from '../../fetch_sol/match_organizer.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot,
          getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
 import characterInfo from "./character_info.json";
@@ -98,36 +97,46 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
 }
 
 function PlayerYou({opponentCharacters}){
+    var opponentTotalLevels = 0;
+    opponentCharacters.forEach(characters => {
+        opponentTotalLevels += characters.level
+    });
     return(<>
         <Container style={{padding: 10}}>
             <div style={{ textAlign: 'right', verticalAlign: 'middle'}}>
-                <div>プレイヤーB <Chip label="Lv.120" style={{fontSize: 20}} /></div>
+                <div>プレイヤーB <Chip label={`Lv.${opponentTotalLevels}`} style={{fontSize: 20}} /></div>
                 <img src={Icon}  alt="アイコン" width="60" height="60"/>
             </div>
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
                 {opponentCharacters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <div className="card_parent" style={{backgroundColor: characterInfo.attributes[character.attributeIds[0]]["backgroundColor"]}}  >
-                        <div className="card_name">
-                            { character.name }
-                        </div>
+                    <div className="card_parent" style={{backgroundColor: character.isRandomSlot ? 'grey' : characterInfo.attributes[character.attributeIds[0]]["backgroundColor"]}}  >
+                        {character.isRandomSlot ? <></> : <>
+                            <div className="card_name">
+                                    { character.name }
+                            </div>
+                        </>}
                         <div className="box" style={{fontSize: 14, borderColor: 'silver', backgroundColor: character.battleDone ? 'grey' : '#FFDBC9'}}>
                             <p>{ character.level}</p>
                         </div>
-                        <div className="character_type_box"
-                            style={{backgroundColor: characterInfo.characterType[character.characterType]['backgroundColor'], borderColor: characterInfo.characterType[character.characterType]['borderColor']}}>
-                            { characterInfo.characterType[character.characterType]['jaName'] }
-                        </div>
-                        <div className="img_box">
-                            <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
-                        </div>
-                        <div className="attribute_box">
-                            { characterInfo.attributes[character.attributeIds[0]]["title"] }
-                        </div>
-                        <div className="detail_box" style={{fontSize: 12}}>
-                            <div style={{margin: 10}}>
-                                { characterInfo.attributes[character.attributeIds[0]]["description"] }
+                        {character.isRandomSlot ? <></> : <>
+                            <div className="character_type_box"
+                                style={{backgroundColor: characterInfo.characterType[character.characterType]['backgroundColor'], borderColor: characterInfo.characterType[character.characterType]['borderColor']}}>
+                                { characterInfo.characterType[character.characterType]['jaName'] }
                             </div>
+                            <div className="img_box">
+                                <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
+                            </div>
+                            <div className="attribute_box">
+                                { characterInfo.attributes[character.attributeIds[0]]["title"] }
+                            </div>
+                        </>}
+                        <div className="detail_box" style={{fontSize: 12}}>
+                            {character.isRandomSlot ? <></> : <>
+                                <div style={{margin: 10}}>
+                                    { characterInfo.attributes[character.attributeIds[0]]["description"] }
+                                </div>
+                            </>}
                         </div>
                     </div>
                 </Grid>
@@ -189,9 +198,7 @@ export default function BattleMain(){
 
     const myCharacters = useSelector(selectMyCharacter);
     const roundResultList = useSelector(selectRoundResult);
-    // battleに出現させたキャラクターの順番の配列
-    const battleStatus = useSelector(selectBattleStatus);
-    
+
     const [myPlayerId, setMyPlayerId] = useState();
 
     const [myPlayerSeed, setMyPlayerSeed] = useState();
@@ -217,7 +224,6 @@ export default function BattleMain(){
     useEffect(() => {
         console.log("commit and reveal........");
     },[listenToRoundRes]);
-
 
     useEffect(() => {
         // reduxに結果を反映
@@ -362,7 +368,6 @@ export default function BattleMain(){
                 break;
             }
         }
-        console.log(`${nextIndex}番目が次の出力です`);
         roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
         setMyCommit(true);
         // 勝敗が決まるまでボタンを押せないようにする
@@ -401,10 +406,6 @@ export default function BattleMain(){
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
-                {/* <PlayerYou myCharactors={myCharacters.otherCharactersList} listenToRoundRes={listenToRoundRes}
-                        choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint}
-                        levelPoint={levelPoint} setLevelPoint={setLevelPoint}/> */}
-
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
                 [dev]保存したtmpMyPlayerSeed: { myCharacters.tmpMyPlayerSeed }<br/>
@@ -424,37 +425,22 @@ export default function BattleMain(){
             </div>
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
+                <Grid item xs={2} md={2}>n戦目</Grid>
+                    <Grid item xs={2} md={2}>引分</Grid>
+                    <Grid item xs={2} md={2}>winner</Grid>
+                    <Grid item xs={2} md={2}>loser</Grid>
+                    <Grid item xs={2} md={2}>winner<br/>Damage</Grid>
+                    <Grid item xs={2} md={2}>loser<br/>Damage</Grid>
                     {roundResultList.resultList.map((roundResult, index) => (
-                            <>
-                                <Grid item xs={4} md={4}>{roundResult.numRounds + 1}戦目</Grid>
-                                <Grid item xs={4} md={4}>{roundResult.winner}</Grid>
-                                <Grid item xs={4} md={4}>{roundResult.loser}</Grid>
-                            </>
+                        <>
+                            <Grid item xs={2} md={2}>{roundResult.numRounds + 1}戦目</Grid>
+                            <Grid item xs={2} md={2}>{roundResult.isDraw && "引き分け"}</Grid>
+                            <Grid item xs={2} md={2}>{roundResult.winner}</Grid>
+                            <Grid item xs={2} md={2}>{roundResult.loser}</Grid>
+                            <Grid item xs={2} md={2}>{roundResult.winnerDamage}</Grid>
+                            <Grid item xs={2} md={2}>{roundResult.loserDamage}</Grid>
+                        </>
                     ))}
-
-                    {/* <Grid item xs={4} md={4}></Grid>
-                    <Grid item xs={4} md={4}>自分</Grid>
-                    <Grid item xs={4} md={4}>相手</Grid>
-
-                    <Grid item xs={4} md={4}>1戦目</Grid>
-                    <Grid item xs={4} md={4}>✖️</Grid>
-                    <Grid item xs={4} md={4}>◯</Grid>
-
-                    <Grid item xs={4} md={4}>2戦目</Grid>
-                    <Grid item xs={4} md={4}>◯</Grid>
-                    <Grid item xs={4} md={4}>✖️</Grid>
-
-                    <Grid item xs={4} md={4}>3戦目</Grid>
-                    <Grid item xs={4} md={4}>◯</Grid>
-                    <Grid item xs={4} md={4}>✖️</Grid>
-
-                    <Grid item xs={4} md={4}>4戦目</Grid>
-                    <Grid item xs={4} md={4}>✖️</Grid>
-                    <Grid item xs={4} md={4}>◯</Grid>
-
-                    <Grid item xs={4} md={4}>5戦目</Grid>
-                    <Grid item xs={4} md={4}>◯</Grid>
-                    <Grid item xs={4} md={4}>✖️</Grid> */}
                 </Grid>
             </Card>
 
