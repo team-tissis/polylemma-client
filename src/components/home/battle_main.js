@@ -17,9 +17,9 @@ import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { isInBattle } from '../../fetch_sol/match_organizer.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getRemainingLevelPoint,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
+         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
-import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -203,7 +203,7 @@ export default function BattleMain(){
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
-        
+
         const tmpMyPlayerSeed = getRandomBytes32();
         setMyPlayerSeed(tmpMyPlayerSeed);
 
@@ -286,7 +286,7 @@ export default function BattleMain(){
 
     async function devHandleFinishBattle () {
         dispatch(notInBattleVerifyCharacters());
-        await defeatByFoul();
+        await forceInitBattle();
         navigate('../');
     }
 
@@ -355,7 +355,7 @@ export default function BattleMain(){
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
-                
+
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
                 [dev]保存したtmpMyPlayerSeed: { myCharacters.tmpMyPlayerSeed }<br/>
@@ -400,7 +400,7 @@ export default function BattleMain(){
                     <Grid item xs={4} md={4}>✖️</Grid>
                 </Grid>
             </Card>
-            
+
         </Grid>
 
         {(choice != null) &&

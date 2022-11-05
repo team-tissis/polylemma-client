@@ -133,6 +133,13 @@ async function getRemainingLevelPoint (playerId, addressIndex) {
     return message;
 }
 
+async function forceInitBattle (addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.forceInitBattle();
+    console.log({ forceInitBattle: message });
+    return message;
+}
+
 ///////////////////////////////////////
 /// FUNCTIONS ABOUT EVENT LISTENING ///
 ///////////////////////////////////////
@@ -220,5 +227,6 @@ function battleCanceled (addressIndex) {
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getRemainingLevelPoint,
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
+         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled };
