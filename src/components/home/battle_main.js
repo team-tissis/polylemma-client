@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle,
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, 
          setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
@@ -245,7 +245,9 @@ export default function BattleMain(){
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
-
+        if(tmpMyPlayerId != null){
+            dispatch(setPlayerId(tmpMyPlayerId))
+        }
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
         choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
 
@@ -351,7 +353,6 @@ export default function BattleMain(){
 
     async function handleCommit() {
         setListenToRoundRes('freeze');
-
         if(myCharacters.tmpMyPlayerSeed == null){
             const tmpMyPlayerSeed = getRandomBytes32();
             dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
@@ -437,8 +438,8 @@ export default function BattleMain(){
                         <>
                             <Grid item xs={2} md={2}>{roundResult.numRounds + 1}戦目</Grid>
                             <Grid item xs={2} md={2}>{roundResult.isDraw && "引き分け"}</Grid>
-                            <Grid item xs={2} md={2}>{roundResult.winner}</Grid>
-                            <Grid item xs={2} md={2}>{roundResult.loser}</Grid>
+                            <Grid item xs={2} md={2}>{(myCharacters.playerId == roundResult.winner) ? <>自分</> : <>相手</>}</Grid>
+                            <Grid item xs={2} md={2}>{(myCharacters.playerId == roundResult.loser) ? <>自分</> : <>相手</>}</Grid>
                             <Grid item xs={2} md={2}>{roundResult.winnerDamage}</Grid>
                             <Grid item xs={2} md={2}>{roundResult.loserDamage}</Grid>
                         </>
