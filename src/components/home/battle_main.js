@@ -13,7 +13,7 @@ import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, 
-        choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter } from '../../slices/myCharacter.ts';
+        choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
@@ -41,15 +41,12 @@ function handleButtonStyle() {
     }
 }
 
-// TODO::すでにバトルに出したキャラは選択できない
-// TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
 function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
     const _thisCharacterBattleDone = character.battleDone;
 
-    // 未使用は '#FFDBC9': 使用したら 'silver' : 選択色は '#FFAD90'
     var _cardStyleColor = character.isRandomSlot ? '#FFFF66' : '#FFDBC9'
     if(character.index === choice) {
         _cardStyleColor = character.isRandomSlot ?  '#FFD700' : '#FFAD90'
@@ -100,10 +97,6 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
 }
 
 function PlayerYou({opponentCharacters}){
-    // opponentCharacters = [1,2,3,4]
-    // const randomSlot = 'a'
-    // opponentCharacters.push(randomSlot)
-
     return(<>
         <Container style={{padding: 10}}>
             <div style={{ textAlign: 'right', verticalAlign: 'middle'}}>
@@ -117,7 +110,7 @@ function PlayerYou({opponentCharacters}){
                         <div className="card_name">
                             { character.name }
                         </div>
-                        <div className="box" style={{fontSize: 14, borderColor: 'red'}}>
+                        <div className="box" style={{fontSize: 14, borderColor: 'silver', backgroundColor: character.battleDone ? 'grey' : '#FFDBC9'}}>
                             <p>{ character.level}</p>
                         </div>
                         <div className="character_type_box"
@@ -136,10 +129,6 @@ function PlayerYou({opponentCharacters}){
                             </div>
                         </div>
                     </div>
-                    {/* <Paper elevation={10} style={{backgroundColor: 'silver', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
-                        レベル {character.level}
-                        属性: {character.characterType}
-                    </Paper> */}
                 </Grid>
                 ))}
             </Grid>
@@ -220,14 +209,29 @@ export default function BattleMain(){
 
     const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
 
+    // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
+    const [opponentRevealed, setOpponentRevealed] = useState(null);
+
     useEffect(() => {
         console.log("commit and reveal........");
     },[listenToRoundRes]);
 
 
+    useEffect(() => {
+        console.log("commit and reveal........");
+        console.log({opponentRevealed})
+        // reduxの結果を反映
+        if( opponentRevealed != null) {
+            dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
+        }
+    },[opponentRevealed]);
+
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
+
+        // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
+        choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
         
         const tmpMyPlayerSeed = getRandomBytes32();
         setMyPlayerSeed(tmpMyPlayerSeed);
@@ -248,7 +252,6 @@ export default function BattleMain(){
         // setHoge で設定したやつは useEffect が終わるまで更新されない…
         const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
         const characterList = [...fixedSlotCharInfo, _myRandomSlot]
-        console.log({_myRandomSlot})
 
         dispatch(set5BattleCharacter(characterList))
 
@@ -305,7 +308,7 @@ export default function BattleMain(){
     useEffect(() => {
         playerSeedCommitted();
         playerSeedRevealed();
-        choiceRevealed();
+        choiceRevealed(setOpponentRevealed);
         battleResult();
         battleCanceled();
     }, []);
@@ -338,7 +341,7 @@ export default function BattleMain(){
             const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
             await revealPlayerSeed(myPlayerId, _myPlayerSeed);
         }
-        
+        // reduxに保存して、使ったことのないものを使用する
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
         setMyBlindingFactor(blindingFactor);

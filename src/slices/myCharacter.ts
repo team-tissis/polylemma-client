@@ -66,6 +66,12 @@ const currentMyCharacterSlice = createSlice({
           // TODO: 各キャラにindexを振る
           state.otherCharactersList = action.payload;
         },
+        // 相手キャラクターのバトルが終了したものを更新する
+        choiceOtherCharacterInBattle(state, action: PayloadAction<number>) {
+          // TODO: 各キャラにindexを振る
+          const _otherCharacterIndex: number = action.payload
+          state.otherCharactersList[_otherCharacterIndex].battleDone = true;
+        },
         setTmpMyPlayerSeed(state, action: PayloadAction<string>) {
             state.tmpMyPlayerSeed = action.payload
         },
@@ -94,6 +100,6 @@ const currentMyCharacterSlice = createSlice({
 
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
 export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
-                setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
+                choiceOtherCharacterInBattle, setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
                 myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;
