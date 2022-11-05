@@ -103,7 +103,6 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     console.log({ randomSlotId: randomSlotId });
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
     return {
-        id: randomSlotId,
         name: bytes32ToString(message['name']),
         imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],
@@ -113,7 +112,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         attributeIds: message['attributeIds'],
         isRandomSlot: true,
         battleDone: false,
-        index: 4
+        // index: 4
     };
 }
 

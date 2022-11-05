@@ -10,6 +10,7 @@ interface IBattleCharacter {
   rarity: number;
   isRandomSlot: boolean;
   battleDone: boolean;
+  bondLevel: null | number; //要確認: 現状RSのみ存在?
   attributeIds: null | number[];
   characterType: String;
 }
@@ -46,15 +47,17 @@ const currentMyCharacterSlice = createSlice({
     // set5BattleCharacter(state, action: PayloadAction<IMyCharacter[]>) {
     set5BattleCharacter(state, action: PayloadAction<IBattleCharacter[]>) {
       // TODO: 各キャラにindexを振る
+      console.log({実際の対戦が始まった際の5体のキャクター: action.payload})
       const _tmpCharacterList = action.payload;
       const resultCharacterList: IBattleCharacter[] = []
-      for (let charaIndex = 0; charaIndex < _tmpCharacterList.length - 1; charaIndex++) {
+      for (let charaIndex = 0; charaIndex < _tmpCharacterList.length; charaIndex++) {
         // _tmpCharacterList[charaIndex].index = charaIndex
         resultCharacterList.push({
             ..._tmpCharacterList[charaIndex],
             index: charaIndex
         })
       }
+      console.log({VER2_実際の対戦が始まった際の5体のキャクター: resultCharacterList})
       state.charactersList = resultCharacterList
       state.hasRandomSlot = true;
     },

@@ -42,7 +42,7 @@ async function requestChallengeToMe () {
     for (let i = 0; i < 2; i++) {
         await charge(addressIndex);
         await extendSubscPeriod(addressIndex); // サブスク
-        await restoreFullStamina(addressIndex)
+        // await restoreFullStamina(addressIndex)
     }
 
     const fixedSlotsOfChallenger = [];

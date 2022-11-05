@@ -42,17 +42,16 @@ function handleButtonStyle() {
 
 // TODO::すでにバトルに出したキャラは選択できない
 // TODO: thisCharcter は左から何番目のキャラクタかという情報の方がありがたい
-function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisCharacter, setThisCharacter, levelPoint}){
+function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
-    const _isRandomSlot = character.isRandomSlot;
     const _thisCharacterBattleDone = character.battleDone;
 
     // 未使用は '#FFDBC9': 使用したら 'silver' : 選択色は '#FFAD90'
-    var _cardStyleColor = '#FFDBC9'
+    var _cardStyleColor = character.isRandomSlot ? '#FFFF66' : '#FFDBC9'
     if(character.index === choice) {
-        _cardStyleColor = '#FFAD90'
+        _cardStyleColor = character.isRandomSlot ?  '#FFD700' : '#FFAD90'
     } else if(_thisCharacterBattleDone) {
         _cardStyleColor = 'silver'
     }
@@ -65,8 +64,8 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
             return
         }
         setChoice(character.index)
-        setThisCharacter(character.id)
     }
+
     return(<>
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
             onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
@@ -74,7 +73,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, thisC
                 <p>{ character.name }</p>
             </div>
             <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
-                {(thisCharacter === character.id) ? <>
+                {(choice === character.index) ? <>
                     <p>{ character.level + levelPoint}</p>
                 </> : <>
                     <p>{ character.level}</p>
@@ -113,11 +112,9 @@ function PlayerYou({opponentCharacters}){
                 {opponentCharacters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
                     <Paper elevation={10} style={{backgroundColor: 'silver', height: 200, borderStyle: 'solid', borderColor: 'white', borderWidth: 5}}>
-                        トークンID {character.id} <br/>
                         レベル {character.level}
                         属性: {character.characterType}
                     </Paper>
-                    {/* <NFTCharactorCard character={character}/> */}
                 </Grid>
                 ))}
             </Grid>
@@ -125,14 +122,14 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors, thisCharacter, setThisCharacter, listenToRoundRes,  choice, setChoice, totalLevelPoint, levelPoint, setLevelPoint}){
+function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, totalLevelPoint, levelPoint, setLevelPoint}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
                     <NFTCharactorCard choice={choice} setChoice={setChoice} character={myCharactor}
-                        listenToRoundRes={listenToRoundRes} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter} levelPoint={levelPoint} />
+                        listenToRoundRes={listenToRoundRes} levelPoint={levelPoint} />
                 </Grid>
             ))}
         </Grid>
@@ -141,7 +138,7 @@ function PlayerI({myCharactors, thisCharacter, setThisCharacter, listenToRoundRe
         </div>
 
         <Box sx={{ width: '80%' }}>
-            トークン{thisCharacter}にレベルを付与する
+            このトークンにレベルを付与する
             <Slider
                 aria-label="Temperature"
                 defaultValue={0}
@@ -172,14 +169,12 @@ const UrgeWithPleasureComponent = () => (
 export default function BattleMain(){
     const dispatch = useDispatch();
 
-    const [thisCharacter, setThisCharacter] = useState();
     const totalLevelPoint = 10;
     const [levelPoint, setLevelPoint] = useState(0);
     const myCharacters = useSelector(selectMyCharacter);
 
     const [myPlayerId, setMyPlayerId] = useState();
-    // const [myCharacters, setMyCharacters] = useState();
-    // const [opponentCharacters, setOpponentCharacters] = useState();
+
     const [myPlayerSeed, setMyPlayerSeed] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
 
@@ -204,9 +199,8 @@ export default function BattleMain(){
         console.log("commit and reveal........");
     },[listenToRoundRes]);
 
+
     useEffect(() => {(async function() {
-        
-        console.log("あああああああああああああああああああああああああああああああああああああああああああああああ")
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
         
@@ -219,10 +213,6 @@ export default function BattleMain(){
         }
         // 対戦に使うキャラ5体(RSを含む)をresuxに追加
         const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
-        console.log({fixedSlotCharInfo})
-
-        // setMyCharacters(await getFixedSlotCharacterInfo(tmpMyPlayerId));
-        // setOpponentCharacters(await getFixedSlotCharacterInfo(1-tmpMyPlayerId));
 
         try {
             await commitPlayerSeed(tmpMyPlayerId, tmpMyPlayerSeed);
@@ -260,10 +250,11 @@ export default function BattleMain(){
         for (let nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
             if(myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined'){
                 setChoice(nextIndex);
-                setThisCharacter(myCharacters.charactersList[nextIndex].id);
                 break;
             }
         }
+
+        setRemainingLevelPoint(await getRemainingLevelPoint());
     })();}, []);
 
     const navigate = useNavigate();
@@ -364,9 +355,13 @@ export default function BattleMain(){
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou/>
-                <div style={{height: 100}}/>[dev]左から数えて {choice} 番目のトークンが選択されました。
-                <PlayerI myCharactors={myCharacters.charactersList} thisCharacter={thisCharacter} setThisCharacter={setThisCharacter}
-                        listenToRoundRes={listenToRoundRes}
+                
+                <div style={{height: 100}}/>
+                [dev]残り追加可能レベル {remainingLevelPoint}<br/>
+                [dev]保存したtmpMyPlayerSeed: { myCharacters.tmpMyPlayerSeed }<br/>
+                [dev]左から数えて {choice} 番目のトークンが選択されました。
+
+                <PlayerI myCharactors={myCharacters.charactersList} listenToRoundRes={listenToRoundRes}
                         choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint}
                         levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
@@ -405,9 +400,10 @@ export default function BattleMain(){
                     <Grid item xs={4} md={4}>✖️</Grid>
                 </Grid>
             </Card>
+            
         </Grid>
 
-        {thisCharacter &&
+        {(choice != null) &&
             <Fab variant="extended" style={ handleButtonStyle() } disabled={listenToRoundRes === 'freeze'} color="primary" aria-label="add" onClick={() => handleCommit()}>
                 勝負するキャラクターを確定する
             </Fab>
