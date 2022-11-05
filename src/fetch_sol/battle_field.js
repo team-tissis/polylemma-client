@@ -100,16 +100,16 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
-async function getTotalSupplyAtBattleStart (addressIndex) {
+async function getTotalSupplyAtBattleStart (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getTotalSupplyAtBattleStart();
+    const message = await contract.getTotalSupplyAtBattleStart(playerId);
     console.log({ getTotalSupplyAtBattleStart: message });
     return message;
 }
 
 async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     const nonce = await getNonce(playerId);
-    const mod = await getTotalSupplyAtBattleStart();
+    const mod = await getTotalSupplyAtBattleStart(playerId);
     const randomSlotId = calcRandomSlotId(nonce, playerSeed, mod);
     console.log({ randomSlotId: randomSlotId });
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
