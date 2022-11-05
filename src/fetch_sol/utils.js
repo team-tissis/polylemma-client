@@ -47,6 +47,7 @@ function getAbi (contractName) {
 function getSigner (addressIndex) {
     const signerIndex = (addressIndex == null) ? 1 : addressIndex;
     // (多分) MetaMask を経由しないで使う方法
+
     const provider = new ethers.providers.JsonRpcProvider();
     const signer = provider.getSigner(signerIndex);
     // MetaMask を使う方法 (うまくいかない)

@@ -146,7 +146,7 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, totalLevelPoint, levelPoint, setLevelPoint}){
+function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remainingLevelPoint, levelPoint, setLevelPoint}){
     return(<>
     <Container style={{padding: 10}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
@@ -171,7 +171,8 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, totalLeve
                 step={1}
                 marks
                 min={0}
-                max={totalLevelPoint}
+                max={remainingLevelPoint}
+                // max={totalLevelPoint}
             />
         </Box>
     </Container>
@@ -290,6 +291,8 @@ export default function BattleMain(){
             setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
 
+        setRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
+
         for (let nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
             if(myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined'){
                 setChoice(nextIndex);
@@ -297,7 +300,6 @@ export default function BattleMain(){
             }
         }
 
-        setRemainingLevelPoint(await getRemainingLevelPoint());
     })();}, []);
 
     const navigate = useNavigate();
@@ -412,7 +414,7 @@ export default function BattleMain(){
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
                 <PlayerI myCharactors={myCharacters.charactersList} listenToRoundRes={listenToRoundRes}
-                        choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint}
+                        choice={choice} setChoice={setChoice} remainingLevelPoint={remainingLevelPoint}
                         levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
