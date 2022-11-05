@@ -28,12 +28,13 @@ interface IMyCharacter {
 
 interface IMyCharacterList {
     charactersList: IBattleCharacter[];
+    otherCharactersList: IBattleCharacter[];
     requestCharacterList: IMyCharacter[];
     hasRandomSlot: boolean;
     tmpMyPlayerSeed: null | string;
 }
 
-const initialState: IMyCharacterList = { charactersList: [] , requestCharacterList: [], hasRandomSlot: false , tmpMyPlayerSeed: null};
+const initialState: IMyCharacterList = { charactersList: [] ,otherCharactersList: [], requestCharacterList: [], hasRandomSlot: false , tmpMyPlayerSeed: null};
 const currentMyCharacterSlice = createSlice({
     name: 'currentMyCharacter',
     initialState,
@@ -43,6 +44,9 @@ const currentMyCharacterSlice = createSlice({
             state.requestCharacterList = action.payload;
             // 実際の対戦キャラは初期化
             state.charactersList = []
+            state.otherCharactersList = []
+            state.hasRandomSlot = false;
+            state.tmpMyPlayerSeed = null;
         },
         // set5BattleCharacter(state, action: PayloadAction<IMyCharacter[]>) {
         set5BattleCharacter(state, action: PayloadAction<IBattleCharacter[]>) {
@@ -60,6 +64,16 @@ const currentMyCharacterSlice = createSlice({
             console.log({VER2_実際の対戦が始まった際の5体のキャクター: resultCharacterList})
             state.charactersList = resultCharacterList
             state.hasRandomSlot = true;
+        },
+        setOthersBattleCharacter(state, action: PayloadAction<IBattleCharacter[]>) {
+          // TODO: 各キャラにindexを振る
+          state.otherCharactersList = action.payload;
+        },
+        // 相手キャラクターのバトルが終了したものを更新する
+        choiceOtherCharacterInBattle(state, action: PayloadAction<number>) {
+          // TODO: 各キャラにindexを振る
+          const _otherCharacterIndex: number = action.payload
+          state.otherCharactersList[_otherCharacterIndex].battleDone = true;
         },
         setTmpMyPlayerSeed(state, action: PayloadAction<string>) {
             state.tmpMyPlayerSeed = action.payload
@@ -88,6 +102,7 @@ const currentMyCharacterSlice = createSlice({
 });
 
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed,
-                notInBattleVerifyCharacters, choiceCharacterInBattle, myCharacterRemove } = currentMyCharacterSlice.actions;
+export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed, 
+                choiceOtherCharacterInBattle, setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
+                myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;

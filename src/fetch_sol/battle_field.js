@@ -67,6 +67,7 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
 
 // 自分のランダムスロットの内容を取得する関数
 async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
+    console.log({問題のIDを確認: tokenId, プレイヤーID: playerId})
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getVirtualRandomSlotCharInfo(playerId, tokenId);
     console.log({ getVirtualRandomSlotCharInfo: message });
@@ -99,16 +100,16 @@ async function getPlayerIdFromAddress (addressIndex) {
     return message;
 }
 
-async function getTotalSupplyAtBattleStart (addressIndex) {
+async function getTotalSupplyAtBattleStart (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getTotalSupplyAtBattleStart();
+    const message = await contract.getTotalSupplyAtBattleStart(playerId);
     console.log({ getTotalSupplyAtBattleStart: message });
     return message;
 }
 
 async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     const nonce = await getNonce(playerId);
-    const mod = await getTotalSupplyAtBattleStart();
+    const mod = await getTotalSupplyAtBattleStart(playerId);
     const randomSlotId = calcRandomSlotId(nonce, playerSeed, mod);
     console.log({ randomSlotId: randomSlotId });
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
@@ -182,13 +183,30 @@ function choiceCommitted (opponentPlayerId, currentRound, setCommit, addressInde
     });
 }
 
-function choiceRevealed (opponentPlayerId, addressIndex) {
+function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-        console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+        if(playerId == opponentPlayerId){
+            const response = {
+                numRounds: numRounds,
+                playerId: playerId,
+                levelPoint: levelPoint,
+                choice: choice
+            }
+            setOpponentRevealed(response);
+        }
+        // console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
     });
 }
+
+// function choiceRevealed (opponentPlayerId, addressIndex) {
+//     const { contract } = getContract("PLMBattleField", addressIndex);
+//     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
+//     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
+//         console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+//     });
+// }
 
 function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
