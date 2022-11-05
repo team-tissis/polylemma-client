@@ -357,7 +357,7 @@ export default function Battle() {
         </Button>
 
         <Button variant="outlined" color="secondary" onClick={() => devHandleResetStates()} style={{marginLeft: 20, backgroundColor: 'white'}}>
-            [dev]全ユーザーのステートをNonProposalにする
+            バトルの状態をリセットする
         </Button>
 
         { (charactersForBattle.length >= selectedNum) &&
