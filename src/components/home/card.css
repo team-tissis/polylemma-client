@@ -88,7 +88,7 @@ div.box p {
     bottom: 37%;
     right: 4%;
 
-    padding: 3px;
+    padding: 3px 15px;
     display: flex;
     z-index: 11;
 
