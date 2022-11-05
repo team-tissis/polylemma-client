@@ -70,7 +70,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
             onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
             <div className="card_name">
-                <p>{ character.name }</p>
+                { character.name }
             </div>
             <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
                 {(choice === character.index) ? <>

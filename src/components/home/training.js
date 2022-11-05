@@ -43,7 +43,7 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
     const _backgroundColor = (selectedTokenId === character.id) ? 'grey' : 'white'
     const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver'
     const cardBackColor = (selectedTokenId === character.id) ? 'orange' : '#FFDBC9'
-    
+
     const handleClickCharacter = async (id) => {
         setNecessaryExp(await getNecessaryExp(id));
         setSelectedTokenId(id);
@@ -55,9 +55,8 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
             onClick={ () => handleClickCharacter(character.id) }>
             <div className="card_name">
-                <p>{ character.name }</p>
+                { character.name }
             </div>
-            {/* <div className="box"> */}
             <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor}}>
                 <p>{ character.level }</p>
             </div>

@@ -105,7 +105,7 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
     return(<>
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
             <div className="card_name">
-                <p>{ character.name }</p>
+                { character.name }
             </div>
             <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor}}>
                 <p>{ character.level }</p>
