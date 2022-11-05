@@ -15,6 +15,7 @@ import Card from '@mui/material/Card';
 import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters,
         choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
+import { oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { isInBattle } from '../../fetch_sol/match_organizer.js';
@@ -206,7 +207,7 @@ export default function BattleMain(){
     const [myCommit, setMyCommit] = useState(false);
     const [isCOM, setIsCOM] = useState(true);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
-
+    const [roundDetail, setRoundDetail] = useState(null);
     const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
 
     // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
@@ -218,9 +219,17 @@ export default function BattleMain(){
 
 
     useEffect(() => {
+        // reduxに結果を反映
+        if(roundDetail != null){
+            console.log({あああああああああああああああああああああああああああああああああああああああああああああああああああああああ: roundDetail})
+            dispatch(oneRoundDone(roundDetail))
+        }
+    },[roundDetail]);
+
+
+    useEffect(() => {
         console.log("commit and reveal........");
         console.log({opponentRevealed})
-        // reduxの結果を反映
         if( opponentRevealed != null) {
             dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
         }
@@ -335,6 +344,11 @@ export default function BattleMain(){
     async function handleCommit() {
         setListenToRoundRes('freeze');
 
+        if(myCharacters.tmpMyPlayerSeed == null){
+            const tmpMyPlayerSeed = getRandomBytes32();
+            dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
+            await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
+        }
         // reduxに保存して、使ったことのないものを使用する
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
@@ -349,7 +363,7 @@ export default function BattleMain(){
             }
         }
         console.log(`${nextIndex}番目が次の出力です`);
-        roundResult(round, nextIndex, setListenToRoundRes, setChoice);
+        roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
         setMyCommit(true);
         // 勝敗が決まるまでボタンを押せないようにする
         if (isCOM) {

@@ -66,7 +66,6 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
 
 // 自分のランダムスロットの内容を取得する関数
 async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
-    console.log({問題のIDを確認: tokenId, プレイヤーID: playerId})
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getVirtualRandomSlotCharInfo(playerId, tokenId);
     console.log({ getVirtualRandomSlotCharInfo: message });
@@ -199,7 +198,7 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
     });
 }
 
-function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, addressIndex) {
+function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
@@ -207,11 +206,22 @@ function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, a
             setListenToRoundRes('can_choice');
             console.log(`choiceを${nextIndex}に変更`);
             setChoice(nextIndex);
+
             if (isDraw) {
                 console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
             } else {
                 console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
             }
+
+            setRoundDetail({
+                numRounds: numRounds,
+                isDraw: isDraw,
+                winner: winner,
+                loser: loser,
+                winnerDamage: winnerDamage,
+                loserDamage: loserDamage
+            })
+            // return response
         }
     });
 }

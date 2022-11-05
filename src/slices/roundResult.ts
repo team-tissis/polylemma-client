@@ -17,21 +17,34 @@ interface IRoundResult {
 }
 
 interface IRoundResultList {
-    latestRound: number;
+    latestRound: null | number;
     resultList: IRoundResult[];
 }
 
-const initialState: IRoundResultList = { latestRound: 0, resultList: [] };
+const initialState: IRoundResultList = { latestRound: null, resultList: [] };
 const currentRoundResultSlice = createSlice({
   name: 'currentRoundResult',
   initialState,
   reducers: {
     oneRoundDone(state, action: PayloadAction<IRoundResult>) {
-        state.resultList = [...state.resultList, action.payload]
-        state.latestRound++;
+        const _thisRoundRes = action.payload;
+        console.log(`保存の最新のラウンドは ${state.latestRound}  で今回のラウンドは　${_thisRoundRes.numRounds}`);
+        if(state.latestRound == null){
+          console.log("初回の更新......")
+          state.resultList = [...state.resultList, action.payload]
+          state.latestRound = _thisRoundRes.numRounds;
+        } else if (state.latestRound < _thisRoundRes.numRounds){
+          console.log("n回目のの更新......")
+          state.resultList = [...state.resultList, action.payload]
+          state.latestRound = _thisRoundRes.numRounds;
+        }
+        // if((state.latestRound == null) || (state.latestRound < _thisRoundRes.numRounds)){
+        //   state.resultList = [...state.resultList, action.payload]
+        //   state.latestRound = _thisRoundRes.numRounds;
+        // }
     },
     roundResultReset(state)  {
-      state.latestRound = 0;
+      state.latestRound = null;
       state.resultList = [];
     },
   },
