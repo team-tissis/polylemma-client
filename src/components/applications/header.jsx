@@ -14,7 +14,7 @@ import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { balanceOf } from '../../fetch_sol/coin.js';
+import { balanceOf, faucet } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
          extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged ,
