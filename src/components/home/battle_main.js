@@ -15,7 +15,7 @@ import Card from '@mui/material/Card';
 import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters,
         choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
-import { oneRoundDone } from '../../slices/roundResult.ts';
+import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { isInBattle } from '../../fetch_sol/match_organizer.js';
@@ -186,15 +186,16 @@ export default function BattleMain(){
 
     const totalLevelPoint = 10;
     const [levelPoint, setLevelPoint] = useState(0);
-    const myCharacters = useSelector(selectMyCharacter);
 
+    const myCharacters = useSelector(selectMyCharacter);
+    const roundResultList = useSelector(selectRoundResult);
+    // battleに出現させたキャラクターの順番の配列
+    const battleStatus = useSelector(selectBattleStatus);
+    
     const [myPlayerId, setMyPlayerId] = useState();
 
     const [myPlayerSeed, setMyPlayerSeed] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
-
-    // battleに出現させたキャラクターの順番の配列
-    const battleStatus = useSelector(selectBattleStatus);
 
     // for debug
     const addressIndex = 2;
@@ -221,14 +222,13 @@ export default function BattleMain(){
     useEffect(() => {
         // reduxに結果を反映
         if(roundDetail != null){
-            console.log({あああああああああああああああああああああああああああああああああああああああああああああああああああああああ: roundDetail})
             dispatch(oneRoundDone(roundDetail))
         }
     },[roundDetail]);
 
 
     useEffect(() => {
-        console.log("commit and reveal........");
+        console.log("opponentRevealed........");
         console.log({opponentRevealed})
         if( opponentRevealed != null) {
             dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
@@ -424,7 +424,15 @@ export default function BattleMain(){
             </div>
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
-                    <Grid item xs={4} md={4}></Grid>
+                    {roundResultList.resultList.map((roundResult, index) => (
+                            <>
+                                <Grid item xs={4} md={4}>{roundResult.numRounds + 1}戦目</Grid>
+                                <Grid item xs={4} md={4}>{roundResult.winner}</Grid>
+                                <Grid item xs={4} md={4}>{roundResult.loser}</Grid>
+                            </>
+                    ))}
+
+                    {/* <Grid item xs={4} md={4}></Grid>
                     <Grid item xs={4} md={4}>自分</Grid>
                     <Grid item xs={4} md={4}>相手</Grid>
 
@@ -446,7 +454,7 @@ export default function BattleMain(){
 
                     <Grid item xs={4} md={4}>5戦目</Grid>
                     <Grid item xs={4} md={4}>◯</Grid>
-                    <Grid item xs={4} md={4}>✖️</Grid>
+                    <Grid item xs={4} md={4}>✖️</Grid> */}
                 </Grid>
             </Card>
 
