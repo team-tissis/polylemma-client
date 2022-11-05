@@ -52,7 +52,6 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
         response.push({
             name: bytes32ToString(mes['name']),
             imgURI: await getImgURI(mes['imgId'], addressIndex),
-            // fromBlock: mes['fromBlock'],
             characterType: mes['characterType'],
             level: mes['level'],
             bondLevel: await getBondLevelAtBattleStart(mes),
@@ -199,14 +198,6 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
         // console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
     });
 }
-
-// function choiceRevealed (opponentPlayerId, addressIndex) {
-//     const { contract } = getContract("PLMBattleField", addressIndex);
-//     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
-//     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-//         console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
-//     });
-// }
 
 function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);

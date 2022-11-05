@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters, 
+import { selectMyCharacter, addRandomSlotToCurrentMyCharacter, notInBattleVerifyCharacters,
         choiceCharacterInBattle, setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
@@ -229,7 +229,7 @@ export default function BattleMain(){
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
         setMyPlayerId(tmpMyPlayerId);
-        
+
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
         choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
 
@@ -241,7 +241,7 @@ export default function BattleMain(){
             if(myCharacters.tmpMyPlayerSeed == null){
                 dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
             }
-    
+
             // 対戦に使うキャラ5体(RSを含む)をreduxに追加
             const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
             try {
@@ -312,7 +312,7 @@ export default function BattleMain(){
         battleCanceled();
     }, []);
 
-    async function devHandleFinishBattle () {
+    async function handleForceInitBattle () {
         dispatch(notInBattleVerifyCharacters());
         await forceInitBattle();
         navigate('../');
@@ -334,12 +334,7 @@ export default function BattleMain(){
 
     async function handleCommit() {
         setListenToRoundRes('freeze');
-        
-        // To はっしー確認 自分がRSを選択した場合
-        if(myCharacters.charactersList[choice].isRandomSlot){
-            const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
-            await revealPlayerSeed(myPlayerId, _myPlayerSeed);
-        }
+
         // reduxに保存して、使ったことのないものを使用する
         const blindingFactor = getRandomBytes32();
         await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
@@ -364,8 +359,9 @@ export default function BattleMain(){
 
     useEffect(() => {(async function() {
         if (opponentCommit && myCommit) {
-            if (choice === 4) {
-                await revealPlayerSeed(myPlayerId, myPlayerSeed);
+            if(myCharacters.charactersList[choice].isRandomSlot){
+                const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
+                await revealPlayerSeed(myPlayerId, _myPlayerSeed);
             }
             try {
                 await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
@@ -380,20 +376,21 @@ export default function BattleMain(){
     })();}, [opponentCommit, myCommit]);
 
     return(<>
-    <Button variant="contained" size="large" color="secondary" onClick={() => devHandleFinishBattle() }>
-        バトルを終了する
+    <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
+        バトルの状態をリセットする
     </Button>
+    <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
     <Button variant="contained" size="large" color="secondary" onClick={() => setIsCOM((isCOM) => !isCOM)}>
         COMと対戦: {isCOM ? "YES" : "NO"}
     </Button>
     <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={6}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
-            <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
+                <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
                 {/* <PlayerYou myCharactors={myCharacters.otherCharactersList} listenToRoundRes={listenToRoundRes}
                         choice={choice} setChoice={setChoice} totalLevelPoint={totalLevelPoint}
                         levelPoint={levelPoint} setLevelPoint={setLevelPoint}/> */}
-                
+
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
                 [dev]保存したtmpMyPlayerSeed: { myCharacters.tmpMyPlayerSeed }<br/>
