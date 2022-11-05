@@ -47,15 +47,15 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getFixedSlotCharInfo(playerId);
     console.log({ getFixedSlotCharInfo: message });
-    // return message;
     const response = [];
-    message.forEach(async mes => 
+    message.forEach(async mes =>
         response.push({
             name: bytes32ToString(mes['name']),
             imgURI: await getImgURI(mes['imgId'], addressIndex),
             // fromBlock: mes['fromBlock'],
             characterType: mes['characterType'],
             level: mes['level'],
+            bondLevel: await getBondLevelAtBattleStart(mes),
             rarity: mes['rarity'],
             attributeIds: mes['attributeIds'],
             isRandomSlot: false, // reduxに保存用
@@ -78,7 +78,18 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getRandomSlotCharInfo(playerId);
     console.log({ getRandomSlotCharInfo: message });
-    return message;
+    // TODO: to atsushi これでいい？？
+    return {
+        name: bytes32ToString(message['name']),
+        imgURI: await getImgURI(message['imgId'], addressIndex),
+        characterType: message['characterType'],
+        level: message['level'],
+        bondLevel: 0,
+        rarity: message['rarity'],
+        attributeIds: message['attributeIds'],
+        isRandomSlot: true,
+        battleDone: true
+    };
 }
 
 async function getPlayerIdFromAddress (addressIndex) {
@@ -107,7 +118,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],
         level: message['level'],
-        bondLevel: await getBondLevelAtBattleStart(message),
+        bondLevel: 0,
         rarity: message['rarity'],
         attributeIds: message['attributeIds'],
         isRandomSlot: true,
