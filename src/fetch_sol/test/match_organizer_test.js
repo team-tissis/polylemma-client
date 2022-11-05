@@ -1,12 +1,14 @@
 import { getRandomBytes32, getContract } from '../../fetch_sol/utils.js';
-import { charge, extendSubscPeriod, restoreFullStamina } from '../../fetch_sol/dealer.js';
+import { extendSubscPeriod } from '../../fetch_sol/dealer.js';
+import { faucet } from '../../fetch_sol/coin.js';
 import { gacha } from '../../fetch_sol/gacha.js';
 import { proposeBattle, getMatchState, isInProposal, setNonProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { commitChoice, revealChoice, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
 
 async function createCharacters (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        await charge(addressIndex);
+        // await charge(addressIndex);
+        await faucet(100, addressIndex);
 
         const fixedSlotsOfChallenger = [];
         for (let i = 0; i < 4; i++) {
@@ -40,9 +42,9 @@ async function cancelProposals () {
 async function requestChallengeToMe () {
     let addressIndex = 2;
     for (let i = 0; i < 2; i++) {
-        await charge(addressIndex);
-        await extendSubscPeriod(addressIndex); // サブスク
-        // await restoreFullStamina(addressIndex)
+        // await charge(addressIndex);
+        await faucet(100, addressIndex);
+        await extendSubscPeriod(addressIndex);
     }
 
     const fixedSlotsOfChallenger = [];

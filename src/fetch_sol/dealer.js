@@ -97,23 +97,24 @@ async function extendSubscPeriod (addressIndex) {
 /// FUNCTIONS ABOUT CHARGEMENT ///
 //////////////////////////////////
 
-async function charge (addressIndex) {
-    const { contract } = getContract("PLMDealer", addressIndex);
-    const sendMATICAmount = "1" + "0".repeat(20);
-    const message = await contract.charge({ value: sendMATICAmount });
-    console.log({ charge: message });
-}
+// async function charge (addressIndex) {
+//     const { contract } = getContract("PLMDealer", addressIndex);
+//     const sendMATICAmount = "1" + "0".repeat(20);
+//     const message = await contract.charge({ value: sendMATICAmount });
+//     console.log({ charge: message });
+// }
 
-async function accountCharged (setAddedCoin, addressIndex) {
-    const { signer, contract } = getContract("PLMDealer", addressIndex);
-    const myAddress = await signer.getAddress();
-    const filter = contract.filters.AccountCharged(myAddress, null, null);
-    contract.on(filter, (charger, chargeAmount, poolingAmount) => {
-        console.log(`${charger} got ${chargeAmount - poolingAmount}.`);
-        setAddedCoin(chargeAmount - poolingAmount);
-    });
-}
+// async function accountCharged (setAddedCoin, addressIndex) {
+//     const { signer, contract } = getContract("PLMDealer", addressIndex);
+//     const myAddress = await signer.getAddress();
+//     const filter = contract.filters.AccountCharged(myAddress, null, null);
+//     contract.on(filter, (charger, chargeAmount, poolingAmount) => {
+//         console.log(`${charger} got ${chargeAmount - poolingAmount}.`);
+//         setAddedCoin(chargeAmount - poolingAmount);
+//     });
+// }
 
 export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
-         getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
-         charge, accountCharged };
+         getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod };
+        //  getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
+        //  charge, accountCharged };
