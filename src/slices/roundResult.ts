@@ -28,13 +28,10 @@ const currentRoundResultSlice = createSlice({
   reducers: {
     oneRoundDone(state, action: PayloadAction<IRoundResult>) {
         const _thisRoundRes = action.payload;
-        console.log(`保存の最新のラウンドは ${state.latestRound}  で今回のラウンドは　${_thisRoundRes.numRounds}`);
         if(state.latestRound == null){
-          console.log("初回の更新......")
           state.resultList = [...state.resultList, action.payload]
           state.latestRound = _thisRoundRes.numRounds;
         } else if (state.latestRound < _thisRoundRes.numRounds){
-          console.log("n回目のの更新......")
           state.resultList = [...state.resultList, action.payload]
           state.latestRound = _thisRoundRes.numRounds;
         }
