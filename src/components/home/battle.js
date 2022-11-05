@@ -164,7 +164,7 @@ export default function Battle() {
         const updatedCharactersForBattle = []
         var hasToUpdateState = false
 
-        // [修正]　バトルが終わった後なのに手持ちにRSがないか/あった場合は削除
+        // [修正] バトルが終わった後なのに手持ちにRSがないか/あった場合は削除
         dispatch(notInBattleVerifyCharacters()); //更新
         for (let step = 0; step < myCharacters.requestCharacterList.length; step++) {
             // const thisChara = _myCharacterList[step];
@@ -261,13 +261,12 @@ export default function Battle() {
     }
 
     // 開発テスト用: 自分に対戦を申し込む
-    // TODO: event を listen してマッチを成立させないといけない
     async function devHandleProposeToMe () {
         await requestChallengeToMe();
         navigate('/battle_main');
     }
 
-    async function devHandleResetStates () {
+    async function handleForceInitBattle () {
         await forceInitBattle();
     }
 
@@ -343,6 +342,11 @@ export default function Battle() {
             </DialogActions>
         </Dialog>
 
+        <Button variant="outlined" color="secondary" onClick={() => handleForceInitBattle()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+            バトルの状態をリセットする
+        </Button>
+        <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
+
         <Button variant="contained" size="large"
             onClick={() => devHandleCharacter()} disabled={isChanging}>
             [開発用] ユーザー2~4のキャラを用意する
@@ -355,10 +359,6 @@ export default function Battle() {
 
         <Button variant="outlined" color="secondary" onClick={() => devHandleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
             [dev]全ユーザーのProposalを取り下げる
-        </Button>
-
-        <Button variant="outlined" color="secondary" onClick={() => devHandleResetStates()} style={{marginLeft: 20, backgroundColor: 'white'}}>
-            バトルの状態をリセットする
         </Button>
 
         { (charactersForBattle.length >= selectedNum) &&
