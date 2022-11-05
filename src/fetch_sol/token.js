@@ -100,13 +100,12 @@ async function getOwnedCharacterWithIDList (addressIndex) {
             level: characterInfo['level'],
             bondLevel: await calcCurrentBondLevel(characterInfo),
             rarity: characterInfo['rarity'],
-            attributeIds: characterInfo['attributeIds'],
-            // isRandomSlot: false
+            attributeIds: characterInfo['attributeIds']
         });
     }
     console.log({ ownedCharacters: ownedCharacters });
     return ownedCharacters;
 }
 
-export { totalSupply, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp,
+export { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp,
          getCurrentCharacterInfo, getImgURI, getOwnedCharacterWithIDList };

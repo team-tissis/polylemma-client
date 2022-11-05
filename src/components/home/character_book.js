@@ -5,7 +5,7 @@ import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { getAllCharacterInfo} from '../../fetch_sol/token.js';
+import { getAllTokenOwned, getAllCharacterInfo } from '../../fetch_sol/token.js';
 import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -16,9 +16,10 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function NFTCard({character}){
+function NFTCard({character, myCharacters}){
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
+    const addedClassName = myCharacters.includes(character.id) ? "" : " card_not_mine";
 
     return(<>
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} >
@@ -33,7 +34,7 @@ function NFTCard({character}){
                 { charaType['jaName'] }
             </div>
             <div className="img_box" >
-                <img className='img_div' style={{width: '100%'}} src={ character.imgURI } alt="sample"/>
+                <img className={'img_div'+addedClassName} style={{width: '100%'}} src={ character.imgURI } alt="sample"/>
             </div>
             <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAttribute]["title"] }
@@ -50,17 +51,22 @@ function NFTCard({character}){
 
 export default function CharacterBook() {
     const [allCharacters, setAllCharacters] = useState([]);
+    const [myCharacters, setMyCharacters] = useState([]);
 
     useEffect(() => {(async function() {
-        setAllCharacters(await getAllCharacterInfo())
+        setAllCharacters(await getAllCharacterInfo());
+        setMyCharacters((await getAllTokenOwned()).map(myToken => myToken.toNumber()));
     })();}, []);
 
     return(<>
+        <div>
+            持ってるキャラは濃く、持っていないキャラは薄く表示されます。
+        </div>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
                 <>{allCharacters.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} key={index} />
+                        <NFTCard character={character} myCharacters={myCharacters} key={index}/>
                     </Grid>
                 ))}</>
             </Grid>
