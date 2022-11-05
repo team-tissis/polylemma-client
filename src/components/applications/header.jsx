@@ -14,14 +14,30 @@ import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { balanceOf } from '../../fetch_sol/coin.js';
+import { balanceOf, faucet } from '../../fetch_sol/coin.js';
 import { totalSupply } from '../../fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
-         extendSubscPeriod, getSubscUnitPeriodBlockNum, charge, accountCharged ,
+         extendSubscPeriod, getSubscUnitPeriodBlockNum,
          getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
        } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
-import ProgressBar from './progress_bar'
+import ProgressBar from './progress_bar';
+
+function getExchangeRate () {
+    const exchangeRate = [];
+    exchangeRate[10] = 9;
+    exchangeRate[20] = 19;
+    exchangeRate[40] = 38;
+    exchangeRate[80] = 76;
+    exchangeRate[160] = 144;
+    exchangeRate[200] = 160;
+    exchangeRate[240] = 184;
+    exchangeRate[280] = 187;
+    exchangeRate[320] = 192;
+    exchangeRate[360] = 198;
+    exchangeRate[400] = 220;
+    return exchangeRate;
+}
 
 export default function Header() {
     const [currentCoin, setCurrentCoin] = useState();
@@ -31,10 +47,8 @@ export default function Header() {
     const [subscRemainingBlocks, setSubscRemainingBlocks] = useState();
     const [subscFee, setSubscFee] = useState();
     const [subscBlock, setSubscBlock] = useState();
-
-    const [addedCoin, setAddedCoin] = useState(-1);
-    const [charging, setCharging] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
+    const exchangeRate = getExchangeRate();
 
     const [staminaDetail, setStaminaDetail] = useState({
         currentStamina: 0, maxStamina: 0,
@@ -66,18 +80,6 @@ export default function Header() {
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
     })();}, []);
-
-    useEffect(() => {
-        if (charging && addedCoin > 0) {
-            const message = addedCoin + " コインを獲得しました!";
-            enqueueSnackbar(message, {
-            autoHideDuration: 1500,
-            variant: 'success',
-            });
-        }
-        setAddedCoin(-1);
-        setCharging(false);
-    }, [addedCoin]);
 
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -177,15 +179,14 @@ export default function Header() {
         setSubscRemainingBlocks(await getSubscRemainingBlockNum());
     };
 
-    const handleClickCharge = async () => {
-        if (charging) {
-            alert("チャージ中です。");
-        } else {
-            await charge();
-            setCurrentCoin(await balanceOf());
-            await accountCharged(setAddedCoin);
-            setCharging(true);
-        }
+    const handleClickCharge = async (plm) => {
+        const addedCoin = await faucet(plm);
+        setCurrentCoin(await balanceOf());
+        const message = addedCoin + " コインを獲得しました!";
+        enqueueSnackbar(message, {
+            autoHideDuration: 1500,
+            variant: 'success',
+        });
     };
 
     // 開発テスト用: MetaMaskと接続を切る
@@ -281,11 +282,18 @@ export default function Header() {
                     <h4>ステータス</h4>
                     <div style={{marginTop: 10}}>
                         <div>コイン: {currentCoin}</div>
-                        <div>トークン: {currentToken}体</div>
+                        <div>トークン: {currentToken} 体</div>
                     </div>
-                    <Button variant="contained" disabled={charging} onClick={handleClickCharge} style={{margin: 10, width: 345}}>
-                        100 MATIC を 95 PLM に交換する
-                    </Button><hr/>
+                    <div>
+                        ※: 累進課税式ですが、デモ用に MATIC は消費しないようにしています。
+                    </div>
+                    {exchangeRate.map((plm, matic) => (
+                        <Button variant="contained" onClick={() => handleClickCharge(plm)} style={{margin: 10, width: 345}}>
+                            {matic} MATIC を {plm} PLM に交換する
+                        </Button>
+                    ))}
+
+                    <hr/>
                 </Box>
             </List>
             <Divider />

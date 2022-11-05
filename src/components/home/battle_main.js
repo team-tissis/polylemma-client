@@ -18,9 +18,9 @@ import { selectBattleStatus, setOneBattle } from '../../slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { isInBattle } from '../../fetch_sol/match_organizer.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo, getPlayerIdFromAddress, getRemainingLevelPoint,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
+         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
-import { defeatByFoul } from '../../fetch_sol/test/match_organizer_test.js';
 import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -314,7 +314,7 @@ export default function BattleMain(){
 
     async function devHandleFinishBattle () {
         dispatch(notInBattleVerifyCharacters());
-        await defeatByFoul();
+        await forceInitBattle();
         navigate('../');
     }
 
@@ -438,7 +438,7 @@ export default function BattleMain(){
                     <Grid item xs={4} md={4}>✖️</Grid>
                 </Grid>
             </Card>
-            
+
         </Grid>
 
         {(choice != null) &&

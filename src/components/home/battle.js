@@ -19,8 +19,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from '../../fetch_sol/utils.js';
 import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { battleStarted } from '../../fetch_sol/battle_field.js';
-import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe, resetStates } from '../../fetch_sol/test/match_organizer_test.js';
+import { forceInitBattle, battleStarted } from '../../fetch_sol/battle_field.js';
+import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
 import { useSnackbar } from 'notistack';
 import characterInfo from "./character_info.json";
 import Slider from '@mui/material/Slider';
@@ -253,8 +253,6 @@ export default function Battle() {
 
     async function devHandleProposal(){
         await makeProposers(fixedSlotsOfChallengers);
-        // setDialogOpen(false);
-        // await cancelProposal();
     }
 
     // 開発テスト用: Proposalを取り下げる
@@ -270,7 +268,7 @@ export default function Battle() {
     }
 
     async function devHandleResetStates () {
-        await resetStates();
+        await forceInitBattle();
     }
 
     return(<>
@@ -360,7 +358,7 @@ export default function Battle() {
         </Button>
 
         <Button variant="outlined" color="secondary" onClick={() => devHandleResetStates()} style={{marginLeft: 20, backgroundColor: 'white'}}>
-            [dev]全ユーザーのステートをNonProposalにする
+            バトルの状態をリセットする
         </Button>
 
         { (charactersForBattle.length >= selectedNum) &&
