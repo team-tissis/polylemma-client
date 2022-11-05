@@ -1,14 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store.ts';
 
-// interface IMyCharacter {
 interface IBattleCharacter {
     index:  number;
     name: string;
     imgURI: string;
     characterType: String;
     level: number;
-    bondLevel: null | number;
+    bondLevel: number;
     rarity: number;
     attributeIds: null | number[];
     isRandomSlot: boolean;

@@ -78,7 +78,6 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getRandomSlotCharInfo(playerId);
     console.log({ getRandomSlotCharInfo: message });
-    // TODO: to atsushi これでいい？？
     return {
         name: bytes32ToString(message['name']),
         imgURI: await getImgURI(message['imgId'], addressIndex),
