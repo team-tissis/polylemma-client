@@ -1,5 +1,5 @@
 import { getRandomBytes32, getContract } from '../../fetch_sol/utils.js';
-import { charge, extendSubscPeriod } from '../../fetch_sol/dealer.js';
+import { charge, extendSubscPeriod, restoreFullStamina } from '../../fetch_sol/dealer.js';
 import { gacha } from '../../fetch_sol/gacha.js';
 import { proposeBattle, getMatchState, isInProposal, setNonProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { commitChoice, revealChoice, getPlayerIdFromAddress } from '../../fetch_sol/battle_field.js';
@@ -41,7 +41,8 @@ async function requestChallengeToMe () {
     let addressIndex = 2;
     for (let i = 0; i < 2; i++) {
         await charge(addressIndex);
-        await extendSubscPeriod(addressIndex);
+        await extendSubscPeriod(addressIndex); // サブスク
+        // await restoreFullStamina(addressIndex)
     }
 
     const fixedSlotsOfChallenger = [];

@@ -23,7 +23,7 @@ function NFTCard({character}){
     return(<>
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} >
             <div className="card_name">
-                <p>{ character.name }</p>
+                { character.name }
             </div>
             <div className="box">
                 <p>{ character.level }</p>
@@ -33,7 +33,7 @@ function NFTCard({character}){
                 { charaType['jaName'] }
             </div>
             <div className="img_box" >
-                <img className='img_div' src={ character.imgURI } alt="sample"/>
+                <img className='img_div' style={{width: '100%'}} src={ character.imgURI } alt="sample"/>
             </div>
             <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAttribute]["title"] }

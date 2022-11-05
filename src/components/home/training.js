@@ -41,6 +41,9 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _backgroundColor = (selectedTokenId === character.id) ? 'grey' : 'white'
+    const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver'
+    const cardBackColor = (selectedTokenId === character.id) ? 'orange' : '#FFDBC9'
+
     const handleClickCharacter = async (id) => {
         setNecessaryExp(await getNecessaryExp(id));
         setSelectedTokenId(id);
@@ -52,9 +55,9 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
             onClick={ () => handleClickCharacter(character.id) }>
             <div className="card_name">
-                <p>{ character.name }</p>
+                { character.name }
             </div>
-            <div className="box">
+            <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor}}>
                 <p>{ character.level }</p>
             </div>
             <div className="character_type_box"
@@ -62,7 +65,7 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
                 { charaType['jaName'] }
             </div>
             <div className="img_box" style={{backgroundColor: _backgroundColor}}>
-                <img className='img_div' src={ character.imgURI } alt="sample"/>
+                <img className='img_div' style={{width: '90%'}} src={ character.imgURI } alt="sample"/>
             </div>
             <div className="attribute_box">
                 { characterInfo.attributes[thisCharacterAttribute]["title"] }
