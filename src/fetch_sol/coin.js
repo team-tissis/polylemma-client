@@ -16,8 +16,9 @@ async function approve (contractAddress, approvedCoin, addressIndex) {
 
 async function faucet(amount, addressIndex) {
     const { contract } = getContract("PLMCoin", addressIndex);
-    const message = await contract.faucet(amount, approvedCoin);
+    const message = await contract.faucet(amount);
     console.log({ faucet: message });
+    return amount;
 }
 
 export { balanceOf, approve, faucet };
