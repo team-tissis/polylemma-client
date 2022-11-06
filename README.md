@@ -52,3 +52,29 @@ $ npm install --save typescript
 - [`utils.js`](./src/utils.js) の `env` 変数の値を `local` / `mumbai` に設定
     - ローカルのテストネットに繋ぐ場合は `local`、Mumbai 上のテストネット `mumbai`
 - `http://localhost:3000/` にアクセスする（ポート 3000 番を既に使ってる場合は、3001 以降になる）
+
+# 画面イメージ
+
+スクショしていっぱい貼る
+
+## メインページ（バトル開始）
+
+## サイドバー
+
+## ガチャ画面
+
+## 育成画面
+
+## マッチメイク
+
+## バトル
+
+## 図鑑
+
+
+# OpenSea（testnet） で取引
+
+- 自分のウォレットアドレスで検索すると以下のように画像が表示される
+    - https://testnets.opensea.io/ja/assets/mumbai/0xb26c1c4f3943632c5320e81154dede5f70541f8d/1
+- これを取引することが可能
+    - **取引すると絆ポイントがリセットされるので注意**
