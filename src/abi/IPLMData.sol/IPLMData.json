@@ -1,0 +1,1970 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "name",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "imgId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fromBlock",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "characterType",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8",
+              "name": "level",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rarity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8[1]",
+              "name": "attributeIds",
+              "type": "uint8[1]"
+            }
+          ],
+          "internalType": "struct IPLMData.CharacterInfo[4]",
+          "name": "charInfos",
+          "type": "tuple[4]"
+        }
+      ],
+      "name": "calcLevelPoint",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "numRounds",
+          "type": "uint8"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "name",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "imgId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fromBlock",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "characterType",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8",
+              "name": "level",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rarity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8[1]",
+              "name": "attributeIds",
+              "type": "uint8[1]"
+            }
+          ],
+          "internalType": "struct IPLMData.CharacterInfo",
+          "name": "player1Char",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint8",
+          "name": "player1LevelPoint",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint32",
+          "name": "player1BondLevel",
+          "type": "uint32"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "name",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "imgId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fromBlock",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "characterType",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8",
+              "name": "level",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rarity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8[1]",
+              "name": "attributeIds",
+              "type": "uint8[1]"
+            }
+          ],
+          "internalType": "struct IPLMData.CharacterInfo",
+          "name": "player2Char",
+          "type": "tuple"
+        }
+      ],
+      "name": "calcPower",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "name",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "imgId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fromBlock",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "characterType",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8",
+              "name": "level",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rarity",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8[1]",
+              "name": "attributeIds",
+              "type": "uint8[1]"
+            }
+          ],
+          "internalType": "struct IPLMData.CharacterInfo[4]",
+          "name": "charInfos",
+          "type": "tuple[4]"
+        }
+      ],
+      "name": "calcRandomSlotLevel",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "countAttributes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "countCharacterTypes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAttributeRarities",
+      "outputs": [
+        {
+          "internalType": "uint8[]",
+          "name": "",
+          "type": "uint8[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCharacterTypes",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCumulativeAttributeOdds",
+      "outputs": [
+        {
+          "internalType": "uint8[]",
+          "name": "",
+          "type": "uint8[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCumulativeCharacterTypeOdds",
+      "outputs": [
+        {
+          "internalType": "uint8[]",
+          "name": "",
+          "type": "uint8[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getNumImg",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPoolingPercentage",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "calcLevelPoint((bytes32,uint256,uint256,string,uint8,uint8,uint8[1])[4])": "c9f2ceb2",
+    "calcPower(uint8,(bytes32,uint256,uint256,string,uint8,uint8,uint8[1]),uint8,uint32,(bytes32,uint256,uint256,string,uint8,uint8,uint8[1]))": "3fa9b6db",
+    "calcRandomSlotLevel((bytes32,uint256,uint256,string,uint8,uint8,uint8[1])[4])": "ae404eda",
+    "countAttributes()": "b229bd4e",
+    "countCharacterTypes()": "996b39fd",
+    "getAttributeRarities()": "2908238a",
+    "getCharacterTypes()": "67a2f53e",
+    "getCumulativeAttributeOdds()": "b9dfbd36",
+    "getCumulativeCharacterTypeOdds()": "1fc18f2f",
+    "getNumImg()": "3f82c72b",
+    "getPoolingPercentage(uint256)": "07a7682b"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"imgId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fromBlock\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"characterType\",\"type\":\"string\"},{\"internalType\":\"uint8\",\"name\":\"level\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"rarity\",\"type\":\"uint8\"},{\"internalType\":\"uint8[1]\",\"name\":\"attributeIds\",\"type\":\"uint8[1]\"}],\"internalType\":\"struct IPLMData.CharacterInfo[4]\",\"name\":\"charInfos\",\"type\":\"tuple[4]\"}],\"name\":\"calcLevelPoint\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"numRounds\",\"type\":\"uint8\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"imgId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fromBlock\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"characterType\",\"type\":\"string\"},{\"internalType\":\"uint8\",\"name\":\"level\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"rarity\",\"type\":\"uint8\"},{\"internalType\":\"uint8[1]\",\"name\":\"attributeIds\",\"type\":\"uint8[1]\"}],\"internalType\":\"struct IPLMData.CharacterInfo\",\"name\":\"player1Char\",\"type\":\"tuple\"},{\"internalType\":\"uint8\",\"name\":\"player1LevelPoint\",\"type\":\"uint8\"},{\"internalType\":\"uint32\",\"name\":\"player1BondLevel\",\"type\":\"uint32\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"imgId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fromBlock\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"characterType\",\"type\":\"string\"},{\"internalType\":\"uint8\",\"name\":\"level\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"rarity\",\"type\":\"uint8\"},{\"internalType\":\"uint8[1]\",\"name\":\"attributeIds\",\"type\":\"uint8[1]\"}],\"internalType\":\"struct IPLMData.CharacterInfo\",\"name\":\"player2Char\",\"type\":\"tuple\"}],\"name\":\"calcPower\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"name\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"imgId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fromBlock\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"characterType\",\"type\":\"string\"},{\"internalType\":\"uint8\",\"name\":\"level\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"rarity\",\"type\":\"uint8\"},{\"internalType\":\"uint8[1]\",\"name\":\"attributeIds\",\"type\":\"uint8[1]\"}],\"internalType\":\"struct IPLMData.CharacterInfo[4]\",\"name\":\"charInfos\",\"type\":\"tuple[4]\"}],\"name\":\"calcRandomSlotLevel\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"countAttributes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"countCharacterTypes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAttributeRarities\",\"outputs\":[{\"internalType\":\"uint8[]\",\"name\":\"\",\"type\":\"uint8[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCharacterTypes\",\"outputs\":[{\"internalType\":\"string[]\",\"name\":\"\",\"type\":\"string[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCumulativeAttributeOdds\",\"outputs\":[{\"internalType\":\"uint8[]\",\"name\":\"\",\"type\":\"uint8[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCumulativeCharacterTypeOdds\",\"outputs\":[{\"internalType\":\"uint8[]\",\"name\":\"\",\"type\":\"uint8[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getNumImg\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"getPoolingPercentage\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IPLMData.sol\":\"IPLMData\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\"]},\"sources\":{\"src/interfaces/IPLMData.sol\":{\"keccak256\":\"0x05ea0e81356327bb8fd44dc1c73546464c678604d2b686a9212c86826690a22e\",\"urls\":[\"bzz-raw://060e6084ff4e39990ba60e547135c707edc33fa8cfe0d0eefbbeb5b70952c2a4\",\"dweb:/ipfs/QmPiZ8633VwE1vh2pqFupz7ExYU8p4ZUKvJ6Zx39rqbGAH\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "struct IPLMData.CharacterInfo[4]",
+              "name": "charInfos",
+              "type": "tuple[4]",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "name",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "imgId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "fromBlock",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "characterType",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "level",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rarity",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8[1]",
+                  "name": "attributeIds",
+                  "type": "uint8[1]"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "calcLevelPoint",
+          "outputs": [
+            {
+              "internalType": "uint8",
+              "name": "",
+              "type": "uint8"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint8",
+              "name": "numRounds",
+              "type": "uint8"
+            },
+            {
+              "internalType": "struct IPLMData.CharacterInfo",
+              "name": "player1Char",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "name",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "imgId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "fromBlock",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "characterType",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "level",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rarity",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8[1]",
+                  "name": "attributeIds",
+                  "type": "uint8[1]"
+                }
+              ]
+            },
+            {
+              "internalType": "uint8",
+              "name": "player1LevelPoint",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint32",
+              "name": "player1BondLevel",
+              "type": "uint32"
+            },
+            {
+              "internalType": "struct IPLMData.CharacterInfo",
+              "name": "player2Char",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "name",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "imgId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "fromBlock",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "characterType",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "level",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rarity",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8[1]",
+                  "name": "attributeIds",
+                  "type": "uint8[1]"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "calcPower",
+          "outputs": [
+            {
+              "internalType": "uint32",
+              "name": "",
+              "type": "uint32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "struct IPLMData.CharacterInfo[4]",
+              "name": "charInfos",
+              "type": "tuple[4]",
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "name",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "imgId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "fromBlock",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "characterType",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "level",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rarity",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8[1]",
+                  "name": "attributeIds",
+                  "type": "uint8[1]"
+                }
+              ]
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "calcRandomSlotLevel",
+          "outputs": [
+            {
+              "internalType": "uint8",
+              "name": "",
+              "type": "uint8"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "countAttributes",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "countCharacterTypes",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getAttributeRarities",
+          "outputs": [
+            {
+              "internalType": "uint8[]",
+              "name": "",
+              "type": "uint8[]"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getCharacterTypes",
+          "outputs": [
+            {
+              "internalType": "string[]",
+              "name": "",
+              "type": "string[]"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getCumulativeAttributeOdds",
+          "outputs": [
+            {
+              "internalType": "uint8[]",
+              "name": "",
+              "type": "uint8[]"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getCumulativeCharacterTypeOdds",
+          "outputs": [
+            {
+              "internalType": "uint8[]",
+              "name": "",
+              "type": "uint8[]"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getNumImg",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getPoolingPercentage",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interfaces/IPLMData.sol": "IPLMData"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/interfaces/IPLMData.sol": {
+        "keccak256": "0x05ea0e81356327bb8fd44dc1c73546464c678604d2b686a9212c86826690a22e",
+        "urls": [
+          "bzz-raw://060e6084ff4e39990ba60e547135c707edc33fa8cfe0d0eefbbeb5b70952c2a4",
+          "dweb:/ipfs/QmPiZ8633VwE1vh2pqFupz7ExYU8p4ZUKvJ6Zx39rqbGAH"
+        ],
+        "license": null
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/interfaces/IPLMData.sol",
+    "id": 31403,
+    "exportedSymbols": {
+      "IPLMData": [
+        31402
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "0:1391:33",
+    "nodes": [
+      {
+        "id": 31402,
+        "nodeType": "ContractDefinition",
+        "src": "0:1390:33",
+        "nodes": [
+          {
+            "id": 31318,
+            "nodeType": "StructDefinition",
+            "src": "25:204:33",
+            "nodes": [],
+            "canonicalName": "IPLMData.CharacterInfo",
+            "members": [
+              {
+                "constant": false,
+                "id": 31303,
+                "mutability": "mutable",
+                "name": "name",
+                "nameLocation": "64:4:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "56:12:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 31302,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "56:7:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31305,
+                "mutability": "mutable",
+                "name": "imgId",
+                "nameLocation": "86:5:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "78:13:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 31304,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "78:7:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31307,
+                "mutability": "mutable",
+                "name": "fromBlock",
+                "nameLocation": "109:9:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "101:17:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 31306,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "101:7:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31309,
+                "mutability": "mutable",
+                "name": "characterType",
+                "nameLocation": "135:13:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "128:20:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 31308,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "128:6:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31311,
+                "mutability": "mutable",
+                "name": "level",
+                "nameLocation": "164:5:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "158:11:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 31310,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "158:5:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31313,
+                "mutability": "mutable",
+                "name": "rarity",
+                "nameLocation": "185:6:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "179:12:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 31312,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "179:5:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31317,
+                "mutability": "mutable",
+                "name": "attributeIds",
+                "nameLocation": "210:12:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 31318,
+                "src": "201:21:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_uint8_$1_storage_ptr",
+                  "typeString": "uint8[1]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 31314,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "201:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "id": 31316,
+                  "length": {
+                    "hexValue": "31",
+                    "id": 31315,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "207:1:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_1_by_1",
+                      "typeString": "int_const 1"
+                    },
+                    "value": "1"
+                  },
+                  "nodeType": "ArrayTypeName",
+                  "src": "201:8:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint8_$1_storage_ptr",
+                    "typeString": "uint8[1]"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "CharacterInfo",
+            "nameLocation": "32:13:33",
+            "scope": 31402,
+            "visibility": "public"
+          },
+          {
+            "id": 31324,
+            "nodeType": "FunctionDefinition",
+            "src": "235:69:33",
+            "nodes": [],
+            "functionSelector": "67a2f53e",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getCharacterTypes",
+            "nameLocation": "244:17:33",
+            "parameters": {
+              "id": 31319,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "261:2:33"
+            },
+            "returnParameters": {
+              "id": 31323,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31322,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31324,
+                  "src": "287:15:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_string_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "string[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 31320,
+                      "name": "string",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "287:6:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_string_storage_ptr",
+                        "typeString": "string"
+                      }
+                    },
+                    "id": 31321,
+                    "nodeType": "ArrayTypeName",
+                    "src": "287:8:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_string_storage_$dyn_storage_ptr",
+                      "typeString": "string[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "286:17:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31329,
+            "nodeType": "FunctionDefinition",
+            "src": "310:63:33",
+            "nodes": [],
+            "functionSelector": "996b39fd",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "countCharacterTypes",
+            "nameLocation": "319:19:33",
+            "parameters": {
+              "id": 31325,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "338:2:33"
+            },
+            "returnParameters": {
+              "id": 31328,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31327,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31329,
+                  "src": "364:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31326,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "364:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "363:9:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31335,
+            "nodeType": "FunctionDefinition",
+            "src": "379:105:33",
+            "nodes": [],
+            "functionSelector": "1fc18f2f",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getCumulativeCharacterTypeOdds",
+            "nameLocation": "388:30:33",
+            "parameters": {
+              "id": 31330,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "418:2:33"
+            },
+            "returnParameters": {
+              "id": 31334,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31333,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31335,
+                  "src": "468:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint8_$dyn_memory_ptr",
+                    "typeString": "uint8[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 31331,
+                      "name": "uint8",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "468:5:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint8",
+                        "typeString": "uint8"
+                      }
+                    },
+                    "id": 31332,
+                    "nodeType": "ArrayTypeName",
+                    "src": "468:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint8_$dyn_storage_ptr",
+                      "typeString": "uint8[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "467:16:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31341,
+            "nodeType": "FunctionDefinition",
+            "src": "490:71:33",
+            "nodes": [],
+            "functionSelector": "2908238a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getAttributeRarities",
+            "nameLocation": "499:20:33",
+            "parameters": {
+              "id": 31336,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "519:2:33"
+            },
+            "returnParameters": {
+              "id": 31340,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31339,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31341,
+                  "src": "545:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint8_$dyn_memory_ptr",
+                    "typeString": "uint8[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 31337,
+                      "name": "uint8",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "545:5:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint8",
+                        "typeString": "uint8"
+                      }
+                    },
+                    "id": 31338,
+                    "nodeType": "ArrayTypeName",
+                    "src": "545:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint8_$dyn_storage_ptr",
+                      "typeString": "uint8[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "544:16:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31346,
+            "nodeType": "FunctionDefinition",
+            "src": "567:59:33",
+            "nodes": [],
+            "functionSelector": "b229bd4e",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "countAttributes",
+            "nameLocation": "576:15:33",
+            "parameters": {
+              "id": 31342,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "591:2:33"
+            },
+            "returnParameters": {
+              "id": 31345,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31344,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31346,
+                  "src": "617:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31343,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "617:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "616:9:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31352,
+            "nodeType": "FunctionDefinition",
+            "src": "632:101:33",
+            "nodes": [],
+            "functionSelector": "b9dfbd36",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getCumulativeAttributeOdds",
+            "nameLocation": "641:26:33",
+            "parameters": {
+              "id": 31347,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "667:2:33"
+            },
+            "returnParameters": {
+              "id": 31351,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31350,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31352,
+                  "src": "717:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint8_$dyn_memory_ptr",
+                    "typeString": "uint8[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 31348,
+                      "name": "uint8",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "717:5:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint8",
+                        "typeString": "uint8"
+                      }
+                    },
+                    "id": 31349,
+                    "nodeType": "ArrayTypeName",
+                    "src": "717:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint8_$dyn_storage_ptr",
+                      "typeString": "uint8[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "716:16:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31357,
+            "nodeType": "FunctionDefinition",
+            "src": "739:53:33",
+            "nodes": [],
+            "functionSelector": "3f82c72b",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getNumImg",
+            "nameLocation": "748:9:33",
+            "parameters": {
+              "id": 31353,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "757:2:33"
+            },
+            "returnParameters": {
+              "id": 31356,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31355,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31357,
+                  "src": "783:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31354,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "783:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "782:9:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31374,
+            "nodeType": "FunctionDefinition",
+            "src": "798:235:33",
+            "nodes": [],
+            "functionSelector": "3fa9b6db",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "calcPower",
+            "nameLocation": "807:9:33",
+            "parameters": {
+              "id": 31370,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31359,
+                  "mutability": "mutable",
+                  "name": "numRounds",
+                  "nameLocation": "832:9:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31374,
+                  "src": "826:15:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  },
+                  "typeName": {
+                    "id": 31358,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "826:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31362,
+                  "mutability": "mutable",
+                  "name": "player1Char",
+                  "nameLocation": "874:11:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31374,
+                  "src": "851:34:33",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_CharacterInfo_$31318_calldata_ptr",
+                    "typeString": "struct IPLMData.CharacterInfo"
+                  },
+                  "typeName": {
+                    "id": 31361,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31360,
+                      "name": "CharacterInfo",
+                      "nameLocations": [
+                        "851:13:33"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31318,
+                      "src": "851:13:33"
+                    },
+                    "referencedDeclaration": 31318,
+                    "src": "851:13:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_CharacterInfo_$31318_storage_ptr",
+                      "typeString": "struct IPLMData.CharacterInfo"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31364,
+                  "mutability": "mutable",
+                  "name": "player1LevelPoint",
+                  "nameLocation": "901:17:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31374,
+                  "src": "895:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  },
+                  "typeName": {
+                    "id": 31363,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "895:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31366,
+                  "mutability": "mutable",
+                  "name": "player1BondLevel",
+                  "nameLocation": "935:16:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31374,
+                  "src": "928:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  },
+                  "typeName": {
+                    "id": 31365,
+                    "name": "uint32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "928:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint32",
+                      "typeString": "uint32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31369,
+                  "mutability": "mutable",
+                  "name": "player2Char",
+                  "nameLocation": "984:11:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31374,
+                  "src": "961:34:33",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_CharacterInfo_$31318_calldata_ptr",
+                    "typeString": "struct IPLMData.CharacterInfo"
+                  },
+                  "typeName": {
+                    "id": 31368,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31367,
+                      "name": "CharacterInfo",
+                      "nameLocations": [
+                        "961:13:33"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31318,
+                      "src": "961:13:33"
+                    },
+                    "referencedDeclaration": 31318,
+                    "src": "961:13:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_CharacterInfo_$31318_storage_ptr",
+                      "typeString": "struct IPLMData.CharacterInfo"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "816:185:33"
+            },
+            "returnParameters": {
+              "id": 31373,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31372,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31374,
+                  "src": "1025:6:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint32",
+                    "typeString": "uint32"
+                  },
+                  "typeName": {
+                    "id": 31371,
+                    "name": "uint32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1025:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint32",
+                      "typeString": "uint32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1024:8:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31384,
+            "nodeType": "FunctionDefinition",
+            "src": "1039:115:33",
+            "nodes": [],
+            "functionSelector": "c9f2ceb2",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "calcLevelPoint",
+            "nameLocation": "1048:14:33",
+            "parameters": {
+              "id": 31380,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31379,
+                  "mutability": "mutable",
+                  "name": "charInfos",
+                  "nameLocation": "1089:9:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31384,
+                  "src": "1063:35:33",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_CharacterInfo_$31318_calldata_ptr_$4_calldata_ptr",
+                    "typeString": "struct IPLMData.CharacterInfo[4]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 31376,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 31375,
+                        "name": "CharacterInfo",
+                        "nameLocations": [
+                          "1063:13:33"
+                        ],
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 31318,
+                        "src": "1063:13:33"
+                      },
+                      "referencedDeclaration": 31318,
+                      "src": "1063:13:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_CharacterInfo_$31318_storage_ptr",
+                        "typeString": "struct IPLMData.CharacterInfo"
+                      }
+                    },
+                    "id": 31378,
+                    "length": {
+                      "hexValue": "34",
+                      "id": 31377,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "1077:1:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_4_by_1",
+                        "typeString": "int_const 4"
+                      },
+                      "value": "4"
+                    },
+                    "nodeType": "ArrayTypeName",
+                    "src": "1063:16:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_CharacterInfo_$31318_storage_$4_storage_ptr",
+                      "typeString": "struct IPLMData.CharacterInfo[4]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1062:37:33"
+            },
+            "returnParameters": {
+              "id": 31383,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31382,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31384,
+                  "src": "1147:5:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  },
+                  "typeName": {
+                    "id": 31381,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1147:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1146:7:33"
+            },
+            "scope": 31402,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31394,
+            "nodeType": "FunctionDefinition",
+            "src": "1160:120:33",
+            "nodes": [],
+            "functionSelector": "ae404eda",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "calcRandomSlotLevel",
+            "nameLocation": "1169:19:33",
+            "parameters": {
+              "id": 31390,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31389,
+                  "mutability": "mutable",
+                  "name": "charInfos",
+                  "nameLocation": "1215:9:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31394,
+                  "src": "1189:35:33",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_CharacterInfo_$31318_calldata_ptr_$4_calldata_ptr",
+                    "typeString": "struct IPLMData.CharacterInfo[4]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 31386,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 31385,
+                        "name": "CharacterInfo",
+                        "nameLocations": [
+                          "1189:13:33"
+                        ],
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 31318,
+                        "src": "1189:13:33"
+                      },
+                      "referencedDeclaration": 31318,
+                      "src": "1189:13:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_CharacterInfo_$31318_storage_ptr",
+                        "typeString": "struct IPLMData.CharacterInfo"
+                      }
+                    },
+                    "id": 31388,
+                    "length": {
+                      "hexValue": "34",
+                      "id": 31387,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "1203:1:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_4_by_1",
+                        "typeString": "int_const 4"
+                      },
+                      "value": "4"
+                    },
+                    "nodeType": "ArrayTypeName",
+                    "src": "1189:16:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_CharacterInfo_$31318_storage_$4_storage_ptr",
+                      "typeString": "struct IPLMData.CharacterInfo[4]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1188:37:33"
+            },
+            "returnParameters": {
+              "id": 31393,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31392,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31394,
+                  "src": "1273:5:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  },
+                  "typeName": {
+                    "id": 31391,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1273:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1272:7:33"
+            },
+            "scope": 31402,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31401,
+            "nodeType": "FunctionDefinition",
+            "src": "1286:102:33",
+            "nodes": [],
+            "functionSelector": "07a7682b",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPoolingPercentage",
+            "nameLocation": "1295:20:33",
+            "parameters": {
+              "id": 31397,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31396,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "1324:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31401,
+                  "src": "1316:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31395,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1316:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1315:16:33"
+            },
+            "returnParameters": {
+              "id": 31400,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31399,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31401,
+                  "src": "1379:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 31398,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1379:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1378:9:33"
+            },
+            "scope": 31402,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IPLMData",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          31402
+        ],
+        "name": "IPLMData",
+        "nameLocation": "10:8:33",
+        "scope": 31403,
+        "usedErrors": []
+      }
+    ]
+  },
+  "id": 33
+}

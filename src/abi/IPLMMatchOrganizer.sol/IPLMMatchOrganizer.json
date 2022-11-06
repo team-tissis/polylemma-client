@@ -1,0 +1,1269 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposer",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint16",
+              "name": "upperBound",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "lowerBound",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "totalLevel",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "startBlockNum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256[4]",
+              "name": "fixedSlots",
+              "type": "uint256[4]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IPLMMatchOrganizer.BattleProposal",
+          "name": "createdProp",
+          "type": "tuple"
+        }
+      ],
+      "name": "ProposalCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposer",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint16",
+              "name": "upperBound",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "lowerBound",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "totalLevel",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "startBlockNum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256[4]",
+              "name": "fixedSlots",
+              "type": "uint256[4]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IPLMMatchOrganizer.BattleProposal",
+          "name": "deletedProp",
+          "type": "tuple"
+        }
+      ],
+      "name": "ProposalDeleted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "ProposerIsNotOwner",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "challenfer",
+          "type": "address"
+        }
+      ],
+      "name": "RequestRejected",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IPLMBattleField",
+          "name": "_bf",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_battleField",
+          "type": "address"
+        }
+      ],
+      "name": "setIPLMBattleField",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        }
+      ],
+      "name": "setNonProposal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "proposer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "challenger",
+          "type": "address"
+        }
+      ],
+      "name": "updateProposalState2NonProposal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "setIPLMBattleField(address,address)": "bb7daf04",
+    "setNonProposal(address)": "00976b7c",
+    "updateProposalState2NonProposal(address,address)": "443bb946"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"upperBound\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"lowerBound\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"totalLevel\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"startBlockNum\",\"type\":\"uint256\"},{\"internalType\":\"uint256[4]\",\"name\":\"fixedSlots\",\"type\":\"uint256[4]\"}],\"indexed\":false,\"internalType\":\"struct IPLMMatchOrganizer.BattleProposal\",\"name\":\"createdProp\",\"type\":\"tuple\"}],\"name\":\"ProposalCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"upperBound\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"lowerBound\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"totalLevel\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"startBlockNum\",\"type\":\"uint256\"},{\"internalType\":\"uint256[4]\",\"name\":\"fixedSlots\",\"type\":\"uint256[4]\"}],\"indexed\":false,\"internalType\":\"struct IPLMMatchOrganizer.BattleProposal\",\"name\":\"deletedProp\",\"type\":\"tuple\"}],\"name\":\"ProposalDeleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"ProposerIsNotOwner\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"challenfer\",\"type\":\"address\"}],\"name\":\"RequestRejected\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contract IPLMBattleField\",\"name\":\"_bf\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_battleField\",\"type\":\"address\"}],\"name\":\"setIPLMBattleField\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"player\",\"type\":\"address\"}],\"name\":\"setNonProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"challenger\",\"type\":\"address\"}],\"name\":\"updateProposalState2NonProposal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"setNonProposal(address)\":{\"notice\":\"FUNCTION FOR DEMO ///\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IPLMMatchOrganizer.sol\":\"IPLMMatchOrganizer\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x086fbe904291497e1532ef340f1bd589078f49e3d4d0bbfd88f5e02fb89261eb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0df1e3e965b78a0d98dda2d1d6a6acde88f515b1d3a9ad02f505e93fa7babeda\",\"dweb:/ipfs/QmW4cSbGriRAj7XRZu6zSaqspe4eyYWkF7WfJbj3rmmLbk\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol\":{\"keccak256\":\"0xd1556954440b31c97a142c6ba07d5cade45f96fafd52091d33a14ebe365aecbf\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://26fef835622b46a5ba08b3ef6b46a22e94b5f285d0f0fb66b703bd30217d2c34\",\"dweb:/ipfs/QmZ548qdwfL1qF7aXz3xh1GCdTiST81kGGuKRqVUfYmPZR\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"src/interfaces/IPLMBattleField.sol\":{\"keccak256\":\"0xbe354cc603eeee22c465ab30e5575eac5ea6d81f4f812e58b38ad74718a7f6f4\",\"urls\":[\"bzz-raw://7c2b454d1c1a4534ff61dd0f277cab44aef41c727c88944c3842b997018f26ab\",\"dweb:/ipfs/QmRqQ9bRs6vuD2LhccKYfuxNjyegjb4adTofeGSbe1VU2a\"]},\"src/interfaces/IPLMData.sol\":{\"keccak256\":\"0x05ea0e81356327bb8fd44dc1c73546464c678604d2b686a9212c86826690a22e\",\"urls\":[\"bzz-raw://060e6084ff4e39990ba60e547135c707edc33fa8cfe0d0eefbbeb5b70952c2a4\",\"dweb:/ipfs/QmPiZ8633VwE1vh2pqFupz7ExYU8p4ZUKvJ6Zx39rqbGAH\"]},\"src/interfaces/IPLMMatchOrganizer.sol\":{\"keccak256\":\"0xd8f87421755ff1814b28baa2a92937611591f64e4a2f44d2bbd62c5b0dc18591\",\"urls\":[\"bzz-raw://8791cd87fcefc5ff02e91a1d8a8acaad037bd95870f267179a2ac68aa3a0ed8b\",\"dweb:/ipfs/QmXGmexfvoi6hyg5Q7aUuxDPDkrE6JnAccydJTNHhxX39j\"]},\"src/interfaces/IPLMToken.sol\":{\"keccak256\":\"0xd0e167b3804523339fc8f44b7e01e5afd184d3d3c4a8d5f09077ed9de2e574dc\",\"urls\":[\"bzz-raw://f4a4e89a299d16c5bf3a86a43ff927e67438b027b44475218beb749cc717b88d\",\"dweb:/ipfs/QmZX25RjyXdwvJmog2JvfvBSs6Mzt2yNhQcae8SRsGsbrj\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.17+commit.8df45f5f"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "struct IPLMMatchOrganizer.BattleProposal",
+              "name": "createdProp",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "proposer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "upperBound",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "lowerBound",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "totalLevel",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "startBlockNum",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256[4]",
+                  "name": "fixedSlots",
+                  "type": "uint256[4]"
+                }
+              ],
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "ProposalCreated",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "struct IPLMMatchOrganizer.BattleProposal",
+              "name": "deletedProp",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "proposer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "upperBound",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "lowerBound",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "totalLevel",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "startBlockNum",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256[4]",
+                  "name": "fixedSlots",
+                  "type": "uint256[4]"
+                }
+              ],
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "ProposalDeleted",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "reason",
+              "type": "string",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "ProposerIsNotOwner",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "challenfer",
+              "type": "address",
+              "indexed": true
+            }
+          ],
+          "type": "event",
+          "name": "RequestRejected",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "contract IPLMBattleField",
+              "name": "_bf",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_battleField",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setIPLMBattleField"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "player",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setNonProposal"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "challenger",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "updateProposalState2NonProposal"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "setNonProposal(address)": {
+            "notice": "FUNCTION FOR DEMO ///"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interfaces/IPLMMatchOrganizer.sol": "IPLMMatchOrganizer"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol": {
+        "keccak256": "0x086fbe904291497e1532ef340f1bd589078f49e3d4d0bbfd88f5e02fb89261eb",
+        "urls": [
+          "bzz-raw://0df1e3e965b78a0d98dda2d1d6a6acde88f515b1d3a9ad02f505e93fa7babeda",
+          "dweb:/ipfs/QmW4cSbGriRAj7XRZu6zSaqspe4eyYWkF7WfJbj3rmmLbk"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+        "keccak256": "0xd1556954440b31c97a142c6ba07d5cade45f96fafd52091d33a14ebe365aecbf",
+        "urls": [
+          "bzz-raw://26fef835622b46a5ba08b3ef6b46a22e94b5f285d0f0fb66b703bd30217d2c34",
+          "dweb:/ipfs/QmZ548qdwfL1qF7aXz3xh1GCdTiST81kGGuKRqVUfYmPZR"
+        ],
+        "license": "MIT"
+      },
+      "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol": {
+        "keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+        "urls": [
+          "bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f",
+          "dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
+        ],
+        "license": "MIT"
+      },
+      "src/interfaces/IPLMBattleField.sol": {
+        "keccak256": "0xbe354cc603eeee22c465ab30e5575eac5ea6d81f4f812e58b38ad74718a7f6f4",
+        "urls": [
+          "bzz-raw://7c2b454d1c1a4534ff61dd0f277cab44aef41c727c88944c3842b997018f26ab",
+          "dweb:/ipfs/QmRqQ9bRs6vuD2LhccKYfuxNjyegjb4adTofeGSbe1VU2a"
+        ],
+        "license": null
+      },
+      "src/interfaces/IPLMData.sol": {
+        "keccak256": "0x05ea0e81356327bb8fd44dc1c73546464c678604d2b686a9212c86826690a22e",
+        "urls": [
+          "bzz-raw://060e6084ff4e39990ba60e547135c707edc33fa8cfe0d0eefbbeb5b70952c2a4",
+          "dweb:/ipfs/QmPiZ8633VwE1vh2pqFupz7ExYU8p4ZUKvJ6Zx39rqbGAH"
+        ],
+        "license": null
+      },
+      "src/interfaces/IPLMMatchOrganizer.sol": {
+        "keccak256": "0xd8f87421755ff1814b28baa2a92937611591f64e4a2f44d2bbd62c5b0dc18591",
+        "urls": [
+          "bzz-raw://8791cd87fcefc5ff02e91a1d8a8acaad037bd95870f267179a2ac68aa3a0ed8b",
+          "dweb:/ipfs/QmXGmexfvoi6hyg5Q7aUuxDPDkrE6JnAccydJTNHhxX39j"
+        ],
+        "license": null
+      },
+      "src/interfaces/IPLMToken.sol": {
+        "keccak256": "0xd0e167b3804523339fc8f44b7e01e5afd184d3d3c4a8d5f09077ed9de2e574dc",
+        "urls": [
+          "bzz-raw://f4a4e89a299d16c5bf3a86a43ff927e67438b027b44475218beb749cc717b88d",
+          "dweb:/ipfs/QmZX25RjyXdwvJmog2JvfvBSs6Mzt2yNhQcae8SRsGsbrj"
+        ],
+        "license": null
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/interfaces/IPLMMatchOrganizer.sol",
+    "id": 31923,
+    "exportedSymbols": {
+      "IPLMBattleField": [
+        31567
+      ],
+      "IPLMMatchOrganizer": [
+        31922
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "0:1045:37",
+    "nodes": [
+      {
+        "id": 31859,
+        "nodeType": "ImportDirective",
+        "src": "0:54:37",
+        "nodes": [],
+        "absolutePath": "src/interfaces/IPLMBattleField.sol",
+        "file": "./IPLMBattleField.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 31923,
+        "sourceUnit": 31568,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 31858,
+              "name": "IPLMBattleField",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 31567,
+              "src": "8:15:37",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 31922,
+        "nodeType": "ContractDefinition",
+        "src": "56:988:37",
+        "nodes": [
+          {
+            "id": 31874,
+            "nodeType": "StructDefinition",
+            "src": "91:198:37",
+            "nodes": [],
+            "canonicalName": "IPLMMatchOrganizer.BattleProposal",
+            "members": [
+              {
+                "constant": false,
+                "id": 31861,
+                "mutability": "mutable",
+                "name": "proposer",
+                "nameLocation": "131:8:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 31874,
+                "src": "123:16:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 31860,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "123:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31863,
+                "mutability": "mutable",
+                "name": "upperBound",
+                "nameLocation": "156:10:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 31874,
+                "src": "149:17:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint16",
+                  "typeString": "uint16"
+                },
+                "typeName": {
+                  "id": 31862,
+                  "name": "uint16",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "149:6:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint16",
+                    "typeString": "uint16"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31865,
+                "mutability": "mutable",
+                "name": "lowerBound",
+                "nameLocation": "183:10:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 31874,
+                "src": "176:17:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint16",
+                  "typeString": "uint16"
+                },
+                "typeName": {
+                  "id": 31864,
+                  "name": "uint16",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "176:6:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint16",
+                    "typeString": "uint16"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31867,
+                "mutability": "mutable",
+                "name": "totalLevel",
+                "nameLocation": "210:10:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 31874,
+                "src": "203:17:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint16",
+                  "typeString": "uint16"
+                },
+                "typeName": {
+                  "id": 31866,
+                  "name": "uint16",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "203:6:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint16",
+                    "typeString": "uint16"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31869,
+                "mutability": "mutable",
+                "name": "startBlockNum",
+                "nameLocation": "238:13:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 31874,
+                "src": "230:21:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 31868,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "230:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 31873,
+                "mutability": "mutable",
+                "name": "fixedSlots",
+                "nameLocation": "272:10:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 31874,
+                "src": "261:21:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_uint256_$4_storage_ptr",
+                  "typeString": "uint256[4]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 31870,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "261:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 31872,
+                  "length": {
+                    "hexValue": "34",
+                    "id": 31871,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "number",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "269:1:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_rational_4_by_1",
+                      "typeString": "int_const 4"
+                    },
+                    "value": "4"
+                  },
+                  "nodeType": "ArrayTypeName",
+                  "src": "261:10:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$4_storage_ptr",
+                    "typeString": "uint256[4]"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "BattleProposal",
+            "nameLocation": "98:14:37",
+            "scope": 31922,
+            "visibility": "public"
+          },
+          {
+            "id": 31878,
+            "nodeType": "EnumDefinition",
+            "src": "295:79:37",
+            "nodes": [],
+            "canonicalName": "IPLMMatchOrganizer.MatchState",
+            "members": [
+              {
+                "id": 31875,
+                "name": "NonProposal",
+                "nameLocation": "321:11:37",
+                "nodeType": "EnumValue",
+                "src": "321:11:37"
+              },
+              {
+                "id": 31876,
+                "name": "Proposal",
+                "nameLocation": "342:8:37",
+                "nodeType": "EnumValue",
+                "src": "342:8:37"
+              },
+              {
+                "id": 31877,
+                "name": "InBattle",
+                "nameLocation": "360:8:37",
+                "nodeType": "EnumValue",
+                "src": "360:8:37"
+              }
+            ],
+            "name": "MatchState",
+            "nameLocation": "300:10:37"
+          },
+          {
+            "id": 31882,
+            "nodeType": "EventDefinition",
+            "src": "380:50:37",
+            "nodes": [],
+            "anonymous": false,
+            "eventSelector": "03208836a392edb52d2429b9dc233e88cfe29e7006e6a59a33b7af76ecd6b406",
+            "name": "RequestRejected",
+            "nameLocation": "386:15:37",
+            "parameters": {
+              "id": 31881,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31880,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "challenfer",
+                  "nameLocation": "418:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31882,
+                  "src": "402:26:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31879,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "402:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "401:28:37"
+            }
+          },
+          {
+            "id": 31889,
+            "nodeType": "EventDefinition",
+            "src": "436:76:37",
+            "nodes": [],
+            "anonymous": false,
+            "eventSelector": "3771c6c388ae06ff764655adcf73f099db2bd7add01d0f526c0d915bde067487",
+            "name": "ProposalCreated",
+            "nameLocation": "442:15:37",
+            "parameters": {
+              "id": 31888,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31884,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "proposer",
+                  "nameLocation": "474:8:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31889,
+                  "src": "458:24:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31883,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "458:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31887,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "createdProp",
+                  "nameLocation": "499:11:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31889,
+                  "src": "484:26:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_BattleProposal_$31874_memory_ptr",
+                    "typeString": "struct IPLMMatchOrganizer.BattleProposal"
+                  },
+                  "typeName": {
+                    "id": 31886,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31885,
+                      "name": "BattleProposal",
+                      "nameLocations": [
+                        "484:14:37"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31874,
+                      "src": "484:14:37"
+                    },
+                    "referencedDeclaration": 31874,
+                    "src": "484:14:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_BattleProposal_$31874_storage_ptr",
+                      "typeString": "struct IPLMMatchOrganizer.BattleProposal"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "457:54:37"
+            }
+          },
+          {
+            "id": 31896,
+            "nodeType": "EventDefinition",
+            "src": "518:76:37",
+            "nodes": [],
+            "anonymous": false,
+            "eventSelector": "7fd58e021500601b8b1679b459905b6d15d0576fb6d7f38e5b36a69d38cdd373",
+            "name": "ProposalDeleted",
+            "nameLocation": "524:15:37",
+            "parameters": {
+              "id": 31895,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31891,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "proposer",
+                  "nameLocation": "556:8:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31896,
+                  "src": "540:24:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31890,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "540:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31894,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "deletedProp",
+                  "nameLocation": "581:11:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31896,
+                  "src": "566:26:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_BattleProposal_$31874_memory_ptr",
+                    "typeString": "struct IPLMMatchOrganizer.BattleProposal"
+                  },
+                  "typeName": {
+                    "id": 31893,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31892,
+                      "name": "BattleProposal",
+                      "nameLocations": [
+                        "566:14:37"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31874,
+                      "src": "566:14:37"
+                    },
+                    "referencedDeclaration": 31874,
+                    "src": "566:14:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_BattleProposal_$31874_storage_ptr",
+                      "typeString": "struct IPLMMatchOrganizer.BattleProposal"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "539:54:37"
+            }
+          },
+          {
+            "id": 31900,
+            "nodeType": "EventDefinition",
+            "src": "600:40:37",
+            "nodes": [],
+            "anonymous": false,
+            "eventSelector": "515e3469154290b939777baa70802ad858b88f3addb0341ea56dd3a9fe2e2c8a",
+            "name": "ProposerIsNotOwner",
+            "nameLocation": "606:18:37",
+            "parameters": {
+              "id": 31899,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31898,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "reason",
+                  "nameLocation": "632:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31900,
+                  "src": "625:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 31897,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "625:6:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "624:15:37"
+            }
+          },
+          {
+            "id": 31907,
+            "nodeType": "FunctionDefinition",
+            "src": "646:110:37",
+            "nodes": [],
+            "functionSelector": "443bb946",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "updateProposalState2NonProposal",
+            "nameLocation": "655:31:37",
+            "parameters": {
+              "id": 31905,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31902,
+                  "mutability": "mutable",
+                  "name": "proposer",
+                  "nameLocation": "704:8:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31907,
+                  "src": "696:16:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31901,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "696:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31904,
+                  "mutability": "mutable",
+                  "name": "challenger",
+                  "nameLocation": "730:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31907,
+                  "src": "722:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31903,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "722:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "686:60:37"
+            },
+            "returnParameters": {
+              "id": 31906,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "755:0:37"
+            },
+            "scope": 31922,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31915,
+            "nodeType": "FunctionDefinition",
+            "src": "762:88:37",
+            "nodes": [],
+            "functionSelector": "bb7daf04",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setIPLMBattleField",
+            "nameLocation": "771:18:37",
+            "parameters": {
+              "id": 31913,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31910,
+                  "mutability": "mutable",
+                  "name": "_bf",
+                  "nameLocation": "806:3:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31915,
+                  "src": "790:19:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IPLMBattleField_$31567",
+                    "typeString": "contract IPLMBattleField"
+                  },
+                  "typeName": {
+                    "id": 31909,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 31908,
+                      "name": "IPLMBattleField",
+                      "nameLocations": [
+                        "790:15:37"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31567,
+                      "src": "790:15:37"
+                    },
+                    "referencedDeclaration": 31567,
+                    "src": "790:15:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IPLMBattleField_$31567",
+                      "typeString": "contract IPLMBattleField"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 31912,
+                  "mutability": "mutable",
+                  "name": "_battleField",
+                  "nameLocation": "819:12:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31915,
+                  "src": "811:20:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31911,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "811:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "789:43:37"
+            },
+            "returnParameters": {
+              "id": 31914,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "849:0:37"
+            },
+            "scope": 31922,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 31921,
+            "nodeType": "FunctionDefinition",
+            "src": "993:49:37",
+            "nodes": [],
+            "documentation": {
+              "id": 31916,
+              "nodeType": "StructuredDocumentation",
+              "src": "886:25:37",
+              "text": "FUNCTION FOR DEMO ///"
+            },
+            "functionSelector": "00976b7c",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setNonProposal",
+            "nameLocation": "1002:14:37",
+            "parameters": {
+              "id": 31919,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 31918,
+                  "mutability": "mutable",
+                  "name": "player",
+                  "nameLocation": "1025:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 31921,
+                  "src": "1017:14:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 31917,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1017:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1016:16:37"
+            },
+            "returnParameters": {
+              "id": 31920,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1041:0:37"
+            },
+            "scope": 31922,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IPLMMatchOrganizer",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          31922
+        ],
+        "name": "IPLMMatchOrganizer",
+        "nameLocation": "66:18:37",
+        "scope": 31923,
+        "usedErrors": []
+      }
+    ]
+  },
+  "id": 37
+}
