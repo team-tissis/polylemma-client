@@ -1,5 +1,6 @@
-import { stringToBytes32, getContract } from "./utils.js";
 import { approve } from "./coin.js";
+import { stringToBytes32, bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
+import { getImgURI } from "./token.js";
 
 async function getGachaFee (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
@@ -31,9 +32,19 @@ async function gacha (name, addressIndex) {
     const event = rc.events.find(event => event.event === 'CharacterReceivedByUser' && event.args.account === myAddress);
     if (event !== undefined) {
         const [ account, tokenId, characterInfo ] = event.args;
-        console.log(`${account} got token of ${tokenId}.`);
-        console.log({ characterInfo: characterInfo });
-        return tokenId.toNumber();
+        const res = {
+            // name: bytes32ToString(message['name']),
+            // imgURI: await getImgURI(message['imgId'], addressIndex),
+            id: tokenId.toNumber(),
+            attributeIds: characterInfo['attributeIds'],
+            characterType: characterInfo['characterType'],
+            imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
+            level: characterInfo['level'],
+            name: bytes32ToString(characterInfo['name']),
+            rarity: characterInfo['rarity'],
+        }
+        return res
+        // return tokenId.toNumber();
     }
 }
 

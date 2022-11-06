@@ -19,6 +19,7 @@ import { balanceOf, mint } from '../../fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
 import { gacha, getGachaFee } from '../../fetch_sol/gacha.js';
 import TextField from '@mui/material/TextField';
+import characterInfo from "./character_info.json";
 
 const questionOption = {
     loop: true,
@@ -56,6 +57,8 @@ export default function GachaGacha(){
     const [currentToken, setCurrentToken] = useState();
     const [addedTokenId, setAddedTokenId] = useState(0);
     const [characterName, setCharacterName] = useState('');
+    const [newToken, setNewToken] = useState();
+    const [gachaOpen, setGachaOpen] = useState(false);
 
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
@@ -65,14 +68,17 @@ export default function GachaGacha(){
 
     const handleClickGacha = async () => {
         setOpen(true);
-        const newTokenId = await gacha(characterName);
+        const newGotToken = await gacha(characterName);
+        console.log({newGotToken})
+        setNewToken(newGotToken)
         setCurrentCoin(await balanceOf());
         setCurrentToken(await getNumberOfOwnedTokens());
-        setAddedTokenId(newTokenId);
+        setAddedTokenId(newGotToken.id);
     };
 
     const handleClose = () => {
         setOpen(false);
+        setIsOpened(false)
     };
 
     return(<>
@@ -88,11 +94,37 @@ export default function GachaGacha(){
             ギフトボックスをクリックしてキャラクターを確認しよう
             </DialogTitle>
             <DialogContent>
-                <div onClick={() => setIsOpened(true)} >
-                    <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} />
-                    {/* <div style={{position: 'absolute', top: 100, left: 200, height: 300 ,backgroundColor: 'blue'}}>
-                        ここにキャラのカードを表示
-                    </div> */}
+                <div onClick={() =>  setIsOpened(true)} style={{margin: 50}}>
+                    {isOpened ? <>
+                        {newToken && <>
+                            <div className="card_parent"　style={{width: 400, margin: '0 auto'}}>
+                            <div className="card_name">
+                                { newToken.name }
+                            </div>
+                            <div className="box" style={{padding: 10}}>
+                                レベル: { newToken.level }<br/>
+                            </div>
+                            
+                            <div className="character_type_box" style={{backgroundColor: characterInfo.characterType[newToken.characterType]['backgroundColor'],
+                                                                borderColor: characterInfo.characterType[newToken.characterType]['borderColor']}}>
+                                { characterInfo.characterType[newToken.characterType]['jaName'] }
+                            </div>
+                            <div className="img_box" style={{height: 'auto'}}>
+                                <img className='img_div' src={ newToken.imgURI } style={{width: '98%', height: 'auto', objectFit: 'fill'}} alt="sample"/>
+                            </div>
+                            <div className="attribute_box">
+                                レア度 {newToken.rarity} / { characterInfo.attributes[newToken.attributeIds[0]]["title"] }
+                            </div>
+                            <div className="detail_box">
+                                <div style={{margin: 10}}>
+                                    { characterInfo.attributes[newToken.attributeIds[0]]["description"] }
+                                </div>
+                            </div>
+                        </div>
+                        </>}
+                    </> : <Lottie options={defaultOptions} height={400} width={400} />
+                    }
+                    {/* <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} /> */}
                 </div>
             </DialogContent>
             <DialogActions>
@@ -124,10 +156,15 @@ export default function GachaGacha(){
                 </Button>
             </Grid>
             <Grid item xs={12} sm={7} md={7}>
-                {/* <Button variant="contained" onClick={handleClickCharge} style={{margin: 10, width: 345}}>100 MATIC を 95 PLM に交換する</Button> */}
                 <div>コイン: {currentCoin}</div>
                 <div>トークン: {currentToken}</div>
                 <h2>ここに説明文</h2><hr/>
+                レベル: hogehoge<br/>
+                絆レベル: hogehoge<br/>
+                特性: hogehoge<br/>
+                属性: hogehoge<br/>
+                レベルの上げ方:  hogehoge<br/>
+                対戦方法: hogehoge<br/>
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
                 ああああああああああああああああああああああああああああああああああああ
