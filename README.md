@@ -57,7 +57,8 @@ $ npm install --save typescript
 - http://localhost:3000/ にアクセスする（ポート 3000 番を既に使ってる場合は、3001 以降になる）
 
 # 画面イメージ
-<img width="1045" alt="スクリーンショット 2022-11-06 23 11 42" src="https://user-images.githubusercontent.com/42636663/200175725-67b7e801-d338-4f32-88b6-7b0eef0e08b5.png">
+<img width="868" alt="スクリーンショット 2022-11-06 23 13 21" src="https://user-images.githubusercontent.com/42636663/200175789-a5012f08-0125-440d-a997-dd0be11a155c.png">
+
 
 ## メインページ（バトル開始）
 ![スクリーンショット 2022-11-06 22 35 53](https://user-images.githubusercontent.com/42636663/200174233-d66451b8-3a7c-4528-8a42-6384474c3798.png)
