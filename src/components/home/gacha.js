@@ -153,7 +153,7 @@ export default function GachaGacha(){
                     <div onClick={() =>  newToken == null ? null : setIsOpened(true)} style={{margin: 50}}>
                         {isOpened ? <>
                             {newToken && <>
-                                <div className="card_parent"　style={{width: 400, margin: '0 auto'}}>
+                                <div className="card_parent" style={{width: 400, margin: '0 auto'}}>
                                 <div className="card_name">
                                     { newToken.name }
                                 </div>
@@ -216,23 +216,23 @@ export default function GachaGacha(){
             <Grid item xs={12} sm={8} md={8}>
                 <h2>Polyemmaガチャを引いてキャラを取得する</h2><hr/>
 
-                <h3>キャラはどのようにして使う？<hr style={{margin: 0, padding: 0}}/></h3>
+                <h3>キャラの使い方<hr style={{margin: 0, padding: 0}}/></h3>
                 <p>他のプレイヤーと自分の所有するキャラを4対使用して、バトルすることができます。</p>
                 <p>バトルに勝つとPLMコインを獲得できます。</p>
 
-                <h3>キャラの特性一連<hr style={{margin: 0, padding: 0}}/></h3>
-                <p>レベル: 育成ページでPLMコインを使用し、キャラクターのレベルをあげることができます。</p>
-                <p>キャラクターのレベルによってキャラの攻撃力が決まり、攻撃力が大きい方が勝負に勝利できます。</p>
+                <h3>キャラの性質<hr style={{margin: 0, padding: 0}}/></h3>
+                <p>レベル: 育成ページでPLMコインを使用し、キャラのレベルをあげることができます。</p>
+                <p>基本的にはレベルによってキャラの攻撃力が決まり、攻撃力が大きい方が勝負に勝利できます。</p>
                 <p>絆レベル: 獲得したキャラの保有期間が長ければ長いほど、絆レベルは上昇していきます。（上限は自分のレベル数の二倍）</p>
                 <p>絆レベルが高いほど攻撃力が増加します。（ただし、必ず攻撃力が上がるわけではありません。）</p>
-                <p>特性: 炎 / 草 / 水の3種類があります。</p>
-                <p>属性: 属性を活用することでバトルで勝利しやすくなったり、勝利後の獲得コインを通常より多く獲得することができます。</p>
+                <p>属性: 炎 / 草 / 水の3種類があり、じゃんけんのような相性があります。</p>
+                <p>特性: 属性を活用することでバトルで勝利しやすくなったり、勝利後の獲得コインを通常より多く獲得することができます。（一覧は下の表）</p>
                 <Paper variant="outlined">
                     <TableContainer component={Paper}>
                         <Table aria-label="customized table">
                             <TableHead>
                             <TableRow>
-                                <StyledTableCell>属性名</StyledTableCell>
+                                <StyledTableCell>特性名</StyledTableCell>
                                 <StyledTableCell align="left">詳細</StyledTableCell>
                             </TableRow>
                             </TableHead>

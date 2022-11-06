@@ -227,11 +227,11 @@ export default function Battle() {
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
         // スタミナがあるか確認
-        if(await checkStamina == false) {
+        if((await checkStamina) == false) {
             alert("スタミナが足りません。チャージしてください。");
         }
         // サブスクの確認
-        if(await subscIsExpired == true) {
+        if((await subscIsExpired) == true) {
             alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
         }
 
@@ -244,7 +244,7 @@ export default function Battle() {
                 console.log({fixedSlotsOfChallenger});
                 await proposeBattle(fixedSlotsOfChallenger, rangeValue);
                 setDialogOpen(true);
-    
+
                 const { signer } = getContract("PLMMatchOrganizer");
                 const myAddress = await signer.getAddress();
                 battleStarted(myAddress, setMatched);
@@ -267,7 +267,7 @@ export default function Battle() {
         } catch (e) {
             setDialogOpen(false);
             console.log({error: e});
-            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
+            alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
         }
 
     }
