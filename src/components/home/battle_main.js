@@ -12,7 +12,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, 
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId,
          setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
@@ -71,7 +71,7 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
                 { character.name }
             </div>
             <div className="box" style={{padding: 10, backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
-                レベル: 
+                レベル:
                 {(choice === character.index) ? <>
                     { character.level + levelPoint}
                 </> : <>
@@ -274,7 +274,7 @@ export default function BattleMain(){
             try {
                 await commitPlayerSeed(tmpMyPlayerId, tmpMyPlayerSeed);
             } catch (e) {
-                // TODO: Error handling
+                console.log(e);
             }
             const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
             const characterList = [...fixedSlotCharInfo, _myRandomSlot]
@@ -291,7 +291,7 @@ export default function BattleMain(){
             try {
                 await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
             } catch (e) {
-                // TODO: Error handling
+                console.log(e);
             }
             // setHoge で設定したやつは useEffect が終わるまで更新されない…
             const _comRandomSlot = await getMyRandomSlot(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex)
@@ -326,7 +326,7 @@ export default function BattleMain(){
             try {
                 await commitPlayerSeed(1-myPlayerId, tmpCOMPlayerSeed, addressIndex);
             } catch (e) {
-                // TODO: Error handling
+                console.log(e);
             }
             setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
@@ -367,17 +367,25 @@ export default function BattleMain(){
 
     // for debug
     async function handleCommitCOM() {
-        // 以下、choice　=> comChoiceに変更
+        // 以下、choice => comChoiceに変更
         const blindingFactor = getRandomBytes32();
-        await commitChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
+        try {
+            await commitChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
+        } catch (e) {
+            console.log(e);
+        }
         if (comChoice === 4) {
-            await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
+            try {
+                await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
+            } catch (e) {
+                console.log(e);
+            }
         }
         try {
             await revealChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
-            setComChoice(getRandomIndexOfEnemyCharaIndex(comChoice))
-        } catch (err) {
-            console.log(err);
+            setComChoice(getRandomIndexOfEnemyCharaIndex(comChoice));
+        } catch (e) {
+            console.log(e);
         }
     }
 
@@ -385,12 +393,20 @@ export default function BattleMain(){
         setListenToRoundRes('freeze');
         if(myCharacters.tmpMyPlayerSeed == null){
             const tmpMyPlayerSeed = getRandomBytes32();
-            dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
-            await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
+            dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed));
+            try {
+                await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
+            } catch (e) {
+                console.log(e);
+            }
         }
         // reduxに保存して、使ったことのないものを使用する
         const blindingFactor = getRandomBytes32();
-        await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
+        try {
+            await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
+        } catch (e) {
+            console.log(e);
+        }
         setMyBlindingFactor(blindingFactor);
         // どのキャラを選んだか？の情報を追加
         dispatch(choiceCharacterInBattle(choice));
@@ -413,12 +429,16 @@ export default function BattleMain(){
         if (opponentCommit && myCommit) {
             if(myCharacters.charactersList[choice].isRandomSlot){
                 const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
-                await revealPlayerSeed(myPlayerId, _myPlayerSeed);
+                try {
+                    await revealPlayerSeed(myPlayerId, _myPlayerSeed);
+                } catch (e) {
+                    console.log(e);
+                }
             }
             try {
                 await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
-            } catch (err) {
-                console.log(err);
+            } catch (e) {
+                console.log(e);
             }
             choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
             setRound(round + 1);

@@ -11,7 +11,7 @@ async function createCharacters (fixedSlotsOfChallengers) {
 
         const fixedSlotsOfChallenger = [];
         for (let i = 0; i < 4; i++) {
-            fixedSlotsOfChallenger.push(await gacha('hoge' + i.toString(), addressIndex));
+            fixedSlotsOfChallenger.push((await gacha('hoge' + i.toString(), addressIndex))['id']);
         }
         fixedSlotsOfChallengers[addressIndex] = fixedSlotsOfChallenger;
     }
@@ -48,7 +48,7 @@ async function requestChallengeToMe () {
 
     const fixedSlotsOfChallenger = [];
     for (let i = 0; i < 4; i++) {
-        fixedSlotsOfChallenger.push(await gacha('hoge' + i.toString(), addressIndex));
+        fixedSlotsOfChallenger.push((await gacha('hoge' + i.toString(), addressIndex))['id']);
     }
 
     const { signer } = getContract("PLMMatchOrganizer", 1);

@@ -203,7 +203,6 @@ function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, s
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
         if (currentRound === numRounds && nextIndex !== null) {
-            setListenToRoundRes('can_choice');
             console.log(`choiceを${nextIndex}に変更`);
             setChoice(nextIndex);
 
@@ -220,8 +219,8 @@ function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, s
                 loser: loser,
                 winnerDamage: winnerDamage,
                 loserDamage: loserDamage
-            })
-            // return response
+            });
+            setListenToRoundRes('can_choice');
         }
     });
 }
