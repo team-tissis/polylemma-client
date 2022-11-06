@@ -22,6 +22,8 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixe
          getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
          battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from '../../fetch_sol/battle_field.js';
 import characterInfo from "./character_info.json";
+import {setCurrentBattle, resetBattleStatus, setReduxChoice, setReduxOpponentCommit, 
+    setReduxMyCommit, setReduxMySeedRevealed, setReduxListenToRoundRes, selectBattleStatus} from '../../slices/battle.ts';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -98,9 +100,7 @@ function PlayerYou({opponentCharacters}){
     var opponentTotalLevels = 0;
     var opponentRsLevel = 0;
     opponentCharacters.forEach(characters => {
-        if(opponentRsLevel < characters.level){
-            opponentRsLevel = characters.level;
-        }
+        if(opponentRsLevel < characters.level){ opponentRsLevel = characters.level; }
         opponentTotalLevels += characters.level
     });
     return(<>
@@ -226,6 +226,7 @@ export default function BattleMain(){
 
     const myCharacters = useSelector(selectMyCharacter);
     const roundResultList = useSelector(selectRoundResult);
+    const battleStatus = useSelector(selectBattleStatus);
 
     const [myPlayerId, setMyPlayerId] = useState();
 
@@ -253,9 +254,29 @@ export default function BattleMain(){
     const [opponentRevealed, setOpponentRevealed] = useState(null);
 
     useEffect(() => {
-        console.log("commit and reveal........");
-    },[listenToRoundRes]);
+        dispatch(setReduxChoice(choice))
+        console.log("setReduxChoice........");
+    },[choice]);
 
+    useEffect(() => {
+        dispatch(setReduxOpponentCommit(opponentCommit))
+        console.log("setReduxOpponentCommit........");
+    },[opponentCommit]);
+
+    useEffect(() => {
+        dispatch(setReduxMyCommit(myCommit))
+        console.log("setReduxMyCommit........");
+    },[myCommit]);
+
+    useEffect(() => {
+        dispatch(setReduxMySeedRevealed(mySeedRevealed))
+        console.log("setReduxMySeedRevealed........");
+    },[mySeedRevealed]);
+
+    useEffect(() => {
+        dispatch(setReduxListenToRoundRes(listenToRoundRes))
+        console.log("setReduxListenToRoundRes........");
+    },[listenToRoundRes]);
 
     useEffect(() => {
         // reduxに結果を反映
@@ -332,18 +353,17 @@ export default function BattleMain(){
         if (await isInBattle() === false) {
             navigate('../');
         }
-
-        // for debug
-        if (isCOM) {
-            const tmpCOMPlayerSeed = getRandomBytes32();
-            setCOMPlayerSeed(tmpCOMPlayerSeed);
-            try {
-                await commitPlayerSeed(1-myPlayerId, tmpCOMPlayerSeed, addressIndex);
-            } catch (e) {
-                console.log(e);
-            }
-            setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpCOMPlayerSeed, addressIndex));
-        }
+        // // for debug
+        // if (isCOM) {
+        //     const tmpCOMPlayerSeed = getRandomBytes32();
+        //     setCOMPlayerSeed(tmpCOMPlayerSeed);
+        //     try {
+        //         await commitPlayerSeed(1-myPlayerId, tmpCOMPlayerSeed, addressIndex);
+        //     } catch (e) {
+        //         console.log(e);
+        //     }
+        //     setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpCOMPlayerSeed, addressIndex));
+        // }
     })();}, [isCOM]);
 
     useEffect(() => {
@@ -566,12 +586,30 @@ export default function BattleMain(){
             </Card>
 
         </Grid>
-
+        
         {myCharacters.charactersList.length == 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
         }
+{/* 
+        {myCharacters.charactersList.length != 0 && battleStatus.choice != null && battleStatus.listenToRoundRes !== 'freeze' &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
+                勝負するキャラクターを確定する
+            </Button>
+        }
+
+        {battleStatus.opponentCommit && battleStatus.myCommit && !battleStatus.mySeedRevealed && battleStatus.choice == 4 &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
+                RS を公開する
+            </Button>
+        }
+
+        {battleStatus.opponentCommit && battleStatus.myCommit && (battleStatus.choice != 4 || (battleStatus.choice == 4) && battleStatus.mySeedRevealed) &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
+                バトルする
+            </Button>
+        } */}
 
         {myCharacters.charactersList.length != 0 && choice != null && listenToRoundRes !== 'freeze' &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>

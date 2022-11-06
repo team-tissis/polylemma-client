@@ -14,7 +14,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from '../../slices/myCharacter.ts'
-import { battleRemove } from '../../slices/battle.ts';
 import { roundResultReset } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from '../../fetch_sol/utils.js';
@@ -26,6 +25,7 @@ import { checkStamina, subscIsExpired } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
 import characterInfo from "./character_info.json";
 import TextField from '@mui/material/TextField';
+import { resetBattleStatus } from '../../slices/battle.ts';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -148,9 +148,6 @@ export default function Battle() {
 
     const [matched, setMatched] = useState(false);
 
-    // 対戦情報ステータスを初期化する
-    dispatch(battleRemove());
-
     useEffect(() => {
         // スマコンのアドレスを取得
         // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
@@ -218,8 +215,6 @@ export default function Battle() {
 
     useEffect(() => {(async function() {
         if (matched) {
-            // 対戦情報ステータスを初期化する
-            dispatch(battleRemove());
             navigate('/battle_main');
         }
     })();}, [matched]);
