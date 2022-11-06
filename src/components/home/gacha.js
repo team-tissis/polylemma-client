@@ -96,6 +96,7 @@ export default function GachaGacha(){
     })();}, []);
 
     const handleClickGacha = async () => {
+        setNewToken(null);
         setOpen(true);
         try {
             const newGotToken = await gacha(characterName);
@@ -104,9 +105,14 @@ export default function GachaGacha(){
             setCurrentToken(await getNumberOfOwnedTokens());
             setAddedTokenId(newGotToken.id);
         } catch (e) {
+            console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります");
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+
             }
+            setOpen(false);
         }
     };
 
