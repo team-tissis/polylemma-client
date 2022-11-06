@@ -38,6 +38,20 @@ div.box p {
 }
 
 .box {
+    /* width: 100px; */
+    /* height: 60px; */
+    display: flex;
+    text-align: center;
+    transform:translate(-20%,-30%);
+    z-index: 11;
+
+    background: #FFDBC9;
+    position: absolute;
+    border-radius: 8px;
+    border: 5px solid grey;
+}
+
+/* .box {
     width: 60px;
     height: 60px;
     display: flex;
@@ -49,7 +63,7 @@ div.box p {
     position: absolute;
     border-radius: 50%;
     border: 5px solid grey;
-}
+} */
 
 .img_div {
     text-align: center;

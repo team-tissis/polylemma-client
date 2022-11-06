@@ -26,18 +26,19 @@ function NFTCard({character, myCharacters}){
             <div className="card_name">
                 { character.name }
             </div>
-            <div className="box">
-                <p>{ character.level }</p>
+            <div className="box" style={{padding: 10}}>
+                レベル: { character.level }<br/>
+                絆レベル: { character.bondLevel }
             </div>
             <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div className="img_box" >
-                <img className={'img_div'+addedClassName} style={{width: '100%'}} src={ character.imgURI } alt="sample"/>
+            <div className="img_box">
+                <img className={'img_div'+addedClassName} src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
             <div className="attribute_box">
-                { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity} / { characterInfo.attributes[thisCharacterAttribute]["title"] }
             </div>
             <div className="detail_box">
                 <div style={{margin: 10}}>

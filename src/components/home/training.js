@@ -52,23 +52,24 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
-            onClick={ () => handleClickCharacter(character.id) }>
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} 
+            onClick={ () => handleClickCharacter(character.id) } >
             <div className="card_name">
                 { character.name }
             </div>
-            <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor}}>
-                <p>{ character.level }</p>
+            <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor, padding: 10}}>
+                レベル: { character.level }<br/>
+                絆レベル: { character.bondLevel }
             </div>
             <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
             <div className="img_box" style={{backgroundColor: _backgroundColor}}>
-                <img className='img_div' style={{width: '90%'}} src={ character.imgURI } alt="sample"/>
+                <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
             <div className="attribute_box">
-                { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity} / { characterInfo.attributes[thisCharacterAttribute]["title"] }
             </div>
             <div className="detail_box">
                 <div style={{margin: 10}}>

@@ -70,24 +70,27 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
             <div className="card_name">
                 { character.name }
             </div>
-            <div className="box" style={{backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
+            <div className="box" style={{padding: 10, backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
+                レベル: 
                 {(choice === character.index) ? <>
-                    <p>{ character.level + levelPoint}</p>
+                    { character.level + levelPoint}
                 </> : <>
-                    <p>{ character.level}</p>
+                    { character.level}
                 </>}
+                <br/>
+                絆レベル: { character.bondLevel }
             </div>
             <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
                 { charaType['jaName'] }
             </div>
-            <div className="img_box" style={{backgroundColor: _backgroundColor}}>
-                <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
+            <div className="img_box">
+                <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
             <div className="attribute_box">
-                { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity} <br/> { characterInfo.attributes[thisCharacterAttribute]["title"] }
             </div>
-            <div className="detail_box" style={{fontSize: 12}}>
+            <div className="detail_box">
                 <div style={{margin: 10}}>
                     { characterInfo.attributes[thisCharacterAttribute]["description"] }
                 </div>
@@ -102,7 +105,7 @@ function PlayerYou({opponentCharacters}){
         opponentTotalLevels += characters.level
     });
     return(<>
-        <Container style={{padding: 10}}>
+        <Container style={{padding: 5}}>
             <div style={{ textAlign: 'right', verticalAlign: 'middle'}}>
                 <div>プレイヤーB <Chip label={`Lv.${opponentTotalLevels}`} style={{fontSize: 20}} /></div>
                 <img src={Icon}  alt="アイコン" width="60" height="60"/>
@@ -110,35 +113,42 @@ function PlayerYou({opponentCharacters}){
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
                 {opponentCharacters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <div className="card_parent" style={{backgroundColor: character.isRandomSlot ? 'grey' : characterInfo.attributes[character.attributeIds[0]]["backgroundColor"]}}  >
+
+                    <div className="card_parent" style={{backgroundColor: character.isRandomSlot ? 'grey' : characterInfo.attributes[character.attributeIds[0]]["backgroundColor"]}}>
                         {character.isRandomSlot ? <></> : <>
                             <div className="card_name">
                                     { character.name }
                             </div>
                         </>}
-                        <div className="box" style={{fontSize: 14, borderColor: 'silver', backgroundColor: character.battleDone ? 'grey' : '#FFDBC9'}}>
-                            <p>{ character.level}</p>
+
+                        <div className="box" style={{padding: 10, backgroundColor: character.battleDone ? 'grey' : '#FFDBC9',  fontSize: 14, borderColor: 'silver'}}>
+                            レベル: { character.level}
+                            <br/>
+                            絆レベル: { character.bondLevel }
                         </div>
+
                         {character.isRandomSlot ? <></> : <>
-                            <div className="character_type_box"
-                                style={{backgroundColor: characterInfo.characterType[character.characterType]['backgroundColor'], borderColor: characterInfo.characterType[character.characterType]['borderColor']}}>
-                                { characterInfo.characterType[character.characterType]['jaName'] }
-                            </div>
-                            <div className="img_box">
-                                <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
-                            </div>
-                            <div className="attribute_box">
-                                { characterInfo.attributes[character.attributeIds[0]]["title"] }
-                            </div>
-                        </>}
-                        <div className="detail_box" style={{fontSize: 12}}>
-                            {character.isRandomSlot ? <></> : <>
-                                <div style={{margin: 10}}>
-                                    { characterInfo.attributes[character.attributeIds[0]]["description"] }
+                                <div className="character_type_box"
+                                    style={{backgroundColor: characterInfo.characterType[character.characterType]['backgroundColor'], borderColor: characterInfo.characterType[character.characterType]['borderColor']}}>
+                                    { characterInfo.characterType[character.characterType]['jaName'] }
                                 </div>
-                            </>}
+                                <div className="img_box">
+                                    <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
+                                </div>
+                                <div className="attribute_box">
+                                レア度 {character.rarity} <br/> { characterInfo.attributes[character.attributeIds[0]]["title"] }
+                                </div>
+                        </>}
+
+                        <div className="detail_box">
+                                {character.isRandomSlot ? <></> : <>
+                                    <div style={{margin: 10}}>
+                                        { characterInfo.attributes[character.attributeIds[0]]["description"] }
+                                    </div>
+                                </>}
                         </div>
                     </div>
+
                 </Grid>
                 ))}
             </Grid>
@@ -148,7 +158,7 @@ function PlayerYou({opponentCharacters}){
 
 function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remainingLevelPoint, levelPoint, setLevelPoint}){
     return(<>
-    <Container style={{padding: 10}}>
+    <Container style={{padding: 5}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
@@ -425,8 +435,8 @@ export default function BattleMain(){
     <Button variant="contained" size="large" color="secondary" onClick={() => setIsCOM((isCOM) => !isCOM)}>
         COMと対戦: {isCOM ? "YES" : "NO"}
     </Button>
-    <Grid container spacing={10} style={{margin: 10}} columns={{ xs: 10, sm: 10, md: 10 }}>
-        <Grid item xs={10} md={6}>
+    <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
+        <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
                 <div style={{height: 100}}/>
@@ -439,7 +449,7 @@ export default function BattleMain(){
                         levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
-        <Grid item xs={10} md={3}>
+        <Grid item xs={10} md={2}>
             <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
             <div style={{textAlign: 'center'}}>
                 <div style={{display: 'inlineBlock'}}>
