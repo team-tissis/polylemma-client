@@ -77,7 +77,9 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getRandomSlotCharInfo(playerId);
     console.log({ getRandomSlotCharInfo: message });
+
     return {
+        index: 4, //RSは最後なので5になるはず
         name: bytes32ToString(message['name']),
         imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],
