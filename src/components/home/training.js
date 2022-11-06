@@ -82,8 +82,6 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
 export default function ModelTraining(){
     const [isLoading, setIsLoading] = useState(0);
     const [selectedTokenId, setSelectedTokenId] = useState();
-    const [isOpened, setIsOpened] = useState(false);
-    const [coinToBuy, setCoinToBuy] = useState(0);
     const [levelBefore, setLevelBefore] = useState();
     const [necessaryExp, setNecessaryExp] = useState();
     const [currentCoin, setCurrentCoin] = useState();
@@ -105,13 +103,20 @@ export default function ModelTraining(){
                 autoHideDuration: 1500,
                 variant: 'error',
             });
+            return
         }
-        await updateLevel(selectedTokenId);
-        setNecessaryExp(await getNecessaryExp(selectedTokenId));
-        // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
-        const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
-        setLevelBefore(characterBefore.level);
-        setIsLoading((prev) => prev + 1)
+
+        try {
+            await updateLevel(selectedTokenId);
+            setNecessaryExp(await getNecessaryExp(selectedTokenId));
+            // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
+            const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
+            setLevelBefore(characterBefore.level);
+            setIsLoading((prev) => prev + 1)
+        } catch (e) {;
+            console.log({error: e});
+            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
+        }
     }
 
     const [state, setState] = useState({
