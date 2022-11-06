@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import Icon from '../../icons/avatar_1.png'
 import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
+import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
@@ -119,7 +120,7 @@ function PlayerYou({opponentCharacters}){
                         </div>
 
                         <div className="box" style={{padding: 10, backgroundColor: character.battleDone ? 'grey' : '#FFDBC9',  fontSize: 14, borderColor: 'silver'}}>
-                            レベル: { character.level}
+                            レベル: {opponentRsLevel}
                             <br/>
                             絆レベル: { character.bondLevel }
                         </div>
@@ -188,7 +189,22 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remaining
 
         <Box sx={{ width: '80%' }}>
             このトークンにレベルを付与する
-            <Slider
+            <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+                <div>0Lv</div>
+                <Slider
+                    aria-label="Temperature"
+                    defaultValue={0}
+                    onChange={(e) => setLevelPoint(e.target.value)}
+                    valueLabelDisplay="auto"
+                    step={1}
+                    marks
+                    min={0}
+                    max={remainingLevelPoint}
+                />
+                <div>{ remainingLevelPoint }Lv</div>
+            </Stack>
+
+            {/* <Slider
                 aria-label="Temperature"
                 defaultValue={0}
                 onChange={(e) => setLevelPoint(e.target.value)}
@@ -197,7 +213,7 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remaining
                 marks
                 min={0}
                 max={remainingLevelPoint}
-            />
+            /> */}
         </Box>
     </Container>
     </>)
@@ -320,7 +336,6 @@ export default function BattleMain(){
 
             // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
             const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - tmpMyPlayerId, addressIndex);
-            console.log({コンピューターのキャラ一覧: comFixedSlotCharInfo})
             // setHoge で設定したやつは useEffect が終わるまで更新されない…
             const _comRandomSlot = await getMyRandomSlot(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex)
             // 相手のRSの情報はわからないので、とりあえず"comFixedSlotCharInfo"だけをreduxに追加する
