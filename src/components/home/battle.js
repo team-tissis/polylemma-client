@@ -22,9 +22,9 @@ import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 import { forceInitBattle, battleStarted } from '../../fetch_sol/battle_field.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
+import { checkStamina, subscIsExpired } from '../../fetch_sol/dealer.js';
 import { useSnackbar } from 'notistack';
 import characterInfo from "./character_info.json";
-import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -226,28 +226,50 @@ export default function Battle() {
 
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
-        dispatch(set4Characters(charactersForBattle)); //更新
-        dispatch(roundResultReset())
-        if(kind === "makeOwnRoom"){
-            const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
-            // proposeBattleで自分が対戦要求ステータスに変更される
-            console.log({fixedSlotsOfChallenger});
-            await proposeBattle(fixedSlotsOfChallenger, rangeValue);
-            setDialogOpen(true);
+        // スタミナがあるか確認
+        if(await checkStamina == false) {
+            alert("スタミナが足りません。チャージしてください。");
+        }
+        // サブスクの確認
+        if(await subscIsExpired == true) {
+            alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
+        }
 
-            const { signer } = getContract("PLMMatchOrganizer");
-            const myAddress = await signer.getAddress();
-            battleStarted(myAddress, setMatched);
-        }else if(kind === "searchRooms"){
-            navigate('/match_make');
+        try {
+            dispatch(set4Characters(charactersForBattle)); //更新
+            dispatch(roundResultReset())
+            if(kind === "makeOwnRoom"){
+                const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
+                // proposeBattleで自分が対戦要求ステータスに変更される
+                console.log({fixedSlotsOfChallenger});
+                await proposeBattle(fixedSlotsOfChallenger, rangeValue);
+                setDialogOpen(true);
+    
+                const { signer } = getContract("PLMMatchOrganizer");
+                const myAddress = await signer.getAddress();
+                battleStarted(myAddress, setMatched);
+            }else if(kind === "searchRooms"){
+                navigate('/match_make');
+            }
+        } catch (e) {
+            setDialogOpen(false);
+            console.log({error: e});
+            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
         }
     }
 
     // 開発用・後で消す
     const fixedSlotsOfChallengers = Array();
     async function declineProposal(){
-        setDialogOpen(false);
-        await cancelProposal();
+        try {
+            setDialogOpen(false);
+            await cancelProposal();
+        } catch (e) {
+            setDialogOpen(false);
+            console.log({error: e});
+            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
+        }
+
     }
 
     async function devHandleCharacter(){
@@ -309,7 +331,6 @@ export default function Battle() {
 
         <Dialog
             open={dialogOpen}
-            // onClose={() => setDialogOpen(false)}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
@@ -331,8 +352,8 @@ export default function Battle() {
                 </div>
 
             <DialogContentText id="alert-dialog-description">
-                あああああああああああああああああああああああああああああ<br/>
-                あああああああああああああああああああああああああ
+                他プレイヤーが対戦を申し込んでくると、自動でバトル画面に遷移します。<br/>
+                このままお待ちください
             </DialogContentText>
             </DialogContent>
             <DialogActions>

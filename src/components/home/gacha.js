@@ -110,7 +110,6 @@ export default function GachaGacha(){
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
             } else {
                 alert("不明なエラーが発生しました。");
-
             }
             setOpen(false);
         }
