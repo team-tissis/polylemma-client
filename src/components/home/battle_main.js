@@ -203,17 +203,6 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remaining
                 />
                 <div>{ remainingLevelPoint }Lv</div>
             </Stack>
-
-            {/* <Slider
-                aria-label="Temperature"
-                defaultValue={0}
-                onChange={(e) => setLevelPoint(e.target.value)}
-                valueLabelDisplay="auto"
-                step={1}
-                marks
-                min={0}
-                max={remainingLevelPoint}
-            /> */}
         </Box>
     </Container>
     </>)

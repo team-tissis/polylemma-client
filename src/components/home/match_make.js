@@ -28,26 +28,6 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function style() {
-    return {
-        position: 'fixed',
-        bottom: 10,
-        right: '35%',
-        width: '30%',
-        fontSize: 20,
-        fontWeight: 600
-    }
-}
-
-function editButtonstyle() {
-    return {
-        position: 'fixed',
-        bottom: 50,
-        right: 30,
-        fontSize: 20,
-        fontWeight: 600
-    }
-}
 
 function BattleAccount({proposerToBattle}){
     const myCharacters = useSelector(selectMyCharacter);
@@ -62,7 +42,7 @@ function BattleAccount({proposerToBattle}){
 
     async function handleClickStartBattle () {
         const proposalAddressIndex = 0;
-        const fixedSlotsOfChallenger = myCharacters.charactersList.map(character => character.id);
+        const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
         console.log({対戦を申し込む相手のアドレス: proposerToBattle[proposalAddressIndex], 
                     対戦時に使うキャラのアドレス: fixedSlotsOfChallenger})
         await requestChallenge(proposerToBattle[proposalAddressIndex], fixedSlotsOfChallenger);
