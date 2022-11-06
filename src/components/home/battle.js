@@ -221,7 +221,6 @@ export default function Battle() {
 
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
-<<<<<<< Updated upstream
         if((await checkStamina()) === false) {
             // スタミナがあるか確認
             alert("スタミナが足りません。チャージしてください。");
@@ -253,34 +252,6 @@ export default function Battle() {
                 } else {
                     alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
                 }
-=======
-        // スタミナがあるか確認
-        if((await checkStamina) == false) {
-            alert("スタミナが足りません。チャージしてください。");
-        }
-        // サブスクの確認
-        if((await subscIsExpired) == true) {
-            alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
-        }
-
-        try {
-            dispatch(set4Characters(charactersForBattle)); //更新
-            dispatch(roundResultReset())
-            dispatch(resetBattleStatus())
-            
-            if(kind === "makeOwnRoom"){
-                const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
-                // proposeBattleで自分が対戦要求ステータスに変更される
-                console.log({fixedSlotsOfChallenger});
-                await proposeBattle(fixedSlotsOfChallenger, rangeValue);
-                setDialogOpen(true);
-
-                const { signer } = getContract("PLMMatchOrganizer");
-                const myAddress = await signer.getAddress();
-                battleStarted(myAddress, setMatched);
-            }else if(kind === "searchRooms"){
-                navigate('/match_make');
->>>>>>> Stashed changes
             }
         }
 
@@ -295,15 +266,11 @@ export default function Battle() {
         } catch (e) {
             setDialogOpen(false);
             console.log({error: e});
-<<<<<<< Updated upstream
             if (e.message.substr(0, 18) === "transaction failed") {
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
             } else {
                 alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
             }
-=======
-            alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
->>>>>>> Stashed changes
         }
 
     }
@@ -407,7 +374,7 @@ export default function Battle() {
         </Button>
         <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
 
-        <Button variant="contained" size="large"
+        {/* <Button variant="contained" size="large"
             onClick={() => devHandleCharacter()} disabled={isChanging}>
             [開発用] ユーザー2~4のキャラを用意する
         </Button>
@@ -419,7 +386,7 @@ export default function Battle() {
 
         <Button variant="outlined" color="secondary" onClick={() => devHandleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
             [dev]全ユーザーのProposalを取り下げる
-        </Button>
+        </Button> */}
 
         { (charactersForBattle.length >= selectedNum) &&
             <>
