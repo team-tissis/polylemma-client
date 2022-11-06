@@ -51,7 +51,7 @@ $ npm install --save typescript
 
 - [`utils.js`](./src/utils.js) の `env` 変数の値を `local` / `mumbai` に設定
     - ローカルのテストネットに繋ぐ場合は `local`、Mumbai 上のテストネット `mumbai`
-- `http://localhost:3000/` にアクセスする（ポート 3000 番を既に使ってる場合は、3001 以降になる）
+- http://localhost:3000/ にアクセスする（ポート 3000 番を既に使ってる場合は、3001 以降になる）
 
 # 画面イメージ
 
