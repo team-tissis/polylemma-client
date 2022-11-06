@@ -57,22 +57,27 @@ $ npm install --save typescript
 - http://localhost:3000/ にアクセスする（ポート 3000 番を既に使ってる場合は、3001 以降になる）
 
 # 画面イメージ
-
-スクショしていっぱい貼る
+![スクリーンショット 2022-11-06 22 35 42](https://user-images.githubusercontent.com/42636663/200174273-e3ac9ee6-5635-4b92-b976-2add87d57a3c.png)
 
 ## メインページ（バトル開始）
+![スクリーンショット 2022-11-06 22 35 53](https://user-images.githubusercontent.com/42636663/200174233-d66451b8-3a7c-4528-8a42-6384474c3798.png)
 
 ## サイドバー
+![スクリーンショット 2022-11-06 22 44 42](https://user-images.githubusercontent.com/42636663/200174319-c10cfa13-4730-413f-aa09-bbbed195bc76.png)
 
 ## ガチャ画面
+![スクリーンショット 2022-11-06 22 35 28](https://user-images.githubusercontent.com/42636663/200174286-1d0ab5a7-c69f-4c51-9239-575c86c3db70.png)
 
 ## 育成画面
+![スクリーンショット 2022-11-06 22 45 10](https://user-images.githubusercontent.com/42636663/200174344-6ccbd076-1ee9-4391-8370-fe40424e4daa.png)
 
 ## マッチメイク
 
 ## バトル
+![スクリーンショット 2022-11-06 22 37 19](https://user-images.githubusercontent.com/42636663/200174410-92822b44-1cec-4a8d-89ab-18d30b675b86.png)
 
 ## 図鑑
+![スクリーンショット 2022-11-06 22 45 54](https://user-images.githubusercontent.com/42636663/200174397-6ef073c4-a43f-4d16-8f2b-258c30b17b21.png)
 
 
 # OpenSea（testnet） で取引
