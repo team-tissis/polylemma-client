@@ -19,7 +19,8 @@ const Item = styled(Paper)(({ theme }) => ({
 function NFTCard({character, myCharacters}){
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    const addedClassName = myCharacters.includes(character.id) ? "" : " card_not_mine";
+    const isOwned = myCharacters.includes(character.id);
+    const addedClassName = isOwned ? "" : " card_not_mine";
 
     return(<>
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} >
@@ -28,7 +29,7 @@ function NFTCard({character, myCharacters}){
             </div>
             <div className="box" style={{padding: 10}}>
                 レベル: { character.level }<br/>
-                絆レベル: { character.bondLevel }
+                { isOwned ?  "絆レベル: " + character.bondLevel : "" }
             </div>
             <div className="character_type_box"
                 style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>

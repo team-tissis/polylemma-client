@@ -1,16 +1,16 @@
 {
     "characterType": {
-        "fire": {
+        "Fire": {
             "jaName": "炎",
             "borderColor": "#8B0000",
             "backgroundColor": "#FF4F50"
         },
-        "water": {
+        "Water": {
             "jaName": "水",
             "borderColor": "#00008B",
             "backgroundColor": "#1E90FF"
         },
-        "grass": {
+        "Grass": {
             "jaName": "草",
             "borderColor": "#006400",
             "backgroundColor": "#00FF7F"
