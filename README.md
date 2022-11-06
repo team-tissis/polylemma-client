@@ -78,6 +78,8 @@ $ npm install --save typescript
 # OpenSea（testnet） で取引
 
 - 自分のウォレットアドレスで検索すると以下のように画像が表示される
-    - https://testnets.opensea.io/ja/assets/mumbai/0xb26c1c4f3943632c5320e81154dede5f70541f8d/1
+    - https://testnets.opensea.io/assets/mumbai/0xcf8d3345dd90b218b9f428562fe5985dc4acdd56/1
 - これを取引することが可能
     - **取引すると絆ポイントがリセットされるので注意**
+- キャラができるとここに一覧表示される
+    - https://testnets.opensea.io/collection/polylemma-v4
