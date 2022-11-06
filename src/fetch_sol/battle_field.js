@@ -172,14 +172,12 @@ function playerSeedRevealed (opponentPlayerId, addressIndex) {
     });
 }
 
-function choiceCommitted (opponentPlayerId, currentRound, setCommit,  dispatch, setReduxOpponentCommit, addressIndex) {
+function choiceCommitted (opponentPlayerId, currentRound, setCommit, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.ChoiceCommitted(null, null);
     contract.on(filter, (numRounds, playerId) => {
-        console.log(`currentRound: ${currentRound} playerId: ${playerId}`)
         console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
         if (playerId === opponentPlayerId && currentRound === numRounds) {
-            dispatch(setReduxOpponentCommit(true))
             setCommit(true);
         }
     });
@@ -198,19 +196,17 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
             }
             setOpponentRevealed(response);
         }
-        console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+        // console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
     });
 }
 
-function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, dispatch, setReduxChoice, setReduxListenToRoundRes, setRoundDetail, addressIndex) {
+function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.RoundResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
         if (currentRound === numRounds && nextIndex !== null) {
             console.log(`choiceを${nextIndex}に変更`);
             setChoice(nextIndex);
-            // dispatch変更
-            dispatch(setReduxChoice(nextIndex))
 
             if (isDraw) {
                 console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
@@ -227,7 +223,6 @@ function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, d
                 loserDamage: loserDamage
             });
             setListenToRoundRes('can_choice');
-            dispatch(setReduxListenToRoundRes('can_choice'))
         }
     });
 }
