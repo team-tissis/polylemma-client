@@ -32,8 +32,14 @@ function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
-    const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
-    return contractAddress;
+    // const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
+    // return contractAddress;
+
+    if (contractName === "PLMCoin") return "0xC2F6e5d1bf568f61a0C3e302ba88C1580688F2a5";
+    else if (contractName === "PLMToken") return "0x42c788e4c7532B46935FC36d5867c78dB716Dc3D";
+    else if (contractName === "PLMDealer") return "0x27a22Cc6Acab236AFAcd54F7A9e3a77D2e9a0EBb";
+    else if (contractName === "PLMMatchOrganizer") return "0x36A0f7aF7F839219692107501bB03079fE788021";
+    else if (contractName === "PLMBattleField") return "0x1652c915B83F1cb2b3966258CD42aBdE558dAC2d";
 }
 
 function getAbi (contractName) {
@@ -45,14 +51,14 @@ function getAbi (contractName) {
 }
 
 function getSigner (addressIndex) {
-    const signerIndex = (addressIndex == null) ? 1 : addressIndex;
-    // (多分) MetaMask を経由しないで使う方法
+    // const signerIndex = (addressIndex == null) ? 1 : addressIndex;
+    // // (多分) MetaMask を経由しないで使う方法
 
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner(signerIndex);
+    // const provider = new ethers.providers.JsonRpcProvider();
+    // const signer = provider.getSigner(signerIndex);
     // MetaMask を使う方法 (うまくいかない)
-    // const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
-    // const signer = provider.getSigner();
+    const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+    const signer = provider.getSigner();
 
     return signer;
 }
