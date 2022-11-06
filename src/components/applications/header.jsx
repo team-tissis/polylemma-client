@@ -248,14 +248,14 @@ export default function Header() {
 
                 {/* <Button variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
                     [開発者用]Walletデータを消去
-                </Button>
+                </Button> */}
                 {walletAddress ?
                     <Chip label={`${walletAddress.ethAmount} ETH`}
                     style={{fontSize: 20, backgroundColor: 'white', margin: 15, padding: 10}} variant="outlined" />
                     : <Button  variant="outlined" color="inherit" onClick={() => handleEnableToConnect() } style={{marginLeft: 20}}>
                         MetaMaskと連携する
                     </Button>
-                } */}
+                }
                 <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
                     所持コイン: {`${currentCoin} PLM`}
                 </Button>
