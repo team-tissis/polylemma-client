@@ -394,7 +394,12 @@ export default function BattleMain(){
             try {
                 await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
             } catch (e) {
-                console.log(e);
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
             }
             const _myRandomSlot = await getMyRandomSlot(myPlayerId, tmpMyPlayerSeed)
             const characterList = [...fixedSlotCharInfo, _myRandomSlot]
@@ -409,20 +414,35 @@ export default function BattleMain(){
         try {
             await commitChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
         } catch (e) {
-            console.log(e);
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
         }
         if (comChoice === 4) {
             try {
                 await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
             } catch (e) {
-                console.log(e);
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
             }
         }
         try {
             await revealChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
             setComChoice(getRandomIndexOfEnemyCharaIndex(comChoice));
         } catch (e) {
-            console.log(e);
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
         }
     }
 
@@ -447,7 +467,12 @@ export default function BattleMain(){
 
             setMyCommit(true);
         } catch (e) {
-            console.log(e);
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
         }
 
         if (isCOM) {
@@ -460,7 +485,12 @@ export default function BattleMain(){
         try {
             await revealPlayerSeed(myPlayerId, _myPlayerSeed);
         } catch (e) {
-            console.log(e);
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
         }
         setMySeedRevealed(true);
     }
@@ -471,7 +501,12 @@ export default function BattleMain(){
         try {
             await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
         } catch (e) {
-            console.log(e);
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
         }
         choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
         setRound(round + 1);
