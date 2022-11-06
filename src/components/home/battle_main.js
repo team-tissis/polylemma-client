@@ -209,6 +209,8 @@ export default function BattleMain(){
     const [randomSlotCOM, setRandomSlotCOM] = useState();
 
     const [choice, setChoice] = useState(0);
+    // COMPUTER側の選択したキャラ
+    const [comChoice, setComChoice] = useState(0);
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
@@ -230,7 +232,6 @@ export default function BattleMain(){
             dispatch(oneRoundDone(roundDetail))
         }
     },[roundDetail]);
-
 
     useEffect(() => {
         console.log("opponentRevealed........");
@@ -335,15 +336,36 @@ export default function BattleMain(){
         navigate('../');
     }
 
+    function getRandomIndexOfEnemyCharaIndex(comChoice){
+        // comChoiceをランダムに更新
+        var enemyAvailabelCharaIndexes = []
+        for (let enemyCharaIndex = 0; enemyCharaIndex < myCharacters.otherCharactersList.length; enemyCharaIndex++) {
+            // 値が 0 から 4 まで計 5 回実行される
+            if(!myCharacters.otherCharactersList[enemyCharaIndex].battleDone){
+                enemyAvailabelCharaIndexes.push(enemyCharaIndex)
+            }
+        }
+        // comChoiceが含まれていたら配列から削除
+        const newArray = enemyAvailabelCharaIndexes.filter(index => index !== comChoice);
+        if(newArray.length == 1){
+            return newArray[0]
+        }
+        // console.log(`選択可能なindex一覧は${enemyAvailabelCharaIndexes}`)
+        const _nextComChoice = Math.floor( Math.random() * (newArray.length + 1) ) ;
+        return newArray[_nextComChoice]
+    }
+
     // for debug
     async function handleCommitCOM() {
+        // 以下、choice　=> comChoiceに変更
         const blindingFactor = getRandomBytes32();
-        await commitChoice(1-myPlayerId, levelPoint, choice, blindingFactor, addressIndex);
-        if (choice === 4) {
+        await commitChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
+        if (comChoice === 4) {
             await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
         }
         try {
-            await revealChoice(1-myPlayerId, levelPoint, choice, blindingFactor, addressIndex);
+            await revealChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
+            setComChoice(getRandomIndexOfEnemyCharaIndex(comChoice))
         } catch (err) {
             console.log(err);
         }
