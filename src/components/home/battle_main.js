@@ -10,10 +10,9 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setTmpMyPlayerSeed, 
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setTmpMyPlayerSeed,
         set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle, setOpponentRsFullInfo } from '../../slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
@@ -138,7 +137,7 @@ function PlayerYou({opponentCharacters}){
                                 </div>
                         </>}
 
-                        <div className="character_type_box" style={{backgroundColor: character.characterType == null ? 'grey' : characterInfo.characterType[character.characterType]['backgroundColor'], 
+                        <div className="character_type_box" style={{backgroundColor: character.characterType == null ? 'grey' : characterInfo.characterType[character.characterType]['backgroundColor'],
                             borderColor: character.characterType == null ? 'grey' :  characterInfo.characterType[character.characterType]['borderColor']}}>
                             {(character.characterType == null) ? <></> :
                                 <>{ characterInfo.characterType[character.characterType]['jaName'] }</>
@@ -244,6 +243,7 @@ export default function BattleMain(){
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
+    const [mySeedRevealed, setMySeedRevealed] = useState(false);
     const [isCOM, setIsCOM] = useState(true);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
     const [roundDetail, setRoundDetail] = useState(null);
@@ -289,32 +289,9 @@ export default function BattleMain(){
         }
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
         choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
-
-        // リロードしてモンスターが変わらないように修正
-        if(myCharacters.charactersList.length == 0){
-            const tmpMyPlayerSeed = getRandomBytes32();
-            setMyPlayerSeed(tmpMyPlayerSeed);
-            // seedが登録されていない場合、登録する
-            if(myCharacters.tmpMyPlayerSeed == null){
-                dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
-            }
-            
-            // 対戦に使うキャラ5体(RSを含む)をreduxに追加
-            const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
-            try {
-                await commitPlayerSeed(tmpMyPlayerId, tmpMyPlayerSeed);
-            } catch (e) {
-                console.log(e);
-            }
-            const _myRandomSlot = await getMyRandomSlot(tmpMyPlayerId, tmpMyPlayerSeed)
-            const characterList = [...fixedSlotCharInfo, _myRandomSlot]
-            dispatch(set5BattleCharacter(characterList))
-        }
-
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
 
         if (isCOM) {
-
             const tmpCOMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(tmpCOMPlayerSeed);
             try {
@@ -329,13 +306,12 @@ export default function BattleMain(){
             const _comRandomSlot = await getMyRandomSlot(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex)
             // 相手のRSの情報はわからないので、とりあえず"comFixedSlotCharInfo"だけをreduxに追加する
             const opponentMaskedCharacter = {
-                index: 4, name: null, imgURI: null, characterType: null, level: null, 
+                index: 4, name: null, imgURI: null, characterType: null, level: null,
                 bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
             }
             const comCharacterList = [...comFixedSlotCharInfo, opponentMaskedCharacter]
             // コンピューターのキャラ5対を表示
             dispatch(setOthersBattleCharacter(comCharacterList));
-
 
             setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
@@ -403,8 +379,31 @@ export default function BattleMain(){
         return newArray[_nextComChoice]
     }
 
+    async function handleSeedCommit () {
+        // リロードしてモンスターが変わらないように修正
+        if(myCharacters.charactersList.length == 0){
+            const tmpMyPlayerSeed = getRandomBytes32();
+            setMyPlayerSeed(tmpMyPlayerSeed);
+            // seedが登録されていない場合、登録する
+            if(myCharacters.tmpMyPlayerSeed == null){
+                dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
+            }
+
+            // 対戦に使うキャラ5体(RSを含む)をreduxに追加
+            const fixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
+            try {
+                await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
+            } catch (e) {
+                console.log(e);
+            }
+            const _myRandomSlot = await getMyRandomSlot(myPlayerId, tmpMyPlayerSeed)
+            const characterList = [...fixedSlotCharInfo, _myRandomSlot]
+            dispatch(set5BattleCharacter(characterList))
+        }
+    }
+
     // for debug
-    async function handleCommitCOM() {
+    async function handleChoiceCommitCOM() {
         // 以下、choice => comChoiceに変更
         const blindingFactor = getRandomBytes32();
         try {
@@ -427,64 +426,58 @@ export default function BattleMain(){
         }
     }
 
-    async function handleCommit() {
+    async function handleChoiceCommit() {
         setListenToRoundRes('freeze');
-        if(myCharacters.tmpMyPlayerSeed == null){
-            const tmpMyPlayerSeed = getRandomBytes32();
-            dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed));
-            try {
-                await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
-            } catch (e) {
-                console.log(e);
-            }
-        }
         // reduxに保存して、使ったことのないものを使用する
         const blindingFactor = getRandomBytes32();
         try {
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
+
+            setMyBlindingFactor(blindingFactor);
+            // どのキャラを選んだか？の情報を追加
+            dispatch(choiceCharacterInBattle(choice));
+            // 次に自動選択するindexを調べてstateを変更する
+            let nextIndex;
+            for (nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
+                if((myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined') && nextIndex !== choice){
+                    break;
+                }
+            }
+            roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
+
+            setMyCommit(true);
         } catch (e) {
             console.log(e);
         }
-        setMyBlindingFactor(blindingFactor);
-        // どのキャラを選んだか？の情報を追加
-        dispatch(choiceCharacterInBattle(choice));
-        // 次に自動選択するindexを調べてstateを変更する
-        let nextIndex;
-        for (nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
-            if((myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined') && nextIndex !== choice){
-                break;
-            }
-        }
-        roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
 
-        setMyCommit(true);
-        // 勝敗が決まるまでボタンを押せないようにする
         if (isCOM) {
-            await handleCommitCOM();
+            await handleChoiceCommitCOM();
         }
     }
 
-    useEffect(() => {(async function() {
-        if (opponentCommit && myCommit) {
-            if(myCharacters.charactersList[choice].isRandomSlot){
-                const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
-                try {
-                    await revealPlayerSeed(myPlayerId, _myPlayerSeed);
-                } catch (e) {
-                    console.log(e);
-                }
-            }
-            try {
-                await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
-            } catch (e) {
-                console.log(e);
-            }
-            choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
-            setRound(round + 1);
-            setOpponentCommit(false);
-            setMyCommit(false);
+    async function handleSeedReveal() {
+        const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
+        try {
+            await revealPlayerSeed(myPlayerId, _myPlayerSeed);
+        } catch (e) {
+            console.log(e);
         }
-    })();}, [opponentCommit, myCommit]);
+        setMySeedRevealed(true);
+    }
+
+    async function handleChoiceReveal() {
+        setMySeedRevealed(false);
+        const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
+        try {
+            await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
+        } catch (e) {
+            console.log(e);
+        }
+        choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
+        setRound(round + 1);
+        setOpponentCommit(false);
+        setMyCommit(false);
+    }
 
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
@@ -539,10 +532,28 @@ export default function BattleMain(){
 
         </Grid>
 
-        {(choice != null) &&
-            <Fab variant="extended" style={ handleButtonStyle() } disabled={listenToRoundRes === 'freeze'} color="primary" aria-label="add" onClick={() => handleCommit()}>
+        {myCharacters.charactersList.length == 0 &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
+                バトルを開始する
+            </Button>
+        }
+
+        {myCharacters.charactersList.length != 0 && choice != null && listenToRoundRes !== 'freeze' &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
-            </Fab>
+            </Button>
+        }
+
+        {opponentCommit && myCommit && !mySeedRevealed && choice == 4 &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
+                RS を公開する
+            </Button>
+        }
+
+        {opponentCommit && myCommit && (choice != 4 || (choice == 4) && mySeedRevealed) &&
+            <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
+                バトルする
+            </Button>
         }
     </Grid>
     </>)
