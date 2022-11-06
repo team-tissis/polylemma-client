@@ -70,7 +70,7 @@ async function getNecessaryExp (tokenId, addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
     const message = await contract.getNecessaryExp(tokenId);
     console.log({ getNecessaryExp: message });
-    return message.toString();
+    return message.toNumber();
 }
 
 async function getCurrentCharacterInfo (tokenId, addressIndex) {

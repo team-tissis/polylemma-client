@@ -31,7 +31,7 @@ async function getRestoreStaminaFee (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getRestoreStaminaFee();
     console.log({ getRestoreStaminaFee: message });
-    return message;
+    return message.toNumber();
 }
 
 async function restoreFullStamina (addressIndex) {
@@ -128,7 +128,7 @@ async function extendSubscPeriod (addressIndex) {
 //     });
 // }
 
-export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, checkStamina, 
+export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, checkStamina,
          getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod };
         //  getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
         //  charge, accountCharged };
