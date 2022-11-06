@@ -3,6 +3,7 @@ import 'react-tabs/style/react-tabs.css';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Lottie from 'react-lottie';
+import Paper from '@mui/material/Paper';
 import * as animationData from '../../animations/gift.json';
 import * as unOpenAnimationData from '../../animations/gift-unopen.json';
 import * as questionAnimationData from '../../animations/question.json';
@@ -20,6 +21,33 @@ import { getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
 import { gacha, getGachaFee } from '../../fetch_sol/gacha.js';
 import TextField from '@mui/material/TextField';
 import characterInfo from "./character_info.json";
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+}));
+  
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+}));
 
 const questionOption = {
     loop: true,
@@ -124,7 +152,6 @@ export default function GachaGacha(){
                         </>}
                     </> : <Lottie options={defaultOptions} height={400} width={400} />
                     }
-                    {/* <Lottie options={isOpened ? openedOptions : defaultOptions} height={400} width={400} /> */}
                 </div>
             </DialogContent>
             <DialogActions>
@@ -135,8 +162,8 @@ export default function GachaGacha(){
             </DialogActions>
         </Dialog>
         </div>
-        <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-            <Grid item xs={12} sm={5} md={5}>
+        <Grid container spacing={{ xs: 1, md: 1 }} columns={{ xs: 12, sm: 12, md: 12 }}>
+            <Grid item xs={12} sm={4} md={4}>
                 <Card sx={{ maxWidth: 345, m: 2 }}>
                     <Lottie options={questionOption} height={345} width={345} style={{zIndex: 10}} />
                     <CardContent>
@@ -146,7 +173,7 @@ export default function GachaGacha(){
                     <Chip label={gachaFee + " コイン/回"} style={{fontSize: 20, padding: 10, marginTop: 10, marginLet: 'auto'}} />
                     </CardContent>
                 </Card>
-                <label>ガチャを引く前にキャラクターの名前を決めてください</label>
+                <label> ガチャを引く前にキャラクターの名前を決めてください</label>
                 <TextField id="outlined-basic" label="キャラクターの名前を決めよう"
                     variant="outlined" style={{margin: 10, width: 345}}
                     value={ characterName }
@@ -155,23 +182,47 @@ export default function GachaGacha(){
                     ガチャを1回引く
                 </Button>
             </Grid>
-            <Grid item xs={12} sm={7} md={7}>
+            <Grid item xs={12} sm={8} md={8}>
                 <div>コイン: {currentCoin}</div>
                 <div>トークン: {currentToken}</div>
-                <h2>ここに説明文</h2><hr/>
-                レベル: hogehoge<br/>
-                絆レベル: hogehoge<br/>
-                特性: hogehoge<br/>
-                属性: hogehoge<br/>
+                <h2>Polyemmaガチャを引いてキャラを取得する</h2><hr/>
+                
+                <h3>キャラはどのようにしてうかう？<hr style={{margin: 0, padding: 0}}/></h3>
+                他のプレイヤーと自分の所有するキャラを4対使用して、バトルすることができます。<br/>
+                バトルに勝つとPLMコインを獲得できます。<br/>
+
+                <h3>キャラの特性一連<hr style={{margin: 0, padding: 0}}/></h3>
+                レベル: 育成ページでPLMコインを使用し、キャラクターのレベルをあげることができます。<br/>
+                キャラクターのレベルによってキャラのダメージ数値が決まり、ダメージ数が大きい方が勝負に勝利できます。<br/>
+                絆レベル: 獲得したキャラの保有期間が長ければ長いほど、絆レベルは上昇していきます。<br/>
+                絆レベルが高いほど相手に与えるダメージを増やすことができます<br/>
+                特性: 炎/草/水の3種類があります<br/>
+                属性: 属性を活用することでバトルで勝利しやすくなったり、勝利後の獲得コインを通常より多く獲得することができます。<br/>
+                <Paper variant="outlined">
+                    <TableContainer component={Paper}>
+                        <Table aria-label="customized table">
+                            <TableHead>
+                            <TableRow>
+                                <StyledTableCell>属性名</StyledTableCell>
+                                <StyledTableCell align="left">詳細</StyledTableCell>
+                            </TableRow>
+                            </TableHead>
+                            <TableBody>
+                            {characterInfo.attributes.map((attribute, index) => (
+                                <StyledTableRow key={index}>
+                                <StyledTableCell component="th" scope="row">
+                                    { attribute.title }
+                                </StyledTableCell>
+                                <StyledTableCell align="left">
+                                    { attribute.description }
+                                </StyledTableCell>
+                                </StyledTableRow>
+                            ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Paper>
                 レベルの上げ方:  hogehoge<br/>
-                対戦方法: hogehoge<br/>
-                ああああああああああああああああああああああああああああああああああああ
-                ああああああああああああああああああああああああああああああああああああ
-                ああああああああああああああああああああああああああああああああああああ
-                ああああああああああああああああああああああああああああああああああああ
-                ああああああああああああああああああああああああああああああああああああ
-                ああああああああああああああああああああああああああああああああああああ
-                ああああああああああああああああああああああああああああああああああああ
             </Grid>
         </Grid>
     </Container>
