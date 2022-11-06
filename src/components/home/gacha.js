@@ -32,21 +32,21 @@ import TableRow from '@mui/material/TableRow';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
+        backgroundColor: theme.palette.common.black,
+        color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
+        fontSize: 14,
     },
 }));
-  
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
+        backgroundColor: theme.palette.action.hover,
     },
     // hide last border
     '&:last-child td, &:last-child th': {
-      border: 0,
+        border: 0,
     },
 }));
 
@@ -97,11 +97,17 @@ export default function GachaGacha(){
 
     const handleClickGacha = async () => {
         setOpen(true);
-        const newGotToken = await gacha(characterName);
-        setNewToken(newGotToken)
-        setCurrentCoin(await balanceOf());
-        setCurrentToken(await getNumberOfOwnedTokens());
-        setAddedTokenId(newGotToken.id);
+        try {
+            const newGotToken = await gacha(characterName);
+            setNewToken(newGotToken);
+            setCurrentCoin(await balanceOf());
+            setCurrentToken(await getNumberOfOwnedTokens());
+            setAddedTokenId(newGotToken.id);
+        } catch (e) {
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります");
+            }
+        }
     };
 
     const handleClose = () => {
@@ -122,7 +128,7 @@ export default function GachaGacha(){
                     通信中です、しばらくお待ちください
                 </> : <>
                     ギフトボックスをクリックしてキャラクターを確認しよう
-                </>} 
+                </>}
             </DialogTitle>
             <DialogContent>
                 {(newToken == null) ? <>
@@ -149,7 +155,7 @@ export default function GachaGacha(){
                                 <div className="box" style={{padding: 10}}>
                                     レベル: { newToken.level }<br/>
                                 </div>
-                                
+
                                 <div className="character_type_box" style={{backgroundColor: characterInfo.characterType[newToken.characterType]['backgroundColor'],
                                                                     borderColor: characterInfo.characterType[newToken.characterType]['borderColor']}}>
                                     { characterInfo.characterType[newToken.characterType]['jaName'] }
@@ -196,16 +202,16 @@ export default function GachaGacha(){
                     variant="outlined" style={{margin: 10, width: 345}}
                     value={ characterName }
                     onChange={(e) => setCharacterName(e.target.value)}/>
-                <Button variant="contained" onClick={handleClickGacha} disabled={characterName === ''} style={{margin: 10, width: 345}}>
+                <Button variant="contained" onClick={() => handleClickGacha()} disabled={characterName === ''} style={{margin: 10, width: 345}}>
                     ガチャを1回引く
                 </Button>
-            </Grid>
-            <Grid item xs={12} sm={8} md={8}>
                 <div>コイン: {currentCoin}</div>
                 <div>トークン: {currentToken}</div>
+            </Grid>
+            <Grid item xs={12} sm={8} md={8}>
                 <h2>Polyemmaガチャを引いてキャラを取得する</h2><hr/>
-                
-                <h3>キャラはどのようにしてうかう？<hr style={{margin: 0, padding: 0}}/></h3>
+
+                <h3>キャラはどのようにし使う？<hr style={{margin: 0, padding: 0}}/></h3>
                 他のプレイヤーと自分の所有するキャラを4対使用して、バトルすることができます。<br/>
                 バトルに勝つとPLMコインを獲得できます。<br/>
 
@@ -240,7 +246,6 @@ export default function GachaGacha(){
                         </Table>
                     </TableContainer>
                 </Paper>
-                レベルの上げ方:  hogehoge<br/>
             </Grid>
         </Grid>
     </Container>
