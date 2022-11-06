@@ -187,7 +187,7 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-        if(playerId == opponentPlayerId){
+        if(playerId === opponentPlayerId){
             const response = {
                 numRounds: numRounds,
                 playerId: playerId,
@@ -227,7 +227,7 @@ function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, s
     });
 }
 
-function battleResult (addressIndex) {
+function battleResult (setBattleDetail, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.BattleResult(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
@@ -236,6 +236,14 @@ function battleResult (addressIndex) {
         } else {
             console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
         }
+        setBattleDetail({
+            numRounds: numRounds,
+            isDraw: isDraw,
+            winner: winner,
+            loser: loser,
+            winnerCount: winnerCount,
+            loserCount: loserCount
+        });
     });
 }
 
