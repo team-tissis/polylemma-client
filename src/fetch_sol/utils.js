@@ -39,11 +39,11 @@ function getContractAddress (contractName) {
         const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
         return contractAddress;
     } else if (env === 'mumbai') {
-        if (contractName === "PLMCoin") return "0x3339F7b5a9732A89A97784da603db81e4e36De21";
-        else if (contractName === "PLMToken") return "0xB26c1c4F3943632C5320e81154DEde5F70541F8d";
-        else if (contractName === "PLMDealer") return "0x7DE60Bfe97DBF9e187cC60968abD5Ee86551041B";
-        else if (contractName === "PLMMatchOrganizer") return "0xcC1E6B11FBB87b8Bb8b33A8fB3261A0DaEb7fda6";
-        else if (contractName === "PLMBattleField") return "0x6a4ED9Ac7f80222df4683B15acEB7996fa98ec2A";
+        if (contractName === "PLMCoin") return "0xA0dcb1F996CB1335D4356C944C7168EE75a94953";
+        else if (contractName === "PLMToken") return "0xCF8D3345dd90B218b9F428562fe5985dC4AcDd56";
+        else if (contractName === "PLMDealer") return "0x38CE8D774a9fcb04Fa9AfeE5B0d0B82B7824857f";
+        else if (contractName === "PLMMatchOrganizer") return "0xD60a1442Fd07b45f8161515A3E8f392DdcCD1661";
+        else if (contractName === "PLMBattleField") return "0xa8F64D2Cd2F0597B586BFcfc940a49C9f2ea1247";
     }
 }
 
