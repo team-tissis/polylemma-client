@@ -72,6 +72,7 @@ $ npm install --save typescript
 ![スクリーンショット 2022-11-06 22 45 10](https://user-images.githubusercontent.com/42636663/200174344-6ccbd076-1ee9-4391-8370-fe40424e4daa.png)
 
 ## マッチメイク
+![スクリーンショット 2022-11-06 22 48 32](https://user-images.githubusercontent.com/42636663/200174546-190b6a65-435b-4b25-8810-123a3843ae4a.png)
 
 ## バトル
 ![スクリーンショット 2022-11-06 22 37 19](https://user-images.githubusercontent.com/42636663/200174410-92822b44-1cec-4a8d-89ab-18d30b675b86.png)
