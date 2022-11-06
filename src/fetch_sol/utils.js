@@ -6,6 +6,8 @@ import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
+const env = 'mumbai';
+
 function stringToBytes32 (str) {
     return ethers.utils.formatBytes32String(str);
 }
