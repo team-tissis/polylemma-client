@@ -12,15 +12,15 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Fab from '@mui/material/Fab';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId,
-         setTmpMyPlayerSeed, set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle } from '../../slices/myCharacter.ts';
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setTmpMyPlayerSeed, 
+        set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle, setOpponentRsFullInfo } from '../../slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getRandomBytes32 } from '../../fetch_sol/utils.js';
 import { isInBattle } from '../../fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot,
          getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
-         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled } from '../../fetch_sol/battle_field.js';
+         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from '../../fetch_sol/battle_field.js';
 import characterInfo from "./character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -44,7 +44,6 @@ function handleButtonStyle() {
 function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    const _backgroundColor = (character.index === choice) ? 'grey' : 'white';
     const _thisCharacterBattleDone = character.battleDone;
 
     var _cardStyleColor = character.isRandomSlot ? '#FFFF66' : '#FFDBC9'
@@ -55,12 +54,8 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
     }
 
     function handleCharacterChoice() {
-        if(listenToRoundRes === 'freeze'){
-            return
-        }
-        if(_thisCharacterBattleDone){
-            return
-        }
+        if(listenToRoundRes === 'freeze'){ return }
+        if(_thisCharacterBattleDone){ return }
         setChoice(character.index)
     }
 
@@ -101,7 +96,11 @@ function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, level
 
 function PlayerYou({opponentCharacters}){
     var opponentTotalLevels = 0;
+    var opponentRsLevel = 0;
     opponentCharacters.forEach(characters => {
+        if(opponentRsLevel < characters.level){
+            opponentRsLevel = characters.level;
+        }
         opponentTotalLevels += characters.level
     });
     return(<>
@@ -115,11 +114,9 @@ function PlayerYou({opponentCharacters}){
                 <Grid item xs={2} sm={2} md={2} key={index}>
 
                     <div className="card_parent" style={{backgroundColor: character.isRandomSlot ? 'grey' : characterInfo.attributes[character.attributeIds[0]]["backgroundColor"]}}>
-                        {character.isRandomSlot ? <></> : <>
-                            <div className="card_name">
-                                    { character.name }
-                            </div>
-                        </>}
+                        <div className="card_name">
+                            { character.name }
+                        </div>
 
                         <div className="box" style={{padding: 10, backgroundColor: character.battleDone ? 'grey' : '#FFDBC9',  fontSize: 14, borderColor: 'silver'}}>
                             レベル: { character.level}
@@ -140,12 +137,30 @@ function PlayerYou({opponentCharacters}){
                                 </div>
                         </>}
 
+                        <div className="character_type_box" style={{backgroundColor: character.characterType == null ? 'grey' : characterInfo.characterType[character.characterType]['backgroundColor'], 
+                            borderColor: character.characterType == null ? 'grey' :  characterInfo.characterType[character.characterType]['borderColor']}}>
+                            {(character.characterType == null) ? <></> :
+                                <>{ characterInfo.characterType[character.characterType]['jaName'] }</>
+                            }
+                        </div>
+                        <div className="img_box">
+                            <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
+                        </div>
+                        <div className="attribute_box">
+                            {(character.rarity == null) ? <></>
+                            : <>レア度 {character.rarity}<br/></>
+                            }
+                            {(character.attributeIds == null) ? <></>
+                            : <>{ characterInfo.attributes[character.attributeIds[0]]["title"] }</>
+                            }
+                        </div>
+
                         <div className="detail_box">
-                                {character.isRandomSlot ? <></> : <>
-                                    <div style={{margin: 10}}>
-                                        { characterInfo.attributes[character.attributeIds[0]]["description"] }
-                                    </div>
-                                </>}
+                            <div style={{margin: 10}}>
+                                {(character.attributeIds == null) ? <></>
+                                    : <>{ characterInfo.attributes[character.attributeIds[0]]["description"] }</>
+                                }
+                            </div>
                         </div>
                     </div>
 
@@ -162,7 +177,7 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remaining
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {myCharactors.map((myCharactor, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard choice={choice} setChoice={setChoice} character={myCharactor}
+                    <NFTCharactorCard key={index} choice={choice} setChoice={setChoice} character={myCharactor}
                         listenToRoundRes={listenToRoundRes} levelPoint={levelPoint} />
                 </Grid>
             ))}
@@ -236,6 +251,7 @@ export default function BattleMain(){
         console.log("commit and reveal........");
     },[listenToRoundRes]);
 
+
     useEffect(() => {
         // reduxに結果を反映
         if(roundDetail != null){
@@ -243,13 +259,22 @@ export default function BattleMain(){
         }
     },[roundDetail]);
 
-    useEffect(() => {
+    // 相手が何round目に何を出したかを"choiceRevealed"で検知する(levelPoint, choice, numRounds)
+    // 相手の出したキャラの検知と、もしRSを出しとき、RSキャラの詳細情報を取得する
+    useEffect(() => {(async function() {
         console.log("opponentRevealed........");
         console.log({opponentRevealed})
+        // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
+        if(opponentRevealed.choice == 4){
+            const opponentPlayerId = 1 - myCharacters.playerId;
+            const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
+            console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
+            dispatch(setOpponentRsFullInfo(opponentRSInfo));
+        }
         if( opponentRevealed != null) {
             dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
         }
-    },[opponentRevealed]);
+    })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
         const tmpMyPlayerId = await getPlayerIdFromAddress();
@@ -268,7 +293,7 @@ export default function BattleMain(){
             if(myCharacters.tmpMyPlayerSeed == null){
                 dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
             }
-
+            
             // 対戦に使うキャラ5体(RSを含む)をreduxに追加
             const fixedSlotCharInfo = await getFixedSlotCharInfo(tmpMyPlayerId);
             try {
@@ -284,20 +309,29 @@ export default function BattleMain(){
         choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
 
         if (isCOM) {
+
             const tmpCOMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(tmpCOMPlayerSeed);
-            // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
-            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - tmpMyPlayerId, addressIndex);
             try {
                 await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
             } catch (e) {
                 console.log(e);
             }
+
+            // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
+            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - tmpMyPlayerId, addressIndex);
+            console.log({コンピューターのキャラ一覧: comFixedSlotCharInfo})
             // setHoge で設定したやつは useEffect が終わるまで更新されない…
             const _comRandomSlot = await getMyRandomSlot(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex)
-            const comCharacterList = [...comFixedSlotCharInfo, _comRandomSlot]
+            // 相手のRSの情報はわからないので、とりあえず"comFixedSlotCharInfo"だけをreduxに追加する
+            const opponentMaskedCharacter = {
+                index: 4, name: null, imgURI: null, characterType: null, level: null, 
+                bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
+            }
+            const comCharacterList = [...comFixedSlotCharInfo, opponentMaskedCharacter]
             // コンピューターのキャラ5対を表示
             dispatch(setOthersBattleCharacter(comCharacterList));
+
 
             setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
@@ -418,6 +452,7 @@ export default function BattleMain(){
             }
         }
         roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
+
         setMyCommit(true);
         // 勝敗が決まるまでボタンを押せないようにする
         if (isCOM) {
@@ -458,6 +493,7 @@ export default function BattleMain(){
     <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
+                [dev]左から数えて {comChoice} 番目のトークンが選択されました。
                 <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
