@@ -27,6 +27,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
+import {BallTriangle} from 'react-loader-spinner'
 import TableRow from '@mui/material/TableRow';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -97,7 +98,6 @@ export default function GachaGacha(){
     const handleClickGacha = async () => {
         setOpen(true);
         const newGotToken = await gacha(characterName);
-        console.log({newGotToken})
         setNewToken(newGotToken)
         setCurrentCoin(await balanceOf());
         setCurrentToken(await getNumberOfOwnedTokens());
@@ -114,49 +114,67 @@ export default function GachaGacha(){
         <div>
         <Dialog
             open={open}
-            onClose={handleClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-            ギフトボックスをクリックしてキャラクターを確認しよう
+                {(newToken == null) ? <>
+                    通信中です、しばらくお待ちください
+                </> : <>
+                    ギフトボックスをクリックしてキャラクターを確認しよう
+                </>} 
             </DialogTitle>
             <DialogContent>
-                <div onClick={() =>  setIsOpened(true)} style={{margin: 50}}>
-                    {isOpened ? <>
-                        {newToken && <>
-                            <div className="card_parent"　style={{width: 400, margin: '0 auto'}}>
-                            <div className="card_name">
-                                { newToken.name }
-                            </div>
-                            <div className="box" style={{padding: 10}}>
-                                レベル: { newToken.level }<br/>
-                            </div>
-                            
-                            <div className="character_type_box" style={{backgroundColor: characterInfo.characterType[newToken.characterType]['backgroundColor'],
-                                                                borderColor: characterInfo.characterType[newToken.characterType]['borderColor']}}>
-                                { characterInfo.characterType[newToken.characterType]['jaName'] }
-                            </div>
-                            <div className="img_box" style={{height: 'auto'}}>
-                                <img className='img_div' src={ newToken.imgURI } style={{width: '98%', height: 'auto', objectFit: 'fill'}} alt="sample"/>
-                            </div>
-                            <div className="attribute_box">
-                                レア度 {newToken.rarity} / { characterInfo.attributes[newToken.attributeIds[0]]["title"] }
-                            </div>
-                            <div className="detail_box">
-                                <div style={{margin: 10}}>
-                                    { characterInfo.attributes[newToken.attributeIds[0]]["description"] }
+                {(newToken == null) ? <>
+                <div style={{width: '100%', textAlign: 'center'}}>
+                    <BallTriangle
+                        height="150"
+                        width="150"
+                        radisu={10}
+                        color="#4fa94d"
+                        ariaLabel="puff-loading"
+                        wrapperStyle={{display: 'inlineBlock'}}
+                        wrapperClass=""
+                        visible={true}
+                    />
+                </div>
+                </>:<>
+                    <div onClick={() =>  newToken == null ? null : setIsOpened(true)} style={{margin: 50}}>
+                        {isOpened ? <>
+                            {newToken && <>
+                                <div className="card_parent"　style={{width: 400, margin: '0 auto'}}>
+                                <div className="card_name">
+                                    { newToken.name }
+                                </div>
+                                <div className="box" style={{padding: 10}}>
+                                    レベル: { newToken.level }<br/>
+                                </div>
+                                
+                                <div className="character_type_box" style={{backgroundColor: characterInfo.characterType[newToken.characterType]['backgroundColor'],
+                                                                    borderColor: characterInfo.characterType[newToken.characterType]['borderColor']}}>
+                                    { characterInfo.characterType[newToken.characterType]['jaName'] }
+                                </div>
+                                <div className="img_box" style={{height: 'auto'}}>
+                                    <img className='img_div' src={ newToken.imgURI } style={{width: '98%', height: 'auto', objectFit: 'fill'}} alt="sample"/>
+                                </div>
+                                <div className="attribute_box">
+                                    レア度 {newToken.rarity} / { characterInfo.attributes[newToken.attributeIds[0]]["title"] }
+                                </div>
+                                <div className="detail_box">
+                                    <div style={{margin: 10}}>
+                                        { characterInfo.attributes[newToken.attributeIds[0]]["description"] }
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        </>}
-                    </> : <Lottie options={defaultOptions} height={400} width={400} />
-                    }
-                </div>
+                            </>}
+                        </> : <Lottie options={defaultOptions} height={400} width={400} />
+                        }
+                    </div>
+                </>}
             </DialogContent>
             <DialogActions>
             <div>トークンID: {addedTokenId}</div>
-            <Button onClick={handleClose} autoFocus>
+            <Button onClick={handleClose} disabled={!isOpened} autoFocus>
                 戻る
             </Button>
             </DialogActions>
