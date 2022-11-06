@@ -1,10 +1,16 @@
 import { ethers } from "ethers";
 // import contractFunctions from "../broadcast/PLMGachaScript.s.sol/31337/run-latest.json";
-import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
-import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
-import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
-import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
-import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
+import coinArtifact from "./PLMjsons/PLMCoin.json";
+import dealerArtifact from "./PLMjsons/PLMDealer.json";
+import tokenArtifact from "./PLMjsons/PLMToken.json";
+import matchOrganizerArtifact from "./PLMjsons/PLMMatchOrganizer.json";
+import battleFieldArtifact from "./PLMjsons/PLMBattleField.json";
+
+// import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
+// import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
+// import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
+// import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
+// import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
 const env = 'mumbai';
 
