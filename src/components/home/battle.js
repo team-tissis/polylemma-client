@@ -226,10 +226,10 @@ export default function Battle() {
 
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
-        if((await checkStamina()) == false) {
+        if((await checkStamina()) === false) {
             // スタミナがあるか確認
             alert("スタミナが足りません。チャージしてください。");
-        } else if((await subscIsExpired()) == true) {
+        } else if((await subscIsExpired()) === true) {
             // サブスクの確認
             alert("サブスクリプションの期間が終了しています。更新して再度バトルに臨んでください。");
         } else {

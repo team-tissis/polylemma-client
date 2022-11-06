@@ -49,7 +49,7 @@ interface IMyCharacterList {
     playerId: null | number;
 }
 
-const initialState: IMyCharacterList = { charactersList: [] ,otherCharactersList: [], 
+const initialState: IMyCharacterList = { charactersList: [] ,otherCharactersList: [],
                     requestCharacterList: [], hasRandomSlot: false , tmpMyPlayerSeed: null, playerId: null};
 const currentMyCharacterSlice = createSlice({
     name: 'currentMyCharacter',
@@ -94,13 +94,13 @@ const currentMyCharacterSlice = createSlice({
         setOpponentRsFullInfo(state, action: PayloadAction<IOpponentBattleCharacter>) {
             // TODO: 各キャラにindexを振る
             const charactersExceptRs = state.otherCharactersList.filter((character, index) => {
-                return character.isRandomSlot == false
+                return character.isRandomSlot === false
             });
             // RSを配列の最後に挿入する
             state.otherCharactersList = [...charactersExceptRs, action.payload]
         },
         setTmpMyPlayerSeed(state, action: PayloadAction<string>) {
-          state.tmpMyPlayerSeed = action.payload;
+            state.tmpMyPlayerSeed = action.payload;
         },
         setPlayerId(state, action: PayloadAction<number>) {
             state.playerId = action.payload;
@@ -129,7 +129,7 @@ const currentMyCharacterSlice = createSlice({
 });
 
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
-export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed, setPlayerId, setOpponentRsFullInfo, 
+export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setTmpMyPlayerSeed, setPlayerId, setOpponentRsFullInfo,
                 choiceOtherCharacterInBattle, setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
                 myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;
