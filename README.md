@@ -20,6 +20,9 @@ $ mkdir -p ~/.nodebrew/src
 $ nodebrew install-binary v14.20.0 # M1 Mac 以外
 $ nodebrew compile v14.20.0 # M1 Mac 以外（30 分程度かかります）
 $ nodebrew use v14.20.0
+$ vim .bashrc # その他のシェルの場合も適切に設定してください
+# export PATH=$HOME/.nodebrew/current/bin:$PATH を書き込む
+$ source ~/.bashrc
 ```
 
 
