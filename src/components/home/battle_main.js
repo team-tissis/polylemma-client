@@ -119,7 +119,7 @@ function PlayerYou({opponentCharacters}){
                         </div>
 
                         <div className="box" style={{padding: 10, backgroundColor: character.battleDone ? 'grey' : '#FFDBC9',  fontSize: 14, borderColor: 'silver'}}>
-                            レベル: {opponentRsLevel}
+                            レベル: { (character.level === null) ? opponentRsLevel : character.level }
                             <br/>
                             絆レベル: { character.bondLevel }
                         </div>
@@ -137,9 +137,9 @@ function PlayerYou({opponentCharacters}){
                                 </div>
                         </>}
 
-                        <div className="character_type_box" style={{backgroundColor: character.characterType == null ? 'grey' : characterInfo.characterType[character.characterType]['backgroundColor'],
-                            borderColor: character.characterType == null ? 'grey' :  characterInfo.characterType[character.characterType]['borderColor']}}>
-                            {(character.characterType == null) ? <></> :
+                        <div className="character_type_box" style={{backgroundColor: character.characterType === null ? 'grey' : characterInfo.characterType[character.characterType]['backgroundColor'],
+                            borderColor: character.characterType === null ? 'grey' :  characterInfo.characterType[character.characterType]['borderColor']}}>
+                            {(character.characterType === null) ? <></> :
                                 <>{ characterInfo.characterType[character.characterType]['jaName'] }</>
                             }
                         </div>
@@ -147,17 +147,17 @@ function PlayerYou({opponentCharacters}){
                             <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
                         </div>
                         <div className="attribute_box">
-                            {(character.rarity == null) ? <></>
+                            {(character.rarity === null) ? <></>
                             : <>レア度 {character.rarity}<br/></>
                             }
-                            {(character.attributeIds == null) ? <></>
+                            {(character.attributeIds === null) ? <></>
                             : <>{ characterInfo.attributes[character.attributeIds[0]]["title"] }</>
                             }
                         </div>
 
                         <div className="detail_box">
                             <div style={{margin: 10}}>
-                                {(character.attributeIds == null) ? <></>
+                                {(character.attributeIds === null) ? <></>
                                     : <>{ characterInfo.attributes[character.attributeIds[0]]["description"] }</>
                                 }
                             </div>
@@ -244,10 +244,11 @@ export default function BattleMain(){
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
     const [mySeedRevealed, setMySeedRevealed] = useState(false);
-    const [isCOM, setIsCOM] = useState(true);
+    const [isCOM, setIsCOM] = useState(false);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
     const [roundDetail, setRoundDetail] = useState(null);
     const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
+    const [battleDetail, setBattleDetail] = useState(null);
 
     // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
     const [opponentRevealed, setOpponentRevealed] = useState(null);
@@ -270,7 +271,7 @@ export default function BattleMain(){
         console.log("opponentRevealed........");
         console.log({opponentRevealed})
         // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
-        if(opponentRevealed.choice == 4){
+        if(opponentRevealed.choice === 4){
             const opponentPlayerId = 1 - myCharacters.playerId;
             const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
             console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
@@ -350,7 +351,7 @@ export default function BattleMain(){
         playerSeedCommitted();
         playerSeedRevealed();
         choiceRevealed(setOpponentRevealed);
-        battleResult();
+        battleResult(setBattleDetail);
         battleCanceled();
     }, []);
 
@@ -371,7 +372,7 @@ export default function BattleMain(){
         }
         // comChoiceが含まれていたら配列から削除
         const newArray = enemyAvailabelCharaIndexes.filter(index => index !== comChoice);
-        if(newArray.length == 1){
+        if(newArray.length === 1){
             return newArray[0]
         }
         // console.log(`選択可能なindex一覧は${enemyAvailabelCharaIndexes}`)
@@ -381,16 +382,17 @@ export default function BattleMain(){
 
     async function handleSeedCommit () {
         // リロードしてモンスターが変わらないように修正
-        if(myCharacters.charactersList.length == 0){
+        if(myCharacters.charactersList.length === 0){
             const tmpMyPlayerSeed = getRandomBytes32();
             setMyPlayerSeed(tmpMyPlayerSeed);
             // seedが登録されていない場合、登録する
-            if(myCharacters.tmpMyPlayerSeed == null){
+            if(myCharacters.tmpMyPlayerSeed === null){
                 dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
             }
 
             // 対戦に使うキャラ5体(RSを含む)をreduxに追加
             const fixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
+            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - myPlayerId);
             try {
                 await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
             } catch (e) {
@@ -404,6 +406,16 @@ export default function BattleMain(){
             const _myRandomSlot = await getMyRandomSlot(myPlayerId, tmpMyPlayerSeed)
             const characterList = [...fixedSlotCharInfo, _myRandomSlot]
             dispatch(set5BattleCharacter(characterList))
+
+            // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
+            const opponentMaskedCharacter = {
+                index: 4, name: null, imgURI: null, characterType: null, level: null,
+                bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
+            }
+            const comCharacterList = [...comFixedSlotCharInfo, opponentMaskedCharacter]
+            // コンピューターのキャラ5対を表示
+            dispatch(setOthersBattleCharacter(comCharacterList));
+            setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
         }
     }
 
@@ -512,6 +524,7 @@ export default function BattleMain(){
         setRound(round + 1);
         setOpponentCommit(false);
         setMyCommit(false);
+        setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
     }
 
     return(<>
@@ -538,36 +551,74 @@ export default function BattleMain(){
             </Container>
         </Grid>
         <Grid item xs={10} md={2}>
-            <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
+            {/* <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
             <div style={{textAlign: 'center'}}>
                 <div style={{display: 'inlineBlock'}}>
                     <UrgeWithPleasureComponent/>
                 </div>
-            </div>
+            </div> */}
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
-                <Grid item xs={2} md={2}>n戦目</Grid>
-                    <Grid item xs={2} md={2}>引分</Grid>
-                    <Grid item xs={2} md={2}>winner</Grid>
-                    <Grid item xs={2} md={2}>loser</Grid>
-                    <Grid item xs={2} md={2}>winner<br/>Damage</Grid>
-                    <Grid item xs={2} md={2}>loser<br/>Damage</Grid>
+                    <Grid item xs={6} md={6}></Grid>
+                    <Grid item xs={6} md={6}>攻撃力</Grid>
+                    <Grid item xs={3} md={3}>ラウンド</Grid>
+                    <Grid item xs={3} md={3}>勝敗</Grid>
+                    <Grid item xs={3} md={3}>自分</Grid>
+                    <Grid item xs={3} md={3}>相手</Grid>
                     {roundResultList.resultList.map((roundResult, index) => (
                         <>
-                            <Grid item xs={2} md={2}>{roundResult.numRounds + 1}戦目</Grid>
-                            <Grid item xs={2} md={2}>{roundResult.isDraw && "引き分け"}</Grid>
-                            <Grid item xs={2} md={2}>{(myCharacters.playerId == roundResult.winner) ? <>自分</> : <>相手</>}</Grid>
-                            <Grid item xs={2} md={2}>{(myCharacters.playerId == roundResult.loser) ? <>自分</> : <>相手</>}</Grid>
-                            <Grid item xs={2} md={2}>{roundResult.winnerDamage}</Grid>
-                            <Grid item xs={2} md={2}>{roundResult.loserDamage}</Grid>
+                            <Grid item xs={3} md={3}>{roundResult.numRounds + 1}</Grid>
+                            <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (myCharacters.playerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
+                            <Grid item xs={3} md={3}>{(myCharacters.playerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
+                            <Grid item xs={3} md={3}>{(myCharacters.playerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
                         </>
                     ))}
                 </Grid>
             </Card>
+            {battleDetail !== null &&
+            <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
+                <Grid container spacing={3}>
+                    <Grid item xs={4} md={4}>勝敗</Grid>
+                    <Grid item xs={4} md={4}>自分</Grid>
+                    <Grid item xs={4} md={4}>相手</Grid>
 
+                    <Grid item xs={4} md={4}>{battleDetail.isDraw ? <>△</> : (myCharacters.playerId === battleDetail.winner) ? <>○</> : <>×</>}</Grid>
+                    <Grid item xs={4} md={4}>{(myCharacters.playerId === battleDetail.winner) ? battleDetail.winnerCount : battleDetail.loserCount}</Grid>
+                    <Grid item xs={4} md={4}>{(myCharacters.playerId === battleDetail.winner) ? battleDetail.loserCount : battleDetail.winnerCount}</Grid>
+                </Grid>
+            </Card>
+            }
+
+            <Grid item xs={10} md={10}>
+                <h2>バトル方法</h2><hr/>
+
+                <h2>手順<hr style={{margin: 0, padding: 0}}/></h2>
+                <p>「バトルを開始する」ボタンを押すとバトルが開始する</p>
+                <p>「勝負するキャラクターを確定する」ボタンを押すと各ラウンドで使用するキャラが確定する（それ以降は変更不可）</p>
+                <p>ランダムスロットを選択した場合、「ランダムスロットを公開する」ボタンを押すとランダムスロットが使用可能になる</p>
+                <p>「バトル結果を見る」ボタンを押すとバトルの実行結果が勝敗表に反映される</p>
+
+                <h2>勝敗の決定<hr style={{margin: 0, padding: 0}}/></h2>
+                <p>攻撃力が大きい方が勝負に勝利できます。</p>
+                <p>レベル: 基本的にはレベルによってキャラの攻撃力が決まります。</p>
+                <p>絆レベル: 獲得したキャラの保有期間が長ければ長いほど、絆レベルは上昇していきます。（上限は自分のレベル数の二倍）</p>
+                <p>絆レベルが高いほど攻撃力が増加します。（ただし、必ず攻撃力が上がるわけではありません。）</p>
+                <p>属性: 炎 / 草 / 水の3種類があり、じゃんけんのような相性があります。</p>
+                <p>特性: 表示されている効果が発動され、攻撃力が上昇したりします。</p>
+                <p>その他: ランダムスロットを使うことができ、レベルポイントも追加できます。</p>
+
+                <h2>ランダムスロット<hr style={{margin: 0, padding: 0}}/></h2>
+                <p>レベル: 使っているキャラのレベルの平均値が設定されます。</p>
+                <p>絆レベル: ありません。</p>
+
+                <h2>レベルポイント<hr style={{margin: 0, padding: 0}}/></h2>
+                <p>5 ラウンドで、合計で使っているキャラのレベルの最大値まで与えることができます。</p>
+                <p>一つのラウンドで全てのレベルポイントを使うことも可能です。</p>
+                <p>レベルポイントはレベルと同じように攻撃力に加算されます。</p>
+            </Grid>
         </Grid>
 
-        {myCharacters.charactersList.length == 0 &&
+        {myCharacters.charactersList.length === 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
@@ -579,13 +630,13 @@ export default function BattleMain(){
             </Button>
         }
 
-        {opponentCommit && myCommit && !mySeedRevealed && choice == 4 &&
+        {opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 RS を公開する
             </Button>
         }
 
-        {opponentCommit && myCommit && (choice != 4 || (choice == 4) && mySeedRevealed) &&
+        {opponentCommit && myCommit && (choice != 4 || (choice === 4) && mySeedRevealed) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトルする
             </Button>
