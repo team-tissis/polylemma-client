@@ -11,7 +11,7 @@ import {
   REGISTER,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import rootReducer from 'rootReducer';
+import rootReducer from 'rootReducer.ts';
 
 const persistConfig = {
   key: 'root',
