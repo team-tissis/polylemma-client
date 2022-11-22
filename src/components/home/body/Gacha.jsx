@@ -4,9 +4,6 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Lottie from 'react-lottie';
 import Paper from '@mui/material/Paper';
-import * as animationData from '../../animations/gift.json';
-import * as unOpenAnimationData from '../../animations/gift-unopen.json';
-import * as questionAnimationData from '../../animations/question.json';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { Skeleton } from 'react-skeleton-generator';
@@ -16,11 +13,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { balanceOf, mint } from '../../fetch_sol/coin.js';
-import { getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
-import { gacha, getGachaFee } from '../../fetch_sol/gacha.js';
 import TextField from '@mui/material/TextField';
-import characterInfo from "./character_info.json";
+import characterInfo from "assets/character_info.json";
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -29,6 +23,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import {BallTriangle} from 'react-loader-spinner'
 import TableRow from '@mui/material/TableRow';
+import * as animationData from 'assets/animations/gift.json';
+import * as unOpenAnimationData from 'assets/animations/gift-unopen.json';
+import * as questionAnimationData from 'assets/animations/question.json';
+import { balanceOf, mint } from 'fetch_sol/coin.js';
+import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
+import { gacha, getGachaFee } from 'fetch_sol/gacha.js';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {

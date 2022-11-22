@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../store.ts';
+import { RootState } from 'Store';
 
 // console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
 // 2 Round: Winner 0 4 vs Loser 1 1.

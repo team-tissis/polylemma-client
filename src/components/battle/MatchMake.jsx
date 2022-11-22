@@ -16,9 +16,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import { selectMyCharacter } from '../../slices/myCharacter.ts'
 import { useSelector } from 'react-redux';
-import { getProposalList, requestChallenge } from '../../fetch_sol/match_organizer.js';
+import { selectMyCharacter } from 'slices/myCharacter.ts'
+import { getProposalList, requestChallenge } from 'fetch_sol/match_organizer';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

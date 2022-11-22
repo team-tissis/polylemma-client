@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import reportWebVitals from './reportWebVitals';
+import 'css/index.css';
+import reportWebVitals from 'reportWebVitals';
 import { Provider } from 'react-redux';
-import { RouterConfig } from "./Routes.tsx";
-import Header from './components/applications/header';
-import Footer from './components/applications/footer';
+import { RouterConfig } from "routes/Routes.tsx";
+import Header from 'components/applications/Header';
 import { SnackbarProvider } from 'notistack';
-import { store, persistor } from './store.ts';
+import { store, persistor } from 'Store.ts';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -16,7 +14,6 @@ root.render(
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center'}}>
       <Header />
       <RouterConfig/>
-      <Footer />
   </SnackbarProvider>
   </Provider>
 );

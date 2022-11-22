@@ -3,7 +3,6 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import Icon from '../../icons/avatar_1.png'
 import Chip from '@mui/material/Chip';
 import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
@@ -12,16 +11,17 @@ import { useNavigate } from 'react-router-dom';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setTmpMyPlayerSeed,
-        set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle, setOpponentRsFullInfo } from '../../slices/myCharacter.ts';
-import { selectRoundResult, oneRoundDone } from '../../slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
-import { getRandomBytes32 } from '../../fetch_sol/utils.js';
-import { isInBattle } from '../../fetch_sol/match_organizer.js';
+import Icon from 'assets/icons/avatar_1.png'
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setTmpMyPlayerSeed,
+    set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle, setOpponentRsFullInfo } from 'slices/myCharacter.ts';
+import { selectRoundResult, oneRoundDone } from 'slices/roundResult.ts';
+import { getRandomBytes32 } from 'fetch_sol/utils.js';
+import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot,
-         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
-         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from '../../fetch_sol/battle_field.js';
-import characterInfo from "./character_info.json";
+         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle, battleStarted, playerSeedCommitted, 
+         playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from 'fetch_sol/battle_field.js';
+import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

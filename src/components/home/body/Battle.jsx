@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './card.css';
 import 'react-tabs/style/react-tabs.css';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -13,19 +12,20 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from '../../slices/myCharacter.ts'
-import { battleRemove } from '../../slices/battle.ts';
-import { roundResultReset } from '../../slices/roundResult.ts';
-import { useSelector, useDispatch } from 'react-redux';
-import { getContract } from '../../fetch_sol/utils.js';
-import { getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
-import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
-import { forceInitBattle, battleStarted } from '../../fetch_sol/battle_field.js';
-import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from '../../fetch_sol/test/match_organizer_test.js';
-import { checkStamina, subscIsExpired } from '../../fetch_sol/dealer.js';
-import { useSnackbar } from 'notistack';
-import characterInfo from "./character_info.json";
 import TextField from '@mui/material/TextField';
+import 'css/card.css';
+import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from 'slices/myCharacter.ts'
+import { battleRemove } from 'slices/Battle.ts';
+import { roundResultReset } from 'slices/roundResult.ts';
+import { useSelector, useDispatch } from 'react-redux';
+import { getContract } from 'fetch_sol/utils.js';
+import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
+import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from 'fetch_sol/match_organizer.js';
+import { forceInitBattle, battleStarted } from 'fetch_sol/battle_field.js';
+import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
+import { checkStamina, subscIsExpired } from 'fetch_sol/dealer.js';
+import { useSnackbar } from 'notistack';
+import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

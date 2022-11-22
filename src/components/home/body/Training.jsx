@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import 'react-tabs/style/react-tabs.css';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { CardActionArea } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
-import characterInfo from "./character_info.json";
-import { balanceOf } from '../../fetch_sol/coin.js';
-import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from '../../fetch_sol/token.js';
 import { useSnackbar } from 'notistack';
+import characterInfo from "assets/character_info.json";
+import { balanceOf } from 'fetch_sol/coin.js';
+import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 
 function bottomBoxstyle() {
     return {

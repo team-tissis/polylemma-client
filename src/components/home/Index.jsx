@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import './App.css';
 import 'react-tabs/style/react-tabs.css';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import Battle from './components/home/battle';
-import ModelTraining from './components/home/training';
-import GachaGacha from './components/home/gacha';
-import CharacterBook from './components/home/character_book';
+import 'css/App.css';
+import Battle from 'components/home/body/Battle';
+import ModelTraining from 'components/home/body/Training';
+import GachaGacha from 'components/home/body/Gacha';
+import CharacterBook from 'components/home/body/CharacterBook';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
@@ -27,8 +27,8 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }));
 
 
-function App() {
-  const [alignment, setAlignment] = React.useState('battle');
+function HomeIndex() {
+  const [alignment, setAlignment] = useState('battle');
 
   const handleAlignment = (event,newAlignment) => {
     if(!(newAlignment == null)){
@@ -79,4 +79,4 @@ function App() {
   </>);
 }
 
-export default App;
+export default HomeIndex;

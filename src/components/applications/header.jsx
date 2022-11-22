@@ -6,7 +6,6 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts'
 import { styled, useTheme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -14,14 +13,15 @@ import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { balanceOf, faucet } from '../../fetch_sol/coin.js';
-import { totalSupply } from '../../fetch_sol/token.js';
+import { useSnackbar } from 'notistack';
+import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/User.ts'
+import { balanceOf, faucet } from 'fetch_sol/coin.js';
+import { totalSupply } from 'fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
          extendSubscPeriod, getSubscUnitPeriodBlockNum,
          getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
-       } from '../../fetch_sol/dealer.js';
-import { useSnackbar } from 'notistack';
-import ProgressBar from './progress_bar';
+       } from 'fetch_sol/dealer.js';
+import ProgressBar from 'components/battle/ProgressBar';
 
 function getExchangeRate () {
     const exchangeRate = [];

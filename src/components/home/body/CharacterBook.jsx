@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import './card.css';
 import 'react-tabs/style/react-tabs.css';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { getAllTokenOwned, getAllCharacterInfo } from '../../fetch_sol/token.js';
-import characterInfo from "./character_info.json";
+import 'css/card.css';
+import { getAllTokenOwned, getAllCharacterInfo } from 'fetch_sol/token.js';
+import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

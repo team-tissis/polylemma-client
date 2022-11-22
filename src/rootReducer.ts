@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import currentWalletAddressReducer from './slices/user.ts';
-import currentMyCharacterReducer from './slices/myCharacter.ts';
-import currentBattleReducer from './slices/battle.ts';
-import currentRoundResultReducer from './slices/roundResult.ts';
+import currentWalletAddressReducer from 'slices/User';
+import currentMyCharacterReducer from 'slices/myCharacter';
+import currentBattleReducer from 'slices/Battle';
+import currentRoundResultReducer from 'slices/roundResult';
 
 
 export default combineReducers({ 
