@@ -15,12 +15,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSnackbar } from 'notistack';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/User.ts'
-import { balanceOf, faucet } from '../../fetch_sol/coin.js';
-import { getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
+import { balanceOf } from 'fetch_sol/coin.js';
+import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
          extendSubscPeriod, getSubscUnitPeriodBlockNum,
          getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
-       } from 'fetch_sol/dealer.js';
+         getPLMCoin } from 'fetch_sol/dealer.js';
 import ProgressBar from 'components/battle/ProgressBar';
 
 function getExchangeRate () {
@@ -42,7 +42,7 @@ function getExchangeRate () {
 export default function Header() {
     const [currentCoin, setCurrentCoin] = useState();
     const [currentToken, setCurrentToken] = useState();
-    const [subscExpired, setSubscExpired] = useState();
+    const [subscExpired, setSubscExpired] = useState(true);
     const [subscExpiredBlock, setSubscExpiredBlock] = useState();
     const [subscRemainingBlocks, setSubscRemainingBlocks] = useState();
     const [subscFee, setSubscFee] = useState();
@@ -215,9 +215,9 @@ export default function Header() {
         }
     };
 
-    const handleClickCharge = async (plm) => {
+    const handleClickCharge = async (plm, matic) => {
         try {
-            const addedCoin = await faucet(plm);
+            const addedCoin = await getPLMCoin(plm, matic);
             setCurrentCoin(await balanceOf());
             const message = addedCoin + " コインを獲得しました!";
             enqueueSnackbar(message, {
@@ -310,7 +310,7 @@ export default function Header() {
                 <Box component="span">
                     <h4>サブスクリプション</h4>
                     <div style={{marginTop: 10}}>
-                        <div>サブスクが終了しているか: {subscExpired}</div>
+                        <div>サブスクが終了しているか: {subscExpired.toString()}</div>
                         <div>サブスクが終了するブロック: {subscExpiredBlock}</div>
                         <div>サブスクが終了するまでのブロック数: {subscRemainingBlocks}</div>
                         <div>サブスク料金: {subscFee}</div>
@@ -332,7 +332,7 @@ export default function Header() {
                         ※: 累進課税式ですが、デモ用に MATIC は消費しないようにしています。
                     </div>
                     {exchangeRate.map((plm, matic) => (
-                        <Button variant="contained" onClick={() => handleClickCharge(plm)} style={{margin: 10, width: 345}}>
+                        <Button variant="contained" onClick={() => handleClickCharge(plm, matic)} style={{margin: 10, width: 345}}>
                             {matic} MATIC を {plm} PLM に交換する
                         </Button>
                     ))}

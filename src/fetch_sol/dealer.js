@@ -1,5 +1,5 @@
-import { getContract } from "./utils.js";
-import { approve } from "./coin.js";
+import { getEnv, getContract } from "./utils.js";
+import { approve, faucet } from "./coin.js";
 
 ///////////////////////////////
 /// FUNCTIONS ABOUT STAMINA ///
@@ -68,7 +68,7 @@ async function subscIsExpired (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.subscIsExpired(myAddress);
     console.log({ getSubscIsExpired: message });
-    return message.toString();
+    return message;
 }
 
 async function getSubscFeePerUnitPeriod (addressIndex) {
@@ -97,12 +97,21 @@ async function extendSubscPeriod (addressIndex) {
 /// FUNCTIONS ABOUT CHARGEMENT ///
 //////////////////////////////////
 
-// async function charge (addressIndex) {
-//     const { contract } = getContract("PLMDealer", addressIndex);
-//     const sendMATICAmount = "1" + "0".repeat(20);
-//     const message = await contract.charge({ value: sendMATICAmount });
-//     console.log({ charge: message });
-// }
+async function charge (amount, addressIndex) {
+    const { signer, contract } = getContract("PLMDealer", addressIndex);
+    const sendMATICAmount = amount.toString() + "0".repeat(18);
+    const message = await contract.charge({ value: sendMATICAmount });
+    console.log({ charge: message });
+
+    const myAddress = await signer.getAddress();
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'AccountCharged' && event.args.charger === myAddress);
+    if (event !== undefined) {
+        const [ charger, chargeAmount, poolingAmount ] = event.args;
+        console.log(chargeAmount.toNumber(), poolingAmount.toNumber());
+        return Number(chargeAmount.sub(poolingAmount));
+    }
+}
 
 // async function accountCharged (setAddedCoin, addressIndex) {
 //     const { signer, contract } = getContract("PLMDealer", addressIndex);
@@ -114,7 +123,14 @@ async function extendSubscPeriod (addressIndex) {
 //     });
 // }
 
+async function getPLMCoin (plm, matic, addressIndex) {
+    if (getEnv() === 'local') {
+        return await charge(matic, addressIndex);
+    } else if (getEnv() === 'mumbai') {
+        return await faucet(plm, addressIndex);
+    }
+}
+
 export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
-         getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod };
-        //  getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
-        //  charge, accountCharged };
+         getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
+         getPLMCoin };

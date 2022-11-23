@@ -6,6 +6,11 @@ import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
+function getEnv() {
+    return 'local';
+    // return 'mumbai';
+}
+
 function stringToBytes32 (str) {
     return ethers.utils.formatBytes32String(str);
 }
@@ -23,7 +28,7 @@ function getSeedString (myAddress, seed) {
 }
 
 function calcRandomSlotId (nonce, seed, mod) {
-    return ethers.BigNumber.from(ethers.utils.solidityKeccak256(["bytes32", "bytes32"], [nonce, seed])).mod(mod).toNumber() + 1;
+    return Number(ethers.BigNumber.from(ethers.utils.solidityKeccak256(["bytes32", "bytes32"], [nonce, seed])).mod(mod)) + 1;
 }
 
 function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
@@ -45,16 +50,16 @@ function getAbi (contractName) {
 }
 
 function getSigner (addressIndex) {
-    const signerIndex = (addressIndex == null) ? 1 : addressIndex;
-    // (多分) MetaMask を経由しないで使う方法
-
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = provider.getSigner(signerIndex);
-    // MetaMask を使う方法 (うまくいかない)
-    // const provider = new ethers.providers.Web3Provider(window.ethereum, 31337);
-    // const signer = provider.getSigner();
-
-    return signer;
+    if (getEnv() === 'local') {
+        const signerIndex = (addressIndex == null) ? 1 : addressIndex;
+        const provider = new ethers.providers.JsonRpcProvider();
+        const signer = provider.getSigner(signerIndex);
+        return signer;
+    } else if (getEnv() === 'mumbai') {
+        const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+        const signer = provider.getSigner();
+        return signer;
+    }
 }
 
 function getContract (contractName, addressIndex) {
@@ -65,4 +70,4 @@ function getContract (contractName, addressIndex) {
     return { contractAddress, signer, contract };
 }
 
-export { stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract };
+export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract };

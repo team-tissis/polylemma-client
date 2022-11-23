@@ -130,6 +130,6 @@ const currentMyCharacterSlice = createSlice({
 
 export const selectMyCharacter = (state: RootState): IMyCharacterList => state.myCharacter;
 export const { set4Characters, set5BattleCharacter, addRandomSlotToCurrentMyCharacter, setMyPlayerSeed, setPlayerId, setOpponentRsFullInfo,
-                choiceOtherCharacterInBattle, setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
-                myCharacterRemove } = currentMyCharacterSlice.actions;
+               choiceOtherCharacterInBattle, setOthersBattleCharacter , notInBattleVerifyCharacters, choiceCharacterInBattle,
+               myCharacterRemove } = currentMyCharacterSlice.actions;
 export default currentMyCharacterSlice.reducer;
