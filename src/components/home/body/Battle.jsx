@@ -254,7 +254,7 @@ export default function Battle() {
         } catch (e) {
             setDialogOpen(false);
             console.log({error: e});
-            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
+            alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
         }
     }
 
@@ -267,7 +267,7 @@ export default function Battle() {
         } catch (e) {
             setDialogOpen(false);
             console.log({error: e});
-            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
+            alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
         }
 
     }
