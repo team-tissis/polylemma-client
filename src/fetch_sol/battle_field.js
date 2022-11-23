@@ -187,7 +187,7 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-        if(playerId == opponentPlayerId){
+        if(playerId === opponentPlayerId){
             const response = {
                 numRounds: numRounds,
                 playerId: playerId,
