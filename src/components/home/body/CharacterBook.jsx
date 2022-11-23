@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import 'css/card.css';
-import { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
+import { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({

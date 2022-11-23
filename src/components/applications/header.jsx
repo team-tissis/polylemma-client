@@ -14,7 +14,7 @@ import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSnackbar } from 'notistack';
-import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/User.ts'
+import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/user.ts'
 import { balanceOf } from 'fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
