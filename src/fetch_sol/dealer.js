@@ -43,20 +43,6 @@ async function restoreFullStamina (addressIndex) {
     console.log({ restoreFullStamina: message });
 }
 
-// フロントで対戦が実行できるか確認する用の関数
-async function checkStamina (addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
-    const myAddress = await signer.getAddress();
-    const currentStamina = await getCurrentStamina(addressIndex);
-    const staminaFee = await getStaminaPerBattle(addressIndex);
-    console.log(`currentStamina is [${currentStamina}] staminaFee is [${staminaFee}]`);
-    if(currentStamina < staminaFee){
-        return false;
-    } else {
-        return true;
-    }
-}
-
 ////////////////////////////////////
 /// FUNCTIONS ABOUT SUBSCRIPTION ///
 ////////////////////////////////////
@@ -128,7 +114,7 @@ async function extendSubscPeriod (addressIndex) {
 //     });
 // }
 
-export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, checkStamina,
+export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
          getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod };
         //  getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
         //  charge, accountCharged };

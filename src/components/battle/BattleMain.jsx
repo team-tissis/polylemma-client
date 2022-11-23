@@ -13,13 +13,13 @@ import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setTmpMyPlayerSeed,
-    set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle, setOpponentRsFullInfo } from 'slices/myCharacter.ts';
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setPlayerId, setMyPlayerSeed,
+         set5BattleCharacter, setOthersBattleCharacter, choiceOtherCharacterInBattle, setOpponentRsFullInfo } from 'slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from 'slices/roundResult.ts';
 import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot,
-         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle, battleStarted, playerSeedCommitted, 
+         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle, battleStarted, playerSeedCommitted,
          playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
 
@@ -228,8 +228,6 @@ export default function BattleMain(){
     const roundResultList = useSelector(selectRoundResult);
 
     const [myPlayerId, setMyPlayerId] = useState();
-
-    const [myPlayerSeed, setMyPlayerSeed] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
 
     // for debug
@@ -303,8 +301,6 @@ export default function BattleMain(){
 
             // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
             const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - tmpMyPlayerId, addressIndex);
-            // setHoge で設定したやつは useEffect が終わるまで更新されない…
-            const _comRandomSlot = await getMyRandomSlot(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex)
             // 相手のRSの情報はわからないので、とりあえず"comFixedSlotCharInfo"だけをreduxに追加する
             const opponentMaskedCharacter = {
                 index: 4, name: null, imgURI: null, characterType: null, level: null,
@@ -325,7 +321,6 @@ export default function BattleMain(){
                 break;
             }
         }
-
     })();}, []);
 
     const navigate = useNavigate();
@@ -383,18 +378,17 @@ export default function BattleMain(){
     async function handleSeedCommit () {
         // リロードしてモンスターが変わらないように修正
         if(myCharacters.charactersList.length === 0){
-            const tmpMyPlayerSeed = getRandomBytes32();
-            setMyPlayerSeed(tmpMyPlayerSeed);
+            const myPlayerSeed = getRandomBytes32();
             // seedが登録されていない場合、登録する
-            if(myCharacters.tmpMyPlayerSeed === null){
-                dispatch(setTmpMyPlayerSeed(tmpMyPlayerSeed))
+            if(myCharacters.myPlayerSeed === null){
+                dispatch(setMyPlayerSeed(myPlayerSeed));
             }
 
             // 対戦に使うキャラ5体(RSを含む)をreduxに追加
             const fixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
             const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - myPlayerId);
             try {
-                await commitPlayerSeed(myPlayerId, tmpMyPlayerSeed);
+                await commitPlayerSeed(myPlayerId, myPlayerSeed);
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -403,7 +397,7 @@ export default function BattleMain(){
                     alert("不明なエラーが発生しました。");
                 }
             }
-            const _myRandomSlot = await getMyRandomSlot(myPlayerId, tmpMyPlayerSeed)
+            const _myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed)
             const characterList = [...fixedSlotCharInfo, _myRandomSlot]
             dispatch(set5BattleCharacter(characterList))
 
@@ -493,9 +487,8 @@ export default function BattleMain(){
     }
 
     async function handleSeedReveal() {
-        const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
         try {
-            await revealPlayerSeed(myPlayerId, _myPlayerSeed);
+            await revealPlayerSeed(myPlayerId, myCharacters.myPlayerSeed);
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -509,7 +502,6 @@ export default function BattleMain(){
 
     async function handleChoiceReveal() {
         setMySeedRevealed(false);
-        const _myPlayerSeed = myCharacters.tmpMyPlayerSeed;
         try {
             await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
         } catch (e) {
@@ -542,7 +534,7 @@ export default function BattleMain(){
                 <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
-                [dev]保存したtmpMyPlayerSeed: { myCharacters.tmpMyPlayerSeed }<br/>
+                [dev]保存したmyPlayerSeed: { myCharacters.myPlayerSeed }<br/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
                 <PlayerI myCharactors={myCharacters.charactersList} listenToRoundRes={listenToRoundRes}
@@ -575,7 +567,7 @@ export default function BattleMain(){
                     ))}
                 </Grid>
             </Card>
-            {battleDetail !== null &&
+            {battleDetail &&
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
                     <Grid item xs={4} md={4}>勝敗</Grid>
@@ -618,25 +610,25 @@ export default function BattleMain(){
             </Grid>
         </Grid>
 
-        {myCharacters.charactersList.length === 0 &&
+        {battleDetail == null && myCharacters.charactersList.length === 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
         }
 
-        {myCharacters.charactersList.length != 0 && choice != null && listenToRoundRes !== 'freeze' &&
+        {battleDetail == null && myCharacters.charactersList.length !== 0 && choice != null && listenToRoundRes !== 'freeze' &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
 
-        {opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
+        {battleDetail == null && opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
         }
 
-        {opponentCommit && myCommit && (choice != 4 || (choice === 4) && mySeedRevealed) &&
+        {battleDetail == null && opponentCommit && myCommit && (choice !== 4 || (choice === 4 && mySeedRevealed)) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトル結果を見る
             </Button>

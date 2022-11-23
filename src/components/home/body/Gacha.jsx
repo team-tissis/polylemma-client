@@ -26,7 +26,7 @@ import TableRow from '@mui/material/TableRow';
 import * as animationData from 'assets/animations/gift.json';
 import * as unOpenAnimationData from 'assets/animations/gift-unopen.json';
 import * as questionAnimationData from 'assets/animations/question.json';
-import { balanceOf, mint } from 'fetch_sol/coin.js';
+import { balanceOf } from 'fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import { gacha, getGachaFee } from 'fetch_sol/gacha.js';
 
@@ -84,10 +84,8 @@ export default function GachaGacha(){
     const [gachaFee, setGachaFee] = useState();
     const [currentCoin, setCurrentCoin] = useState();
     const [currentToken, setCurrentToken] = useState();
-    const [addedTokenId, setAddedTokenId] = useState(0);
     const [characterName, setCharacterName] = useState('');
     const [newToken, setNewToken] = useState();
-    const [gachaOpen, setGachaOpen] = useState(false);
 
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
@@ -103,7 +101,6 @@ export default function GachaGacha(){
             setNewToken(newGotToken);
             setCurrentCoin(await balanceOf());
             setCurrentToken(await getNumberOfOwnedTokens());
-            setAddedTokenId(newGotToken.id);
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -184,7 +181,6 @@ export default function GachaGacha(){
                 </>}
             </DialogContent>
             <DialogActions>
-            {/* <div>トークンID: {addedTokenId}</div> */}
             <Button onClick={handleClose} disabled={!isOpened} autoFocus>
                 戻る
             </Button>

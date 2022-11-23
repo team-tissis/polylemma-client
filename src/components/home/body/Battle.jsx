@@ -20,10 +20,11 @@ import { roundResultReset } from 'slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
-import { proposeBattle, getProposalList, isInProposal, isInBattle, isNonProposal, requestChallenge, cancelProposal } from 'fetch_sol/match_organizer.js';
+import { proposeBattle, isInProposal, isInBattle, isNonProposal, cancelProposal } from 'fetch_sol/match_organizer.js';
 import { forceInitBattle, battleStarted } from 'fetch_sol/battle_field.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
-import { checkStamina, subscIsExpired } from 'fetch_sol/dealer.js';
+import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
+
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
 
@@ -226,7 +227,7 @@ export default function Battle() {
 
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
-        if ((await checkStamina()) === false) {
+        if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
             // スタミナがあるか確認
             alert("スタミナが足りません。チャージしてください。");
         } else if ((await subscIsExpired()) === true) {
@@ -262,7 +263,7 @@ export default function Battle() {
     }
 
     // 開発用・後で消す
-    const fixedSlotsOfChallengers = Array();
+    const fixedSlotsOfChallengers = [];
     async function declineProposal(){
         try {
             setDialogOpen(false);
@@ -276,7 +277,6 @@ export default function Battle() {
                 alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
             }
         }
-
     }
 
     async function devHandleCharacter(){

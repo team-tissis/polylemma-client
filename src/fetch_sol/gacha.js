@@ -1,5 +1,5 @@
 import { approve } from "./coin.js";
-import { stringToBytes32, bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
+import { stringToBytes32, bytes32ToString, getContract } from "./utils.js";
 import { getImgURI } from "./token.js";
 
 async function getGachaFee (addressIndex) {
@@ -33,17 +33,15 @@ async function gacha (name, addressIndex) {
     if (event !== undefined) {
         const [ account, tokenId, characterInfo ] = event.args;
         const res = {
-            // name: bytes32ToString(message['name']),
-            // imgURI: await getImgURI(message['imgId'], addressIndex),
             id: Number(tokenId),
-            attributeIds: characterInfo['attributeIds'],
-            characterType: characterInfo['characterType'],
-            imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
-            level: characterInfo['level'],
             name: bytes32ToString(characterInfo['name']),
+            imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
+            characterType: characterInfo['characterType'],
+            level: characterInfo['level'],
             rarity: characterInfo['rarity'],
+            attributeIds: characterInfo['attributeIds'],
         }
-        return res
+        return res;
     }
 }
 
