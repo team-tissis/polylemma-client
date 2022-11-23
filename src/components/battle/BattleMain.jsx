@@ -376,7 +376,7 @@ export default function BattleMain(){
             return newArray[0]
         }
         // console.log(`選択可能なindex一覧は${enemyAvailabelCharaIndexes}`)
-        const _nextComChoice = Math.floor( Math.random() * (newArray.length + 1) ) ;
+        const _nextComChoice = Math.floor( Math.random() * newArray.length );
         return newArray[_nextComChoice]
     }
 
@@ -632,13 +632,13 @@ export default function BattleMain(){
 
         {opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
-                RS を公開する
+                ランダムスロットを公開する
             </Button>
         }
 
         {opponentCommit && myCommit && (choice != 4 || (choice === 4) && mySeedRevealed) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
-                バトルする
+                バトル結果を見る
             </Button>
         }
     </Grid>
