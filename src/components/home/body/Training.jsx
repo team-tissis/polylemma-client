@@ -42,7 +42,7 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} 
+        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
             onClick={ () => handleClickCharacter(character.id) } >
             <div className="card_name">
                 { character.name }
@@ -86,26 +86,28 @@ export default function ModelTraining(){
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
         // トークンが足りなかった場合snackbarを表示
-        console.log({currentCoin: currentCoin, necessaryExp: necessaryExp})
-        if(Number(currentCoin) < Number(necessaryExp)){
+        if (currentCoin < necessaryExp) {
             const message = "コインが足りないです、チャージしてください。";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'error',
             });
             return
-        }
-
-        try {
-            await updateLevel(selectedTokenId);
-            setNecessaryExp(await getNecessaryExp(selectedTokenId));
-            // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
-            const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
-            setLevelBefore(characterBefore.level);
-            setIsLoading((prev) => prev + 1)
-        } catch (e) {;
-            console.log({error: e});
-            alert("予期せぬエラーが発生しました。システム管理者にお問合せください。");
+        } else {
+            try {
+                await updateLevel(selectedTokenId);
+                setNecessaryExp(await getNecessaryExp(selectedTokenId));
+                // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
+                const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
+                setLevelBefore(characterBefore.level);
+                setIsLoading((prev) => prev + 1)
+            } catch (e) {
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
+            }
         }
     }
 

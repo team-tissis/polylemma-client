@@ -6,7 +6,7 @@ async function getGachaFee (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getGachaFee();
     console.log({ getGachaFee: message });
-    return message.toNumber();
+    return Number(message);
 }
 
 async function gacha (name, addressIndex) {
@@ -35,7 +35,7 @@ async function gacha (name, addressIndex) {
         const res = {
             // name: bytes32ToString(message['name']),
             // imgURI: await getImgURI(message['imgId'], addressIndex),
-            id: tokenId.toNumber(),
+            id: Number(tokenId),
             attributeIds: characterInfo['attributeIds'],
             characterType: characterInfo['characterType'],
             imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
@@ -44,7 +44,6 @@ async function gacha (name, addressIndex) {
             rarity: characterInfo['rarity'],
         }
         return res
-        // return tokenId.toNumber();
     }
 }
 

@@ -5,7 +5,7 @@ async function balanceOf (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.balanceOf(myAddress);
     console.log({ balanceOf: message });
-    return message.toString();
+    return Number(message);
 }
 
 async function approve (contractAddress, approvedCoin, addressIndex) {
