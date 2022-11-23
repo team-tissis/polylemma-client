@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import 'css/card.css';
-import { getAllTokenOwned, getAllCharacterInfo } from 'fetch_sol/token.js';
+import { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
 import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -55,6 +55,14 @@ export default function CharacterBook() {
     const [allCharacters, setAllCharacters] = useState([]);
     const [myCharacters, setMyCharacters] = useState([]);
 
+    const [numTotalToken, setNumTotalToken] = useState();
+    const [numMyToken, setNumMyToken] = useState();
+
+    useEffect(() => {(async function() {
+        setNumTotalToken(await totalSupply());
+        setNumMyToken(await getNumberOfOwnedTokens());
+    })();}, []);
+
     useEffect(() => {(async function() {
         setAllCharacters(await getAllCharacterInfo());
         setMyCharacters((await getAllTokenOwned()).map(myToken => myToken.toNumber()));
@@ -63,6 +71,12 @@ export default function CharacterBook() {
     return(<>
         <div>
             持ってるキャラは濃く、持っていないキャラは薄く表示されます。
+        </div>
+        <div>
+            合計のキャラの数: {numTotalToken}
+        </div>
+        <div>
+            自分のキャラの数: {numMyToken}
         </div>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>

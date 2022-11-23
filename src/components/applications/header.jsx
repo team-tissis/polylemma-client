@@ -15,8 +15,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSnackbar } from 'notistack';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/User.ts'
-import { balanceOf, faucet } from 'fetch_sol/coin.js';
-import { totalSupply } from 'fetch_sol/token.js';
+import { balanceOf, faucet } from '../../fetch_sol/coin.js';
+import { getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
 import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
          extendSubscPeriod, getSubscUnitPeriodBlockNum,
          getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
@@ -67,12 +67,12 @@ export default function Header() {
             staminaPerBattle: staminaPerBattle,
             restoreStaminaFee: restoreStaminaFee,
             currentStaminapercentage: Math.round((currentStamina/staminaMax)*100)
-        })
+        });
     })()},[]);
 
     useEffect(() => {(async function() {
         setCurrentCoin(await balanceOf());
-        setCurrentToken(await totalSupply());
+        setCurrentToken(await getNumberOfOwnedTokens());
 
         setSubscExpiredBlock(await getSubscExpiredBlock());
         setSubscRemainingBlocks(await getSubscRemainingBlockNum());
@@ -168,25 +168,69 @@ export default function Header() {
 	}
 
     const handleClickeRstoreStamina = async () => {
-        await restoreFullStamina();
+        if (await balanceOf() < await getRestoreStaminaFee()) {
+            alert("スタミナを回復するのにコインが足りません。");
+        } else {
+            try {
+                await restoreFullStamina();
+                setCurrentCoin(await balanceOf());
+                const currentStamina = await getCurrentStamina();
+                const staminaMax = await getStaminaMax();
+                const staminaPerBattle = await getStaminaPerBattle();
+                const restoreStaminaFee = await getRestoreStaminaFee();
+                setStaminaDetail({
+                    currentStamina: currentStamina,
+                    maxStamina: staminaMax,
+                    staminaPerBattle: staminaPerBattle,
+                    restoreStaminaFee: restoreStaminaFee,
+                    currentStaminapercentage: Math.round((currentStamina/staminaMax)*100)
+                });
+            } catch (e) {
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
+            }
+        }
     };
 
     const handleClickSubscUpdate = async () => {
-        await extendSubscPeriod();
-        setCurrentCoin(await balanceOf());
-        setSubscExpired(await subscIsExpired());
-        setSubscExpiredBlock(await getSubscExpiredBlock());
-        setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+        if (await balanceOf() < await getRestoreStaminaFee()) {
+            alert("サブスク期間を延長するのにコインが足りません。");
+        } else {
+            try {
+                await extendSubscPeriod();
+                setCurrentCoin(await balanceOf());
+                setSubscExpired(await subscIsExpired());
+                setSubscExpiredBlock(await getSubscExpiredBlock());
+                setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+            } catch (e) {
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
+            }
+        }
     };
 
     const handleClickCharge = async (plm) => {
-        const addedCoin = await faucet(plm);
-        setCurrentCoin(await balanceOf());
-        const message = addedCoin + " コインを獲得しました!";
-        enqueueSnackbar(message, {
-            autoHideDuration: 1500,
-            variant: 'success',
-        });
+        try {
+            const addedCoin = await faucet(plm);
+            setCurrentCoin(await balanceOf());
+            const message = addedCoin + " コインを獲得しました!";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
+        } catch (e) {
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
+        }
     };
 
     // 開発テスト用: MetaMaskと接続を切る
