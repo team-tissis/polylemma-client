@@ -226,35 +226,38 @@ export default function Battle() {
 
     async function handleCharacterSelected(kind){
         // 4体あるか確認する redux に保存する
-        // スタミナがあるか確認
-        if((await checkStamina()) === false) {
+        if ((await checkStamina()) === false) {
+            // スタミナがあるか確認
             alert("スタミナが足りません。チャージしてください。");
-        }
-        // サブスクの確認
-        if((await subscIsExpired()) === true) {
+        } else if ((await subscIsExpired()) === true) {
+            // サブスクの確認
             alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
-        }
+        } else {
+            try {
+                dispatch(set4Characters(charactersForBattle)); //更新
+                dispatch(roundResultReset())
+                if (kind === "makeOwnRoom") {
+                    const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
+                    // proposeBattleで自分が対戦要求ステータスに変更される
+                    console.log({fixedSlotsOfChallenger});
+                    await proposeBattle(fixedSlotsOfChallenger, rangeValue);
+                    setDialogOpen(true);
 
-        try {
-            dispatch(set4Characters(charactersForBattle)); //更新
-            dispatch(roundResultReset())
-            if(kind === "makeOwnRoom"){
-                const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
-                // proposeBattleで自分が対戦要求ステータスに変更される
-                console.log({fixedSlotsOfChallenger});
-                await proposeBattle(fixedSlotsOfChallenger, rangeValue);
-                setDialogOpen(true);
-
-                const { signer } = getContract("PLMMatchOrganizer");
-                const myAddress = await signer.getAddress();
-                battleStarted(myAddress, setMatched);
-            }else if(kind === "searchRooms"){
-                navigate('/match_make');
+                    const { signer } = getContract("PLMMatchOrganizer");
+                    const myAddress = await signer.getAddress();
+                    battleStarted(myAddress, setMatched);
+                } else if(kind === "searchRooms") {
+                    navigate('/match_make');
+                }
+            } catch (e) {
+                setDialogOpen(false);
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
+                }
             }
-        } catch (e) {
-            setDialogOpen(false);
-            console.log({error: e});
-            alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
         }
     }
 
@@ -267,7 +270,11 @@ export default function Battle() {
         } catch (e) {
             setDialogOpen(false);
             console.log({error: e});
-            alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
+            }
         }
 
     }
