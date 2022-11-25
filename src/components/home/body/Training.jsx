@@ -95,13 +95,19 @@ export default function ModelTraining(){
             return
         } else {
             try {
-                await updateLevel(selectedTokenId);
+                const updatedLevel = await updateLevel(selectedTokenId);
+                const message = "レベル " + updatedLevel + " になりました!";
+                enqueueSnackbar(message, {
+                    autoHideDuration: 1500,
+                    variant: 'success',
+                });
                 setNecessaryExp(await getNecessaryExp(selectedTokenId));
                 // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
                 const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
                 setLevelBefore(characterBefore.level);
-                setIsLoading((prev) => prev + 1)
+                setIsLoading((prev) => prev + 1);
             } catch (e) {
+                console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
                     alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
                 } else {
