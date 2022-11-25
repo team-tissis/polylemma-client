@@ -18,7 +18,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { useSelector } from 'react-redux';
 import { selectMyCharacter } from 'slices/myCharacter.ts'
+import { getContract } from 'fetch_sol/utils.js';
 import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer';
+import { eventBattleStarted } from 'fetch_sol/battle_field.js';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -32,6 +34,8 @@ const Item = styled(Paper)(({ theme }) => ({
 function BattleAccount({proposerToBattle}){
     const myCharacters = useSelector(selectMyCharacter);
     const navigate = useNavigate();
+    const [matched, setMatched] = useState(false);
+
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {
         setOpen(true);
@@ -40,13 +44,22 @@ function BattleAccount({proposerToBattle}){
         setOpen(false);
     };
 
+    useEffect(() => {(async function() {
+        if (matched) {
+            navigate('/battle_main');
+        }
+    })();}, [matched]);
+
     async function handleClickStartBattle () {
         const proposalAddressIndex = 0;
         const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
         console.log({対戦を申し込む相手のアドレス: proposerToBattle[proposalAddressIndex],
                     対戦時に使うキャラのアドレス: fixedSlotsOfChallenger})
         await requestChallenge(proposerToBattle[proposalAddressIndex], fixedSlotsOfChallenger);
-        navigate('/battle_main');
+
+        const { signer } = getContract("PLMMatchOrganizer");
+        const myAddress = await signer.getAddress();
+        eventBattleStarted(myAddress, setMatched, false);
     };
 
     return(<>

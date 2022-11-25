@@ -213,14 +213,12 @@ async function forceInitBattle (addressIndex) {
 /// FUNCTIONS ABOUT EVENT LISTENING ///
 ///////////////////////////////////////
 
-function eventBattleStarted (myAddress, setMatched) {
+function eventBattleStarted (myAddress, setMatched, isHome) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.BattleStarted(null, null);
+    const filter = contract.filters.BattleStarted(isHome ? myAddress : null, isHome ? null : myAddress) ;
     contract.on(filter, (aliceAddr, bobAddr) => {
         console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
-        if (aliceAddr === myAddress) {
-            setMatched(true);
-        }
+        setMatched(true);
     });
 }
 
