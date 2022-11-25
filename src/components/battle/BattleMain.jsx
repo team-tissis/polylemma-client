@@ -270,14 +270,14 @@ export default function BattleMain(){
     useEffect(() => {(async function() {
         console.log("opponentRevealed........");
         console.log({opponentRevealed})
-        // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
-        if(opponentRevealed.choice === 4){
-            const opponentPlayerId = 1 - myCharacters.playerId;
-            const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
-            console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
-            dispatch(setOpponentRsFullInfo(opponentRSInfo));
-        }
         if( opponentRevealed != null) {
+            // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
+            if(opponentRevealed.choice === 4){
+                const opponentPlayerId = 1 - myCharacters.playerId;
+                const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
+                console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
+                dispatch(setOpponentRsFullInfo(opponentRSInfo));
+            }
             dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
         }
     })();}, [opponentRevealed]);

@@ -65,7 +65,7 @@ async function getRemainingLevelPoint (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getRemainingLevelPoint(playerId);
     console.log({ getRemainingLevelPoint: message });
-    return message;
+    return Number(message);
 }
 
 async function getNonce (playerId, addressIndex) {

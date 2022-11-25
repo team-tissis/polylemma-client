@@ -185,6 +185,7 @@ export default function Header() {
                     currentStaminapercentage: Math.round((currentStamina/staminaMax)*100)
                 });
             } catch (e) {
+                console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
                     alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
                 } else {
@@ -205,6 +206,7 @@ export default function Header() {
                 setSubscExpiredBlock(await getSubscExpiredBlock());
                 setSubscRemainingBlocks(await getSubscRemainingBlockNum());
             } catch (e) {
+                console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
                     alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
                 } else {
@@ -224,7 +226,8 @@ export default function Header() {
                 variant: 'success',
             });
         } catch (e) {
-            if (e.message.substr(0, 18) === "transaction failed") {
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
             } else {
                 alert("不明なエラーが発生しました。");
