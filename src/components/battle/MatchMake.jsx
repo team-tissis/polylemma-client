@@ -18,7 +18,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { useSelector } from 'react-redux';
 import { selectMyCharacter } from 'slices/myCharacter.ts'
-import { getProposalList, requestChallenge } from 'fetch_sol/match_organizer';
+import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -43,7 +43,7 @@ function BattleAccount({proposerToBattle}){
     async function handleClickStartBattle () {
         const proposalAddressIndex = 0;
         const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
-        console.log({対戦を申し込む相手のアドレス: proposerToBattle[proposalAddressIndex], 
+        console.log({対戦を申し込む相手のアドレス: proposerToBattle[proposalAddressIndex],
                     対戦時に使うキャラのアドレス: fixedSlotsOfChallenger})
         await requestChallenge(proposerToBattle[proposalAddressIndex], fixedSlotsOfChallenger);
         navigate('/battle_main');

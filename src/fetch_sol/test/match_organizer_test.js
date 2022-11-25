@@ -2,7 +2,7 @@ import { getContract } from '../../fetch_sol/utils.js';
 import { extendSubscPeriod } from '../../fetch_sol/dealer.js';
 import { faucet } from '../../fetch_sol/coin.js';
 import { gacha } from '../../fetch_sol/gacha.js';
-import { proposeBattle, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { proposeBattle, isProposed, isNotInvolved, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
 
 async function createCharacters (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
@@ -19,21 +19,21 @@ async function createCharacters (fixedSlotsOfChallengers) {
 
 async function makeProposers (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        if (isNonProposal(addressIndex)) {
+        if (isNotInvolved(addressIndex)) {
             await proposeBattle(fixedSlotsOfChallengers[addressIndex], addressIndex);
         } else {
-            console.log(addressIndex.toString() + " is in proposal or battle.")
+            console.log(addressIndex.toString() + " is proposed or in battle.")
         }
     }
 }
 
 async function cancelProposals () {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        if (isInProposal(addressIndex)) {
+        if (isProposed(addressIndex)) {
             console.log('cancel...')
             await cancelProposal(addressIndex);
         } else {
-            console.log(addressIndex.toString() + " is not in proposal.")
+            console.log(addressIndex.toString() + " is not involved.")
         }
     }
 }

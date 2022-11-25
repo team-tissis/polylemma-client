@@ -28,7 +28,7 @@ import * as unOpenAnimationData from 'assets/animations/gift-unopen.json';
 import * as questionAnimationData from 'assets/animations/question.json';
 import { balanceOf } from 'fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
-import { gacha, getGachaFee } from 'fetch_sol/gacha.js';
+import { getGachaFee, gacha } from 'fetch_sol/gacha.js';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
