@@ -22,7 +22,11 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult,
          forceInitBattle,
-         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundCompleted, battleCompleted, battleCanceled } from 'fetch_sol/battle_field.js';
+         eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
+         eventRoundCompleted, eventBattleCompleted,
+         eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,
+         eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
+         eventBattleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -289,14 +293,14 @@ export default function BattleMain(){
             dispatch(setPlayerId(tmpMyPlayerId))
         }
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
-        choiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
-        choiceCommitted(1-tmpMyPlayerId, round, setOpponentCommit);
+        eventChoiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
+        eventChoiceCommitted(1 - tmpMyPlayerId, round, setOpponentCommit);
 
         if (isCOM) {
             const tmpCOMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(tmpCOMPlayerSeed);
             try {
-                await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+                await commitPlayerSeed(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
             } catch (e) {
                 console.log(e);
             }
@@ -345,11 +349,16 @@ export default function BattleMain(){
     })();}, [isCOM]);
 
     useEffect(() => {
-        playerSeedCommitted();
-        playerSeedRevealed();
-        choiceRevealed(setOpponentRevealed);
-        battleCompleted(setBattleDetail);
-        battleCanceled();
+        eventPlayerSeedCommitted();
+        eventPlayerSeedRevealed();
+        eventChoiceRevealed(setOpponentRevealed);
+        eventBattleCompleted(setBattleDetail);
+        eventExceedingLevelPointCheatDetected();
+        eventReusingUsedSlotCheatDetected();
+        eventLatePlayerSeedCommitDetected();
+        eventLateChoiceCommitDetected();
+        eventLateChoiceRevealDetected();
+        eventBattleCanceled();
     }, []);
 
     async function handleForceInitBattle () {
@@ -471,7 +480,7 @@ export default function BattleMain(){
                     break;
                 }
             }
-            roundCompleted(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
+            eventRoundCompleted(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
 
             setMyCommit(true);
         } catch (e) {
@@ -514,7 +523,7 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        choiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
+        eventChoiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
         setRound(round + 1);
         setOpponentCommit(false);
         setMyCommit(false);
