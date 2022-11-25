@@ -17,9 +17,8 @@ import { useSnackbar } from 'notistack';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/user.ts'
 import { balanceOf } from 'fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
-import { getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod,
-         extendSubscPeriod, getSubscUnitPeriodBlockNum,
-         getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina,
+import { restoreFullStamina, getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee,
+         subscIsExpired, extendSubscPeriod, getSubscExpiredBlock, getSubscRemainingBlockNum, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum,
          getPLMCoin } from 'fetch_sol/dealer.js';
 import ProgressBar from 'components/battle/ProgressBar';
 

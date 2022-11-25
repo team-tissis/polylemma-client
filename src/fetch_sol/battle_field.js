@@ -1,6 +1,10 @@
 import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
 import { getImgURI } from "./token.js";
 
+//////////////////////////////
+/// BATTLE FIELD FUNCTIONS ///
+//////////////////////////////
+
 async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMBattleField", addressIndex);
     const myAddress = await signer.getAddress();
@@ -29,6 +33,41 @@ async function revealChoice (playerId, levelPoint, choice, blindingFactor, addre
     console.log({ revealChoice: message });
 }
 
+async function reportLateReveal (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.reportLateReveal(playerId);
+    console.log({ reportLateReveal: message });
+}
+
+async function playerSeedIsRevealed (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.playerSeedIsRevealed(playerId);
+    console.log({ playerSeedIsRevealed: message });
+}
+
+////////////////////////
+///      GETTERS     ///
+////////////////////////
+
+async function getBattleState (addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getBattleState();
+    console.log({ getBattleState: message });
+}
+
+async function getPlayerState (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getPlayerState(playerId);
+    console.log({ getPlayerState: message });
+}
+
+async function getRemainingLevelPoint (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getRemainingLevelPoint(playerId);
+    console.log({ getRemainingLevelPoint: message });
+    return message;
+}
+
 async function getNonce (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getNonce(playerId);
@@ -40,6 +79,13 @@ async function getBondLevelAtBattleStart (char, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getBondLevelAtBattleStart(char['level'], char['fromBlock']);
     console.log({ getBondLevelAtBattleStart: message });
+    return message;
+}
+
+async function getTotalSupplyAtBattleStart (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getTotalSupplyAtBattleStart(playerId);
+    console.log({ getTotalSupplyAtBattleStart: message });
     return message;
 }
 
@@ -72,41 +118,6 @@ async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
     return message;
 }
 
-// Reveal 後に相手のランダムスロットの内容を取得する関数
-async function getRandomSlotCharInfo (playerId, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRandomSlotCharInfo(playerId);
-    console.log({ getRandomSlotCharInfo: message });
-
-    return {
-        index: 4, //RSは最後なので5になるはず
-        name: bytes32ToString(message['name']),
-        imgURI: await getImgURI(message['imgId'], addressIndex),
-        characterType: message['characterType'],
-        level: message['level'],
-        bondLevel: 0,
-        rarity: message['rarity'],
-        attributeIds: message['attributeIds'],
-        isRandomSlot: true,
-        battleDone: true
-    };
-}
-
-async function getPlayerIdFromAddress (addressIndex) {
-    const { signer, contract } = getContract("PLMBattleField", addressIndex);
-    const myAddress = await signer.getAddress();
-    const message = await contract.getPlayerIdFromAddress(myAddress);
-    console.log({ getPlayerIdFromAddress: message });
-    return message;
-}
-
-async function getTotalSupplyAtBattleStart (playerId, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getTotalSupplyAtBattleStart(playerId);
-    console.log({ getTotalSupplyAtBattleStart: message });
-    return message;
-}
-
 async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     const nonce = await getNonce(playerId);
     const mod = await getTotalSupplyAtBattleStart(playerId);
@@ -127,12 +138,69 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     };
 }
 
-async function getRemainingLevelPoint (playerId, addressIndex) {
+// Reveal 後に相手のランダムスロットの内容を取得する関数
+async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRemainingLevelPoint(playerId);
-    console.log({ getRemainingLevelPoint: message });
+    const message = await contract.getRandomSlotCharInfo(playerId);
+    console.log({ getRandomSlotCharInfo: message });
+
+    return {
+        index: 4, //RSは最後なので5になるはず
+        name: bytes32ToString(message['name']),
+        imgURI: await getImgURI(message['imgId'], addressIndex),
+        characterType: message['characterType'],
+        level: message['level'],
+        bondLevel: 0,
+        rarity: message['rarity'],
+        attributeIds: message['attributeIds'],
+        isRandomSlot: true,
+        battleDone: true
+    };
+}
+
+async function getCharsUsedRounds (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getCharsUsedRounds(playerId);
+    console.log({ getCharsUsedRounds: message });
     return message;
 }
+
+async function getPlayerIdFromAddr (addressIndex) {
+    const { signer, contract } = getContract("PLMBattleField", addressIndex);
+    const myAddress = await signer.getAddress();
+    const message = await contract.getPlayerIdFromAddr(myAddress);
+    console.log({ getPlayerIdFromAddr: message });
+    return message;
+}
+
+async function getCurrentRound (addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getCurrentRound();
+    console.log({ getCurrentRound: message });
+}
+
+async function getMaxLevelPoint (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getMaxLevelPoint(playerId);
+    console.log({ getMaxLevelPoint: message });
+    return message;
+}
+
+async function getRoundResults (addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getRoundResults();
+    console.log({ getRoundResults: message });
+}
+
+async function getBattleResult (addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getBattleResult();
+    console.log({ getBattleResult: message });
+}
+
+//////////////////////////
+/// FUNCTIONS FOR DEMO ///
+//////////////////////////
 
 async function forceInitBattle (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
@@ -200,9 +268,9 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
     });
 }
 
-function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail, addressIndex) {
+function roundCompleted (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const filter = contract.filters.RoundResult(null, null, null, null, null, null);
+    const filter = contract.filters.RoundCompleted(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
         if (currentRound === numRounds && nextIndex !== null) {
             console.log(`choiceを${nextIndex}に変更`);
@@ -227,9 +295,9 @@ function roundResult (currentRound, nextIndex, setListenToRoundRes, setChoice, s
     });
 }
 
-function battleResult (setBattleDetail, addressIndex) {
+function battleCompleted (setBattleDetail, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const filter = contract.filters.BattleResult(null, null, null, null, null, null);
+    const filter = contract.filters.BattleCompleted(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
         if (isDraw) {
             console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
@@ -249,12 +317,14 @@ function battleResult (setBattleDetail, addressIndex) {
 
 function battleCanceled (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const filter = contract.filters.BattleCanceled(null);
-    contract.on(filter, (cause) => {
-        console.log(`Battle has been canceled because of Player${cause}.`);
+    const filter = contract.filters.BattleCanceled();
+    contract.on(filter, () => {
+        console.log(`Battle has been canceled.`);
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
-         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle,
-         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled };
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal, playerSeedIsRevealed,
+         getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
+         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult,
+         forceInitBattle,
+         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundCompleted, battleCompleted, battleCanceled };

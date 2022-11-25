@@ -18,9 +18,11 @@ import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle
 import { selectRoundResult, oneRoundDone } from 'slices/roundResult.ts';
 import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, getFixedSlotCharInfo, getMyRandomSlot,
-         getPlayerIdFromAddress, getRemainingLevelPoint, forceInitBattle, battleStarted, playerSeedCommitted,
-         playerSeedRevealed, choiceCommitted, choiceRevealed, roundResult, battleResult, battleCanceled, getRandomSlotCharInfo } from 'fetch_sol/battle_field.js';
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal, playerSeedIsRevealed,
+         getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
+         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult,
+         forceInitBattle,
+         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundCompleted, battleCompleted, battleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -281,7 +283,7 @@ export default function BattleMain(){
     })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
-        const tmpMyPlayerId = await getPlayerIdFromAddress();
+        const tmpMyPlayerId = await getPlayerIdFromAddr();
         setMyPlayerId(tmpMyPlayerId);
         if(tmpMyPlayerId != null){
             dispatch(setPlayerId(tmpMyPlayerId))
@@ -346,7 +348,7 @@ export default function BattleMain(){
         playerSeedCommitted();
         playerSeedRevealed();
         choiceRevealed(setOpponentRevealed);
-        battleResult(setBattleDetail);
+        battleCompleted(setBattleDetail);
         battleCanceled();
     }, []);
 
@@ -469,7 +471,7 @@ export default function BattleMain(){
                     break;
                 }
             }
-            roundResult(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
+            roundCompleted(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
 
             setMyCommit(true);
         } catch (e) {

@@ -2,12 +2,9 @@ import { approve } from "./coin.js";
 import { stringToBytes32, bytes32ToString, getContract } from "./utils.js";
 import { getImgURI } from "./token.js";
 
-async function getGachaFee (addressIndex) {
-    const { contract } = getContract("PLMDealer", addressIndex);
-    const message = await contract.getGachaFee();
-    console.log({ getGachaFee: message });
-    return Number(message);
-}
+/////////////////////////
+///  GACHA FUNCTIONS  ///
+/////////////////////////
 
 async function gacha (name, addressIndex) {
     const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
@@ -45,4 +42,15 @@ async function gacha (name, addressIndex) {
     }
 }
 
-export { gacha, getGachaFee };
+/////////////////////////
+///      GETTERS      ///
+/////////////////////////
+
+async function getGachaFee (addressIndex) {
+    const { contract } = getContract("PLMDealer", addressIndex);
+    const message = await contract.getGachaFee();
+    console.log({ getGachaFee: message });
+    return Number(message);
+}
+
+export { getGachaFee, gacha };

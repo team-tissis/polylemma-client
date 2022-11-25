@@ -1,54 +1,6 @@
 import { bytes32ToString, getContract } from "./utils.js";
 import { approve } from "./coin.js";
 
-async function totalSupply (addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
-    const message = await contract.totalSupply();
-    console.log({ totalSupply: message });
-    return Number(message);
-}
-
-async function getAllTokenOwned (addressIndex) {
-    const { signer, contract } = getContract("PLMToken", addressIndex);
-    const myAddress = await signer.getAddress();
-    const message = await contract.getAllTokenOwned(myAddress);
-    console.log({ getAllTokenOwned: message });
-    return message;
-}
-
-async function getNumberOfOwnedTokens (addressIndex) {
-    const myTokens = await getAllTokenOwned(addressIndex);
-    return myTokens.length;
-}
-
-async function calcCurrentBondLevel (char, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
-    const message = await contract.calcCurrentBondLevel(char['level'], char['fromBlock']);
-    console.log({ calcCurrentBondLevel: message });
-    return message;
-}
-
-async function getAllCharacterInfo (addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
-    const message = await contract.getAllCharacterInfo();
-    const allCharacterInfo = [];
-    for (let i = 0; i < message.length; i++) {
-        allCharacterInfo.push({
-            id: i + 1,
-            name: bytes32ToString(message[i]['name']),
-            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
-            characterType: message[i]['characterType'],
-            level: message[i]['level'],
-            bondLevel: await calcCurrentBondLevel(message[i]),
-            rarity: message[i]['rarity'],
-            attributeIds: message[i]['attributeIds'],
-            isRandomSlot: false
-        });
-    }
-    console.log({ allCharacterInfo: allCharacterInfo });
-    return allCharacterInfo;
-}
-
 async function updateLevel (tokenId, addressIndex) {
     const { contractAddress, signer, contract } = getContract("PLMToken", addressIndex);
     const coinForLevelUp = getNecessaryExp(tokenId);
@@ -64,6 +16,58 @@ async function updateLevel (tokenId, addressIndex) {
     //     console.log(`${tokenId}'s level becomes ${characterInfos[tokenId].level}.`);
     //     return { characterInfos: characterInfos };
     // }
+}
+
+////////////////////////
+///      GETTERS     ///
+////////////////////////
+
+async function totalSupply (addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
+    const message = await contract.totalSupply();
+    console.log({ totalSupply: message });
+    return Number(message);
+}
+
+async function getCurrentBondLevel (char, addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
+    const message = await contract.getCurrentBondLevel(char['level'], char['fromBlock']);
+    console.log({ getCurrentBondLevel: message });
+    return message;
+}
+
+async function getAllTokenOwned (addressIndex) {
+    const { signer, contract } = getContract("PLMToken", addressIndex);
+    const myAddress = await signer.getAddress();
+    const message = await contract.getAllTokenOwned(myAddress);
+    console.log({ getAllTokenOwned: message });
+    return message;
+}
+
+async function getNumberOfOwnedTokens (addressIndex) {
+    const myTokens = await getAllTokenOwned(addressIndex);
+    return myTokens.length;
+}
+
+async function getAllCharacterInfo (addressIndex) {
+    const { contract } = getContract("PLMToken", addressIndex);
+    const message = await contract.getAllCharacterInfo();
+    const allCharacterInfo = [];
+    for (let i = 0; i < message.length; i++) {
+        allCharacterInfo.push({
+            id: i + 1,
+            name: bytes32ToString(message[i]['name']),
+            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
+            characterType: message[i]['characterType'],
+            level: message[i]['level'],
+            bondLevel: await getCurrentBondLevel(message[i]),
+            rarity: message[i]['rarity'],
+            attributeIds: message[i]['attributeIds'],
+            isRandomSlot: false
+        });
+    }
+    console.log({ allCharacterInfo: allCharacterInfo });
+    return allCharacterInfo;
 }
 
 async function getNecessaryExp (tokenId, addressIndex) {
@@ -98,7 +102,7 @@ async function getOwnedCharacterWithIDList (addressIndex) {
             imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
             characterType: characterInfo['characterType'],
             level: characterInfo['level'],
-            bondLevel: await calcCurrentBondLevel(characterInfo),
+            bondLevel: await getCurrentBondLevel(characterInfo),
             rarity: characterInfo['rarity'],
             attributeIds: characterInfo['attributeIds']
         });
@@ -107,5 +111,5 @@ async function getOwnedCharacterWithIDList (addressIndex) {
     return ownedCharacters;
 }
 
-export { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp,
+export { updateLevel, totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens, getNecessaryExp,
          getCurrentCharacterInfo, getImgURI, getOwnedCharacterWithIDList };
