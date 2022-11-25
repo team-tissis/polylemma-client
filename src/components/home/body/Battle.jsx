@@ -21,7 +21,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import { proposeBattle, isProposed, isInBattle, isNotInvolved, cancelProposal } from 'fetch_sol/match_organizer.js';
-import { forceInitBattle, battleStarted } from 'fetch_sol/battle_field.js';
+import { forceInitBattle, eventBattleStarted } from 'fetch_sol/battle_field.js';
 import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 
@@ -246,7 +246,7 @@ export default function Battle() {
 
                     const { signer } = getContract("PLMMatchOrganizer");
                     const myAddress = await signer.getAddress();
-                    battleStarted(myAddress, setMatched);
+                    eventBattleStarted(myAddress, setMatched);
                 } else if(kind === "searchRooms") {
                     navigate('/match_make');
                 }

@@ -82,10 +82,10 @@ async function getBondLevelAtBattleStart (char, addressIndex) {
     return message;
 }
 
-async function getTotalSupplyAtBattleStart (playerId, addressIndex) {
+async function getTotalSupplyAtFromBlock (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getTotalSupplyAtBattleStart(playerId);
-    console.log({ getTotalSupplyAtBattleStart: message });
+    const message = await contract.getTotalSupplyAtFromBlock(playerId);
+    console.log({ getTotalSupplyAtFromBlock: message });
     return message;
 }
 
@@ -119,8 +119,8 @@ async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
 }
 
 async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
-    const nonce = await getNonce(playerId);
-    const mod = await getTotalSupplyAtBattleStart(playerId);
+    const nonce = await getNonce(playerId, addressIndex);
+    const mod = await getTotalSupplyAtFromBlock(playerId, addressIndex);
     const randomSlotId = calcRandomSlotId(nonce, playerSeed, mod);
     console.log({ randomSlotId: randomSlotId });
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
@@ -213,8 +213,8 @@ async function forceInitBattle (addressIndex) {
 /// FUNCTIONS ABOUT EVENT LISTENING ///
 ///////////////////////////////////////
 
-function battleStarted (myAddress, setMatched, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventBattleStarted (myAddress, setMatched) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleStarted(null, null);
     contract.on(filter, (aliceAddr, bobAddr) => {
         console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
@@ -224,24 +224,24 @@ function battleStarted (myAddress, setMatched, addressIndex) {
     });
 }
 
-function playerSeedCommitted (opponentPlayerId, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventPlayerSeedCommitted (opponentPlayerId) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.PlayerSeedCommitted(null);
     contract.on(filter, (playerId) => {
         console.log(`Player${playerId} has committed.`);
     });
 }
 
-function playerSeedRevealed (opponentPlayerId, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventPlayerSeedRevealed (opponentPlayerId) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.PlayerSeedRevealed(null, null, null);
     contract.on(filter, (numRounds, playerId, playerSeed) => {
         console.log(`Round ${numRounds+1}: Player${playerId}'s seed has revealed.`);
     });
 }
 
-function choiceCommitted (opponentPlayerId, currentRound, setCommit, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventChoiceCommitted (opponentPlayerId, currentRound, setCommit) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.ChoiceCommitted(null, null);
     contract.on(filter, (numRounds, playerId) => {
         console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
@@ -251,8 +251,8 @@ function choiceCommitted (opponentPlayerId, currentRound, setCommit, addressInde
     });
 }
 
-function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventChoiceRevealed (opponentPlayerId, setOpponentRevealed) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
         if(playerId === opponentPlayerId){
@@ -268,8 +268,8 @@ function choiceRevealed (opponentPlayerId, setOpponentRevealed, addressIndex) {
     });
 }
 
-function roundCompleted (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventRoundCompleted (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.RoundCompleted(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
         if (currentRound === numRounds && nextIndex !== null) {
@@ -295,8 +295,8 @@ function roundCompleted (currentRound, nextIndex, setListenToRoundRes, setChoice
     });
 }
 
-function battleCompleted (setBattleDetail, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventBattleCompleted (setBattleDetail) {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleCompleted(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
         if (isDraw) {
@@ -315,8 +315,48 @@ function battleCompleted (setBattleDetail, addressIndex) {
     });
 }
 
-function battleCanceled (addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
+function eventExceedingLevelPointCheatDetected () {
+    const { contract } = getContract("PLMBattleField");
+    const filter = contract.filters.ExceedingLevelPointCheatDetected();
+    contract.on(filter, (cheater, remainingLevelPoint, cheaterLevelPoint) => {
+        console.log(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
+    });
+}
+
+function eventReusingUsedSlotCheatDetected () {
+    const { contract } = getContract("PLMBattleField");
+    const filter = contract.filters.ReusingUsedSlotCheatDetected();
+    contract.on(filter, (cheater, targetSlot) => {
+        console.log(`Player${cheater} reused slot ${targetSlot}.`);
+    });
+}
+
+function eventLatePlayerSeedCommitDetected () {
+    const { contract } = getContract("PLMBattleField");
+    const filter = contract.filters.LatePlayerSeedCommitDetected();
+    contract.on(filter, (delayer) => {
+        console.log(`Player${delayer}'s seed commit was too late.`);
+    });
+}
+
+function eventLateChoiceCommitDetected () {
+    const { contract } = getContract("PLMBattleField");
+    const filter = contract.filters.LateChoiceCommitDetected();
+    contract.on(filter, (numRounds, delayer) => {
+        console.log(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
+    });
+}
+
+function eventLateChoiceRevealDetected () {
+    const { contract } = getContract("PLMBattleField");
+    const filter = contract.filters.LateChoiceRevealDetected();
+    contract.on(filter, (numRounds, delayer) => {
+        console.log(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
+    });
+}
+
+function eventBattleCanceled () {
+    const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleCanceled();
     contract.on(filter, () => {
         console.log(`Battle has been canceled.`);
@@ -327,4 +367,8 @@ export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult,
          forceInitBattle,
-         battleStarted, playerSeedCommitted, playerSeedRevealed, choiceCommitted, choiceRevealed, roundCompleted, battleCompleted, battleCanceled };
+         eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
+         eventRoundCompleted, eventBattleCompleted,
+         eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,
+         eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
+         eventBattleCanceled };
