@@ -7,7 +7,8 @@ import { proposeBattle, isProposed, isNotInvolved, requestChallenge, cancelPropo
 async function createCharacters (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
         // await charge(addressIndex);
-        await faucet(100, addressIndex);
+        await faucet(300, addressIndex);
+        await extendSubscPeriod(addressIndex);
 
         const fixedSlotsOfChallenger = [];
         for (let i = 0; i < 4; i++) {
@@ -20,7 +21,7 @@ async function createCharacters (fixedSlotsOfChallengers) {
 async function makeProposers (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
         if (isNotInvolved(addressIndex)) {
-            await proposeBattle(fixedSlotsOfChallengers[addressIndex], addressIndex);
+            await proposeBattle(fixedSlotsOfChallengers[addressIndex], {min: 4, max: 1020}, addressIndex);
         } else {
             console.log(addressIndex.toString() + " is proposed or in battle.")
         }
