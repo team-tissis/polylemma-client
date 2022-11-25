@@ -117,14 +117,7 @@ export default function ModelTraining(){
         bottom: false,
         right: false,
     });
-
-    const toggleDrawer = (anchor, open) => (event) => {
-        if ( event && event.type === 'keydown' && ((event).key === 'Tab' || (event).key === 'Shift')) {
-            return;
-        }
-        setState({ ...state, [anchor]: open });
-    };
-
+    
     // 画面サイズを取得
     var windowWidth = window.innerWidth;
 
@@ -138,46 +131,6 @@ export default function ModelTraining(){
                         selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId} setLevelBefore={setLevelBefore}/>
                 </Grid>
             </>))}
-
-            {/* <SwipeableDrawer
-                style={{maxWidth: windowWidth*0.1}}
-                anchor={'right'}
-                open={state['right']}
-                onClose={toggleDrawer('right', false)}
-                onOpen={toggleDrawer('right', true)}
-            >
-                <Grid container style={{padding: 20}}>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <h1>現在の所持コイン: {currentCoin} コイン</h1>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <p>新しくコインを追加で購入しますか？</p>
-                    </Grid>
-                    <Grid item={12}>
-                        <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
-                        <OutlinedInput
-                            id="outlined-adornment-weight"
-                            value={coinToBuy}
-                            type="number"
-                            onChange={(e) => setCoinToBuy(e.target.value)}
-                            endAdornment={<InputAdornment position="end">コイン</InputAdornment>}
-                            aria-describedby="outlined-weight-helper-text"
-                            inputProps={{
-                                'aria-label': 'weight',
-                            }}
-                        />
-                        <FormHelperText id="outlined-weight-helper-text">コイン</FormHelperText>
-                            ※ ここに円計算の大体の値段を動的に表示できると👍
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <Button variant="contained" disableElevation style={{width: '60%'}}>
-                            購入する
-                        </Button>
-                    </Grid>
-                </Grid>
-            </SwipeableDrawer> */}
-
         </Grid>
         </Box>
         {selectedTokenId &&
@@ -211,13 +164,7 @@ export default function ModelTraining(){
                         </Button>
                     </Grid>
                     <Grid item xs={1} sm={1} md={1}/>
-
                     <Grid item xs={1} sm={0} md={0}/>
-                    <Grid item xs={10} sm={2.5} md={2.5}>
-                        {/* <Button variant="contained" onClick={toggleDrawer('right', true)} style={{width: '95%', height: 60, fontSize: 25, marginRight: '5%'}}>
-                            コインを購入
-                        </Button> */}
-                    </Grid>
                     <Grid item xs={1} sm={1} md={1}/>
                 </Grid>
             </Box>
