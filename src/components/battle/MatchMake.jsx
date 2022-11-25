@@ -102,26 +102,11 @@ function BattleAccount({proposerToBattle}){
 }
 
 export default function MatchMake() {
-    // const initData = [0,1,2,3,4,5,6,7,8,9,10];
-    const initData = [3,4,5,6];
-    const navigate = useNavigate();
-    const [mainCharacters, setMainCharacters] = useState([0,1,2,3]);
-    const [selectedData, setSelectedData] = useState([0,1,2,3]);
-    const [isChanging, setIsChanging] = useState(false);
-    const [stateChange, setStateChange] = useState(0);
-
     const [putProposalAccounts, setPutProposalAccounts] = useState([]);
 
     useEffect(() => {(async function() {
         setPutProposalAccounts(await getProposalList());
-        // setPutProposalAccounts();
-    })();}, [stateChange]);
-
-    function handleUpdate(){
-        setMainCharacters(selectedData);
-        setIsChanging(false);
-        setStateChange((prev) => prev + 1);
-    }
+    })();}, []);
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>

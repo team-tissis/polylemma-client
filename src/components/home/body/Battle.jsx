@@ -407,7 +407,6 @@ export default function Battle() {
                         helperText={ false ? "対戦相手希望下限レベルを正しく入力してください"  : ""}
                         id="demo-helper-text-aligned"
                         defaultValue={rangeValue.min}
-                        // onChange={(e) => setHealthData({ ...healthData, weight: e.target.value })}
                         onChange={(e) => setRangeValue({ ...rangeValue, min: Number(e.target.value)})}
                     />
                     から
