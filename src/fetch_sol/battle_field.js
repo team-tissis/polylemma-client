@@ -301,8 +301,10 @@ function eventBattleCompleted (setBattleDetail) {
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
         if (isDraw) {
             console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
+            alert(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
         } else {
             console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+            alert(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
         }
         setBattleDetail({
             numRounds: numRounds,
@@ -320,6 +322,7 @@ function eventExceedingLevelPointCheatDetected () {
     const filter = contract.filters.ExceedingLevelPointCheatDetected();
     contract.on(filter, (cheater, remainingLevelPoint, cheaterLevelPoint) => {
         console.log(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
+        alert(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
     });
 }
 
@@ -328,6 +331,7 @@ function eventReusingUsedSlotCheatDetected () {
     const filter = contract.filters.ReusingUsedSlotCheatDetected();
     contract.on(filter, (cheater, targetSlot) => {
         console.log(`Player${cheater} reused slot ${targetSlot}.`);
+        alert(`Player${cheater} reused slot ${targetSlot}.`);
     });
 }
 
@@ -336,6 +340,7 @@ function eventLatePlayerSeedCommitDetected () {
     const filter = contract.filters.LatePlayerSeedCommitDetected();
     contract.on(filter, (delayer) => {
         console.log(`Player${delayer}'s seed commit was too late.`);
+        alert(`Player${delayer}'s seed commit was too late.`);
     });
 }
 
@@ -344,6 +349,7 @@ function eventLateChoiceCommitDetected () {
     const filter = contract.filters.LateChoiceCommitDetected();
     contract.on(filter, (numRounds, delayer) => {
         console.log(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
+        alert(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
     });
 }
 
@@ -352,6 +358,7 @@ function eventLateChoiceRevealDetected () {
     const filter = contract.filters.LateChoiceRevealDetected();
     contract.on(filter, (numRounds, delayer) => {
         console.log(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
+        alert(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
     });
 }
 
@@ -360,6 +367,7 @@ function eventBattleCanceled () {
     const filter = contract.filters.BattleCanceled();
     contract.on(filter, () => {
         console.log(`Battle has been canceled.`);
+        alert(`Battle has been canceled.`);
     });
 }
 
