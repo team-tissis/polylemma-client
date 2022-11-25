@@ -246,7 +246,7 @@ export default function Battle() {
 
                     const { signer } = getContract("PLMMatchOrganizer");
                     const myAddress = await signer.getAddress();
-                    eventBattleStarted(myAddress, setMatched);
+                    eventBattleStarted(myAddress, setMatched, true);
                 } else if(kind === "searchRooms") {
                     navigate('/match_make');
                 }
