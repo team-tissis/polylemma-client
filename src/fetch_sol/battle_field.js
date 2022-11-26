@@ -94,19 +94,19 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
     const message = await contract.getFixedSlotCharInfo(playerId);
     console.log({ getFixedSlotCharInfo: message });
     const response = [];
-    message.forEach(async mes =>
+    for (let i = 0; i < message.length; i++) {
         response.push({
-            name: bytes32ToString(mes['name']),
-            imgURI: await getImgURI(mes['imgId'], addressIndex),
-            characterType: mes['characterType'],
-            level: mes['level'],
-            bondLevel: await getBondLevelAtBattleStart(mes),
-            rarity: mes['rarity'],
-            attributeIds: mes['attributeIds'],
+            name: bytes32ToString(message[i]['name']),
+            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
+            characterType: message[i]['characterType'],
+            level: message[i]['level'],
+            bondLevel: await getBondLevelAtBattleStart(message[i]),
+            rarity: message[i]['rarity'],
+            attributeIds: message[i]['attributeIds'],
             isRandomSlot: false, // reduxに保存用
             battleDone: false // reduxに保存用
         })
-    );
+    }
     return response;
 }
 
@@ -177,6 +177,7 @@ async function getCurrentRound (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getCurrentRound();
     console.log({ getCurrentRound: message });
+    return message;
 }
 
 async function getMaxLevelPoint (playerId, addressIndex) {
@@ -190,12 +191,14 @@ async function getRoundResults (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getRoundResults();
     console.log({ getRoundResults: message });
+    return message;
 }
 
 async function getBattleResult (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getBattleResult();
     console.log({ getBattleResult: message });
+    return message;
 }
 
 //////////////////////////
