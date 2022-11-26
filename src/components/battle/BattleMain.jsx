@@ -51,8 +51,6 @@ function handleButtonStyle() {
 function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes, choice, setChoice, opponentSeedIsRevealed}){
     const isRS = character.isRandomSlot;
     const isSecret = isOpponent && isRS && !opponentSeedIsRevealed;
-    console.log({isSecret});
-    console.log({opponentSeedIsRevealed});
     const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
     const characterType = isSecret ? null : characterInfo.characterType[character.characterType];
     const isBattleDone = charUsedRounds === undefined ? false : charUsedRounds[character.index] > 0;
@@ -121,7 +119,7 @@ function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes,
     </>)
 }
 
-function PlayerYou({characters, charsUsedRounds, opponentSeedIsRevealed}){
+function PlayerYou({characters, charsUsedRounds, opponentSeedIsRevealed, remainingLevelPoint, maxLevelPoint}){
     const opponentTotalLevels = characters.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.level;
     }, 0);
@@ -131,6 +129,7 @@ function PlayerYou({characters, charsUsedRounds, opponentSeedIsRevealed}){
                 <div>相手 <Chip label={`Lv.${opponentTotalLevels}`} style={{fontSize: 20}} /></div>
                 <img src={Icon}  alt="アイコン" width="60" height="60"/>
             </div>
+            <div>残りレベルポイント: { remainingLevelPoint } / { maxLevelPoint }</div>
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
                 {characters.map((character, index) => (
                     <Grid item xs={2} sm={2} md={2} key={index}>
@@ -162,8 +161,6 @@ function PlayerI({characters, charsUsedRounds, listenToRoundRes, choice, setChoi
                 </Grid>
             ))}
         </Grid>
-        <div>自分 <Chip label={`Lv.${myTotalLevels}`} style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}} /></div>
-        <img src={Icon}  alt="アイコン" width="60" height="60"/>
 
         <Box sx={{ width: '80%' }}>
             このトークンにレベルを付与する
@@ -182,6 +179,9 @@ function PlayerI({characters, charsUsedRounds, listenToRoundRes, choice, setChoi
                 />
             </Stack>
         </Box>
+
+        <div>自分 <Chip label={`Lv.${myTotalLevels}`} style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}} /></div>
+        <img src={Icon}  alt="アイコン" width="60" height="60"/>
     </Container>
     </>)
 }
@@ -223,8 +223,10 @@ export default function BattleMain(){
     const [isCOM, setIsCOM] = useState(false);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
     const [roundDetail, setRoundDetail] = useState(null);
-    const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
-    const [maxLevelPoint, setMaxLevelPoint] = useState(0);
+    const [myRemainingLevelPoint, setMyRemainingLevelPoint] = useState(0);
+    const [myMaxLevelPoint, setMyMaxLevelPoint] = useState(0);
+    const [opponentRemainingLevelPoint, setOpponentRemainingLevelPoint] = useState(0);
+    const [opponentMaxLevelPoint, setOpponentMaxLevelPoint] = useState(0);
     const [battleDetail, setBattleDetail] = useState(null);
 
     const [myCharsUsedRounds, setMyCharsUsedRounds] = useState();
@@ -238,7 +240,6 @@ export default function BattleMain(){
         console.log("commit and reveal........");
     },[listenToRoundRes]);
 
-
     useEffect(() => {
         // reduxに結果を反映
         if(roundDetail != null){
@@ -248,9 +249,9 @@ export default function BattleMain(){
 
     // 相手が何round目に何を出したかを"choiceRevealed"で検知する(levelPoint, choice, numRounds)
     useEffect(() => {(async function() {
-        console.log({opponentRevealed})
+        console.log({opponentRevealed});
         if( opponentRevealed != null) {
-            dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
+            dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice));
         }
     })();}, [opponentRevealed]);
 
@@ -266,8 +267,10 @@ export default function BattleMain(){
         setMyCharsUsedRounds(await getCharsUsedRounds(tmpMyPlayerId));
         setOpponentCharsUsedRounds(await getCharsUsedRounds(1-tmpMyPlayerId));
 
-        setRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
-        setMaxLevelPoint(await getMaxLevelPoint(tmpMyPlayerId));
+        setMyRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
+        setMyMaxLevelPoint(await getMaxLevelPoint(tmpMyPlayerId));
+        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-tmpMyPlayerId));
+        setOpponentMaxLevelPoint(await getMaxLevelPoint(1-tmpMyPlayerId));
 
         const seedIsRevealed = await playerSeedIsRevealed(1-tmpMyPlayerId);
         if (seedIsRevealed) {
@@ -516,7 +519,8 @@ export default function BattleMain(){
         setMyCommit(false);
         setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
         setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
-        setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+        setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
 
         const seedIsRevealed = await playerSeedIsRevealed(1-myPlayerId);
         if (seedIsRevealed) {
@@ -540,16 +544,16 @@ export default function BattleMain(){
         <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 [dev]左から数えて {comChoice} 番目のトークンが選択されました。
-                <PlayerYou characters={myCharacters.otherCharactersList} charsUsedRounds={opponentCharsUsedRounds} opponentSeedIsRevealed={opponentSeedIsRevealed}/>
+                <PlayerYou characters={myCharacters.otherCharactersList} charsUsedRounds={opponentCharsUsedRounds} opponentSeedIsRevealed={opponentSeedIsRevealed}
+                           remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint}/>
                 <div style={{height: 100}}/>
-                [dev]残り追加可能レベル {remainingLevelPoint}<br/>
                 [dev]レベルポイント {levelPoint}<br/>
                 [dev]保存したmyPlayerSeed: { myCharacters.myPlayerSeed }<br/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                <PlayerI characters={myCharacters.charactersList} charsUsedRounds={myCharsUsedRounds} listenToRoundRes={listenToRoundRes}
-                         choice={choice} setChoice={setChoice} remainingLevelPoint={remainingLevelPoint}
-                         maxLevelPoint={maxLevelPoint} setLevelPoint={setLevelPoint} />
+                <PlayerI characters={myCharacters.charactersList} charsUsedRounds={myCharsUsedRounds}
+                         listenToRoundRes={listenToRoundRes} choice={choice} setChoice={setChoice}
+                         remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
         <Grid item xs={10} md={2}>
