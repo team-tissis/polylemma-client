@@ -293,6 +293,9 @@ export default function BattleMain(){
     })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
+        const currentRound = await getCurrentRound();
+        setRound(currentRound);
+
         const tmpMyPlayerId = await getPlayerIdFromAddr();
         setMyPlayerId(tmpMyPlayerId);
         if(tmpMyPlayerId != null){
@@ -300,7 +303,7 @@ export default function BattleMain(){
         }
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
         eventChoiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
-        eventChoiceCommitted(1 - tmpMyPlayerId, round, setOpponentCommit);
+        eventChoiceCommitted(1 - tmpMyPlayerId, currentRound, setOpponentCommit);
 
         setRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
         setMaxLevelPoint(await getMaxLevelPoint(tmpMyPlayerId));
@@ -529,8 +532,9 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        eventChoiceCommitted(1-myPlayerId, round+1, setOpponentCommit);
-        setRound(round + 1);
+        const nextRound = await getCurrentRound();
+        eventChoiceCommitted(1-myPlayerId, nextRound, setOpponentCommit);
+        setRound(nextRound);
         setOpponentCommit(false);
         setMyCommit(false);
         setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
@@ -545,6 +549,7 @@ export default function BattleMain(){
     <Button variant="contained" size="large" color="secondary" onClick={() => setIsCOM((isCOM) => !isCOM)}>
         COMと対戦: {isCOM ? "YES" : "NO"}
     </Button>
+    <div>ラウンド {round+1}</div>
     <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
