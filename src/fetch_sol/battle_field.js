@@ -43,6 +43,7 @@ async function playerSeedIsRevealed (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.playerSeedIsRevealed(playerId);
     console.log({ playerSeedIsRevealed: message });
+    return message;
 }
 
 ////////////////////////
@@ -96,6 +97,7 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
     const response = [];
     for (let i = 0; i < message.length; i++) {
         response.push({
+            index: i,
             name: bytes32ToString(message[i]['name']),
             imgURI: await getImgURI(message[i]['imgId'], addressIndex),
             characterType: message[i]['characterType'],
@@ -125,6 +127,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     console.log({ randomSlotId: randomSlotId });
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
     return {
+        index: 4,
         name: bytes32ToString(message['name']),
         imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],
@@ -134,7 +137,6 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         attributeIds: message['attributeIds'],
         isRandomSlot: true,
         battleDone: false,
-        // index: 4
     };
 }
 
@@ -145,7 +147,7 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
     console.log({ getRandomSlotCharInfo: message });
 
     return {
-        index: 4, //RSは最後なので5になるはず
+        index: 4,
         name: bytes32ToString(message['name']),
         imgURI: await getImgURI(message['imgId'], addressIndex),
         characterType: message['characterType'],

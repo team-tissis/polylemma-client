@@ -36,6 +36,7 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
+
 function handleButtonStyle() {
     return {
         position: 'fixed',
@@ -47,137 +48,105 @@ function handleButtonStyle() {
     }
 }
 
-function NFTCharacterCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
-    const thisCharacterAttribute = character.attributeIds[0];
-    const charaType = characterInfo.characterType[character.characterType];
-    const _thisCharacterBattleDone = character.battleDone;
+function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes, choice, setChoice, opponentSeedIsRevealed}){
+    const isRS = character.isRandomSlot;
+    const isSecret = isOpponent && isRS && !opponentSeedIsRevealed;
+    console.log({isSecret});
+    console.log({opponentSeedIsRevealed});
+    const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
+    const characterType = isSecret ? null : characterInfo.characterType[character.characterType];
+    const isBattleDone = charUsedRounds === undefined ? false : charUsedRounds[character.index] > 0;
 
-    var _cardStyleColor = character.isRandomSlot ? '#FFFF66' : '#FFDBC9'
-    if(character.index === choice) {
-        _cardStyleColor = character.isRandomSlot ?  '#FFD700' : '#FFAD90'
-    } else if(_thisCharacterBattleDone) {
-        _cardStyleColor = 'silver'
-    }
+    const cardColor = isSecret ? 'grey' : characterAttribute["backgroundColor"];
+    const levelColor = isBattleDone ? (isOpponent ? 'gray' : 'silver')
+                       : ((character.index === choice) ? (isRS ? '#FFD700' : '#FFAD90')
+                       : (isRS ? '#FFFF66' : '#FFDBC9'));
+    const levelBorderColor = isOpponent ? 'silver' : (character.index === choice) ? 'red' : 'grey';
 
     function handleCharacterChoice() {
+        if(isOpponent){ return }
+        if(isBattleDone){ return }
         if(listenToRoundRes === 'freeze'){ return }
-        if(_thisCharacterBattleDone){ return }
-        setChoice(character.index)
+        setChoice(character.index);
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
-            onClick={_thisCharacterBattleDone ? null : () => handleCharacterChoice() } >
+        <div className="card_parent" style={{backgroundColor: cardColor}} onClick={ () => handleCharacterChoice() } >
+            {!isSecret &&
             <div className="card_name">
                 { character.name }
             </div>
-            <div className="box" style={{padding: 10, backgroundColor: _cardStyleColor, fontSize: 14, borderColor: (character.index === choice) ? 'red' : 'grey'}}>
-                レベル:
-                {(choice === character.index) ? <>
-                    { character.level + levelPoint}
-                </> : <>
-                    { character.level}
-                </>}
+            }
+
+            <div className="box" style={{padding: 10, backgroundColor: levelColor, fontSize: 14, borderColor: levelBorderColor}}>
+                レベル: { character.level }
+                {!isRS && <>
                 <br/>
                 絆レベル: { character.bondLevel }
+                </>}
             </div>
+
+            {!isSecret &&
             <div className="character_type_box"
-                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
-                { charaType['jaName'] }
+                style={{backgroundColor: characterType['backgroundColor'], borderColor: characterType['borderColor']}}>
+                { characterType['jaName'] }
             </div>
+            }
+
+            {!isSecret ?
             <div className="img_box">
-                <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
+                <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="card"/>
             </div>
+            :
+            <div className="img_box" style={{justifyContent: 'center'}}>
+                <div style={{paddingTop: '30px'}}>Secret</div>
+            </div>
+            }
+
+            {!isSecret &&
             <div className="attribute_box">
-                レア度 {character.rarity} <br/> { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity}<br/>
+                { characterAttribute["title"] }
             </div>
+            }
+
             <div className="detail_box">
+                {!isSecret &&
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
+                    { characterAttribute["description"] }
                 </div>
+                }
             </div>
         </div>
     </>)
 }
 
-function PlayerYou({opponentCharacters}){
-    var opponentTotalLevels = 0;
-    var opponentRsLevel = 0;
-    opponentCharacters.forEach(characters => {
-        if(opponentRsLevel < characters.level){
-            opponentRsLevel = characters.level;
-        }
-        opponentTotalLevels += characters.level
-    });
+function PlayerYou({characters, charsUsedRounds, opponentSeedIsRevealed}){
+    const opponentTotalLevels = characters.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.level;
+    }, 0);
     return(<>
         <Container style={{padding: 5}}>
             <div style={{ textAlign: 'right', verticalAlign: 'middle'}}>
-                <div>プレイヤーB <Chip label={`Lv.${opponentTotalLevels}`} style={{fontSize: 20}} /></div>
+                <div>相手 <Chip label={`Lv.${opponentTotalLevels}`} style={{fontSize: 20}} /></div>
                 <img src={Icon}  alt="アイコン" width="60" height="60"/>
             </div>
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
-                {opponentCharacters.map((character, index) => (
-                <Grid item xs={2} sm={2} md={2} key={index}>
-
-                    <div className="card_parent" style={{backgroundColor: character.isRandomSlot ? 'grey' : characterInfo.attributes[character.attributeIds[0]]["backgroundColor"]}}>
-                        <div className="card_name">
-                            { character.name }
-                        </div>
-
-                        <div className="box" style={{padding: 10, backgroundColor: character.battleDone ? 'grey' : '#FFDBC9',  fontSize: 14, borderColor: 'silver'}}>
-                            レベル: { (character.level === null) ? opponentRsLevel : character.level }
-                            <br/>
-                            絆レベル: { character.bondLevel }
-                        </div>
-
-                        {character.isRandomSlot ? <></> : <>
-                                <div className="character_type_box"
-                                    style={{backgroundColor: characterInfo.characterType[character.characterType]['backgroundColor'], borderColor: characterInfo.characterType[character.characterType]['borderColor']}}>
-                                    { characterInfo.characterType[character.characterType]['jaName'] }
-                                </div>
-                                <div className="img_box">
-                                    <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
-                                </div>
-                                <div className="attribute_box">
-                                レア度 {character.rarity} <br/> { characterInfo.attributes[character.attributeIds[0]]["title"] }
-                                </div>
-                        </>}
-
-                        <div className="character_type_box" style={{backgroundColor: character.characterType === null ? 'grey' : characterInfo.characterType[character.characterType]['backgroundColor'],
-                            borderColor: character.characterType === null ? 'grey' :  characterInfo.characterType[character.characterType]['borderColor']}}>
-                            {(character.characterType === null) ? <></> :
-                                <>{ characterInfo.characterType[character.characterType]['jaName'] }</>
-                            }
-                        </div>
-                        <div className="img_box">
-                            <img className='img_div' style={{width: '100%', height: 'auto'}} src={ character.imgURI } alt="sample"/>
-                        </div>
-                        <div className="attribute_box">
-                            {(character.rarity === null) ? <></>
-                            : <>レア度 {character.rarity}<br/></>
-                            }
-                            {(character.attributeIds === null) ? <></>
-                            : <>{ characterInfo.attributes[character.attributeIds[0]]["title"] }</>
-                            }
-                        </div>
-
-                        <div className="detail_box">
-                            <div style={{margin: 10}}>
-                                {(character.attributeIds === null) ? <></>
-                                    : <>{ characterInfo.attributes[character.attributeIds[0]]["description"] }</>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                </Grid>
+                {characters.map((character, index) => (
+                    <Grid item xs={2} sm={2} md={2} key={index}>
+                        <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={true} opponentSeedIsRevealed={opponentSeedIsRevealed}/>
+                    </Grid>
                 ))}
             </Grid>
         </Container>
     </>)
 }
 
-function PlayerI({myCharacters,  listenToRoundRes,  choice, setChoice, remainingLevelPoint, maxLevelPoint, levelPoint, setLevelPoint}){
+function PlayerI({characters, charsUsedRounds, listenToRoundRes, choice, setChoice, remainingLevelPoint, maxLevelPoint, setLevelPoint}){
+    const myTotalLevels = characters.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.level;
+    }, 0);
+
     const marks = [];
     for (let lp = 0; lp <= remainingLevelPoint; lp++) {
         marks.push({ value: lp, label: lp });
@@ -186,16 +155,15 @@ function PlayerI({myCharacters,  listenToRoundRes,  choice, setChoice, remaining
     return(<>
     <Container style={{padding: 5}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
-            {myCharacters.map((myCharacter, index) => (
+            {characters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharacterCard key={index} choice={choice} setChoice={setChoice} character={myCharacter}
-                        listenToRoundRes={listenToRoundRes} levelPoint={levelPoint} />
+                    <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={false}
+                        listenToRoundRes={listenToRoundRes} choice={choice} setChoice={setChoice}/>
                 </Grid>
             ))}
         </Grid>
-        <div style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}}>
-            プレイヤーA
-        </div>
+        <div>自分 <Chip label={`Lv.${myTotalLevels}`} style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}} /></div>
+        <img src={Icon}  alt="アイコン" width="60" height="60"/>
 
         <Box sx={{ width: '80%' }}>
             このトークンにレベルを付与する
@@ -244,7 +212,6 @@ export default function BattleMain(){
     // for debug
     const addressIndex = 2;
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
-    const [randomSlotCOM, setRandomSlotCOM] = useState();
 
     const [choice, setChoice] = useState(0);
     // COMPUTER側の選択したキャラ
@@ -259,6 +226,10 @@ export default function BattleMain(){
     const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
     const [maxLevelPoint, setMaxLevelPoint] = useState(0);
     const [battleDetail, setBattleDetail] = useState(null);
+
+    const [myCharsUsedRounds, setMyCharsUsedRounds] = useState();
+    const [opponentCharsUsedRounds, setOpponentCharsUsedRounds] = useState();
+    const [opponentSeedIsRevealed, setOpponentSeedIsRevealed] = useState();
 
     // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
     const [opponentRevealed, setOpponentRevealed] = useState(null);
@@ -276,59 +247,61 @@ export default function BattleMain(){
     },[roundDetail]);
 
     // 相手が何round目に何を出したかを"choiceRevealed"で検知する(levelPoint, choice, numRounds)
-    // 相手の出したキャラの検知と、もしRSを出しとき、RSキャラの詳細情報を取得する
     useEffect(() => {(async function() {
-        console.log("opponentRevealed........");
         console.log({opponentRevealed})
         if( opponentRevealed != null) {
-            // 相手がRSを出したとき、RSの情報を検出し、dispatchで情報を再度保存する
-            if(opponentRevealed.choice === 4){
-                const opponentPlayerId = 1 - myCharacters.playerId;
-                const opponentRSInfo =  await getRandomSlotCharInfo(opponentPlayerId)
-                console.log({相手のランダムスロットのキャラの詳細情報を表示: opponentRSInfo})
-                dispatch(setOpponentRsFullInfo(opponentRSInfo));
-            }
             dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice))
         }
     })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
-        const currentRound = await getCurrentRound();
-        setRound(currentRound);
-
         const tmpMyPlayerId = await getPlayerIdFromAddr();
         setMyPlayerId(tmpMyPlayerId);
         if(tmpMyPlayerId != null){
-            dispatch(setPlayerId(tmpMyPlayerId))
+            dispatch(setPlayerId(tmpMyPlayerId));
         }
-        // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
-        eventChoiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
-        eventChoiceCommitted(1 - tmpMyPlayerId, currentRound, setOpponentCommit);
+
+        const currentRound = await getCurrentRound();
+        setRound(currentRound);
+        setMyCharsUsedRounds(await getCharsUsedRounds(tmpMyPlayerId));
+        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-tmpMyPlayerId));
 
         setRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
         setMaxLevelPoint(await getMaxLevelPoint(tmpMyPlayerId));
+
+        const seedIsRevealed = await playerSeedIsRevealed(1-tmpMyPlayerId);
+        if (seedIsRevealed) {
+            dispatch(setOpponentRsFullInfo(await getRandomSlotCharInfo(1-tmpMyPlayerId)));
+        }
+        setOpponentSeedIsRevealed(seedIsRevealed);
+
+        // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
+        eventChoiceRevealed(1-tmpMyPlayerId, setOpponentRevealed);
+        eventChoiceCommitted(1-tmpMyPlayerId, currentRound, setOpponentCommit);
 
         if (isCOM) {
             const tmpCOMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(tmpCOMPlayerSeed);
             try {
-                await commitPlayerSeed(1 - tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+                await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
             } catch (e) {
                 console.log(e);
             }
 
             // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
-            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - tmpMyPlayerId, addressIndex);
-            // 相手のRSの情報はわからないので、とりあえず"comFixedSlotCharInfo"だけをreduxに追加する
-            const opponentMaskedCharacter = {
-                index: 4, name: null, imgURI: null, characterType: null, level: null,
+            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1-tmpMyPlayerId, addressIndex);
+            // 相手の RS のレベルは書くキャラクタレベルのうち最大
+            const opponentRSLevel = comFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+                return Math.max(accumulator, currentValue.level);
+            }, 0);
+            // 相手の RS のわからない情報は null にしておく
+            const opponentRandomSlot = {
+                index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
                 bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
             }
-            const comCharacterList = [...comFixedSlotCharInfo, opponentMaskedCharacter]
+            const comCharacterList = [...comFixedSlotCharInfo, opponentRandomSlot]
             // コンピューターのキャラ5対を表示
             dispatch(setOthersBattleCharacter(comCharacterList));
-
-            setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
 
         for (let nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
@@ -354,7 +327,6 @@ export default function BattleMain(){
             } catch (e) {
                 console.log(e);
             }
-            setRandomSlotCOM(await getMyRandomSlot(1-myPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
     })();}, [isCOM]);
 
@@ -391,7 +363,7 @@ export default function BattleMain(){
         if(newArray.length === 1){
             return newArray[0]
         }
-        // console.log(`選択可能なindex一覧は${enemyAvailabelCharaIndexes}`)
+
         const _nextComChoice = Math.floor( Math.random() * newArray.length );
         return newArray[_nextComChoice]
     }
@@ -407,7 +379,7 @@ export default function BattleMain(){
 
             // 対戦に使うキャラ5体(RSを含む)をreduxに追加
             const fixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
-            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1 - myPlayerId);
+            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1-myPlayerId);
             try {
                 await commitPlayerSeed(myPlayerId, myPlayerSeed);
             } catch (e) {
@@ -423,11 +395,16 @@ export default function BattleMain(){
             dispatch(set5BattleCharacter(characterList))
 
             // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
-            const opponentMaskedCharacter = {
-                index: 4, name: null, imgURI: null, characterType: null, level: null,
+            // 相手の RS のレベルは書くキャラクタレベルのうち最大
+            const opponentRSLevel = comFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+                return Math.max(accumulator, currentValue.level);
+            }, 0);
+            // 相手の RS のわからない情報は null にしておく
+            const opponentRandomSlot = {
+                index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
                 bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
             }
-            const comCharacterList = [...comFixedSlotCharInfo, opponentMaskedCharacter]
+            const comCharacterList = [...comFixedSlotCharInfo, opponentRandomSlot]
             // コンピューターのキャラ5対を表示
             dispatch(setOthersBattleCharacter(comCharacterList));
         }
@@ -537,7 +514,16 @@ export default function BattleMain(){
         setRound(nextRound);
         setOpponentCommit(false);
         setMyCommit(false);
+        setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
+        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
         setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+
+        const seedIsRevealed = await playerSeedIsRevealed(1-myPlayerId);
+        if (seedIsRevealed) {
+            dispatch(setOpponentRsFullInfo(await getRandomSlotCharInfo(1-myPlayerId)));
+        }
+        setOpponentSeedIsRevealed(seedIsRevealed);
+
         setLevelPoint(0);
     }
 
@@ -554,16 +540,16 @@ export default function BattleMain(){
         <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 [dev]左から数えて {comChoice} 番目のトークンが選択されました。
-                <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
+                <PlayerYou characters={myCharacters.otherCharactersList} charsUsedRounds={opponentCharsUsedRounds} opponentSeedIsRevealed={opponentSeedIsRevealed}/>
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
                 [dev]レベルポイント {levelPoint}<br/>
                 [dev]保存したmyPlayerSeed: { myCharacters.myPlayerSeed }<br/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                <PlayerI myCharacters={myCharacters.charactersList} listenToRoundRes={listenToRoundRes}
+                <PlayerI characters={myCharacters.charactersList} charsUsedRounds={myCharsUsedRounds} listenToRoundRes={listenToRoundRes}
                          choice={choice} setChoice={setChoice} remainingLevelPoint={remainingLevelPoint}
-                         maxLevelPoint={maxLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
+                         maxLevelPoint={maxLevelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
         <Grid item xs={10} md={2}>
