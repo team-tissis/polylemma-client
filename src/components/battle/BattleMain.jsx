@@ -313,7 +313,7 @@ export default function BattleMain(){
         }
 
         for (let nextIndex = 0; nextIndex < tmpMyCharsUsedRounds; nextIndex++) {
-            if(tmpMyCharsUsedRounds[nextIndex] == 0){
+            if(tmpMyCharsUsedRounds[nextIndex] === 0){
                 setChoice(nextIndex);
                 break;
             }
@@ -362,7 +362,7 @@ export default function BattleMain(){
         // comChoiceをランダムに更新
         var UnusedIndexes = [];
         for (let idx = 0; idx < opponentCharsUsedRounds.length; idx++) {
-            if(idx != comChoice && opponentCharsUsedRounds[idx] == 0){
+            if(idx !== comChoice && opponentCharsUsedRounds[idx] === 0){
                 UnusedIndexes.push(idx);
             }
         }
