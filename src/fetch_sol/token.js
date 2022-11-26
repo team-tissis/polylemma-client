@@ -10,8 +10,8 @@ async function updateLevel (tokenId, addressIndex) {
 
     const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'levelUped' && event.args.user == myAddress);
-    if (event != undefined) {
+    const event = rc.events.find(event => event.event === 'levelUped' && event.args.user === myAddress);
+    if (event !== undefined) {
         // const [ characterInfos , user ] = event.args;
         // console.log(`${tokenId}'s level becomes ${characterInfos[tokenId].level}.`);
         // return { characterInfos: characterInfos };
