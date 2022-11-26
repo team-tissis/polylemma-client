@@ -47,7 +47,7 @@ function handleButtonStyle() {
     }
 }
 
-function NFTCharactorCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
+function NFTCharacterCard({choice, setChoice, character, listenToRoundRes, levelPoint}){
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
     const _thisCharacterBattleDone = character.battleDone;
@@ -177,13 +177,18 @@ function PlayerYou({opponentCharacters}){
     </>)
 }
 
-function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remainingLevelPoint, levelPoint, setLevelPoint}){
+function PlayerI({myCharacters,  listenToRoundRes,  choice, setChoice, remainingLevelPoint, maxLevelPoint, levelPoint, setLevelPoint}){
+    const marks = [];
+    for (let lp = 0; lp <= remainingLevelPoint; lp++) {
+        marks.push({ value: lp, label: lp });
+    }
+
     return(<>
     <Container style={{padding: 5}}>
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
-            {myCharactors.map((myCharactor, index) => (
+            {myCharacters.map((myCharacter, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <NFTCharactorCard key={index} choice={choice} setChoice={setChoice} character={myCharactor}
+                    <NFTCharacterCard key={index} choice={choice} setChoice={setChoice} character={myCharacter}
                         listenToRoundRes={listenToRoundRes} levelPoint={levelPoint} />
                 </Grid>
             ))}
@@ -194,19 +199,19 @@ function PlayerI({myCharactors,  listenToRoundRes,  choice, setChoice, remaining
 
         <Box sx={{ width: '80%' }}>
             このトークンにレベルを付与する
+            <div>残りレベルポイント: { remainingLevelPoint } / { maxLevelPoint }</div>
             <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
-                <div>0Lv</div>
                 <Slider
                     aria-label="Temperature"
                     defaultValue={0}
                     onChange={(e) => setLevelPoint(e.target.value)}
                     valueLabelDisplay="auto"
-                    step={1}
-                    marks
+                    step={null}
+                    marks={marks}
                     min={0}
-                    max={remainingLevelPoint}
+                    max={maxLevelPoint}
+                    disabled={listenToRoundRes === 'freeze'}
                 />
-                <div>{ remainingLevelPoint }Lv</div>
             </Stack>
         </Box>
     </Container>
@@ -252,6 +257,7 @@ export default function BattleMain(){
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
     const [roundDetail, setRoundDetail] = useState(null);
     const [remainingLevelPoint, setRemainingLevelPoint] = useState(0);
+    const [maxLevelPoint, setMaxLevelPoint] = useState(0);
     const [battleDetail, setBattleDetail] = useState(null);
 
     // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
@@ -296,6 +302,9 @@ export default function BattleMain(){
         eventChoiceRevealed(1 - tmpMyPlayerId, setOpponentRevealed);
         eventChoiceCommitted(1 - tmpMyPlayerId, round, setOpponentCommit);
 
+        setRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
+        setMaxLevelPoint(await getMaxLevelPoint(tmpMyPlayerId));
+
         if (isCOM) {
             const tmpCOMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(tmpCOMPlayerSeed);
@@ -318,8 +327,6 @@ export default function BattleMain(){
 
             setRandomSlotCOM(await getMyRandomSlot(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex));
         }
-
-        setRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
 
         for (let nextIndex = 0; nextIndex < myCharacters.charactersList.length; nextIndex++) {
             if(myCharacters.charactersList[nextIndex].battleDone === false || typeof (myCharacters.charactersList[nextIndex].battleDone) === 'undefined'){
@@ -420,7 +427,6 @@ export default function BattleMain(){
             const comCharacterList = [...comFixedSlotCharInfo, opponentMaskedCharacter]
             // コンピューターのキャラ5対を表示
             dispatch(setOthersBattleCharacter(comCharacterList));
-            setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
         }
     }
 
@@ -528,6 +534,7 @@ export default function BattleMain(){
         setOpponentCommit(false);
         setMyCommit(false);
         setRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+        setLevelPoint(0);
     }
 
     return(<>
@@ -545,12 +552,13 @@ export default function BattleMain(){
                 <PlayerYou opponentCharacters={myCharacters.otherCharactersList} />
                 <div style={{height: 100}}/>
                 [dev]残り追加可能レベル {remainingLevelPoint}<br/>
+                [dev]レベルポイント {levelPoint}<br/>
                 [dev]保存したmyPlayerSeed: { myCharacters.myPlayerSeed }<br/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                <PlayerI myCharactors={myCharacters.charactersList} listenToRoundRes={listenToRoundRes}
-                        choice={choice} setChoice={setChoice} remainingLevelPoint={remainingLevelPoint}
-                        levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
+                <PlayerI myCharacters={myCharacters.charactersList} listenToRoundRes={listenToRoundRes}
+                         choice={choice} setChoice={setChoice} remainingLevelPoint={remainingLevelPoint}
+                         maxLevelPoint={maxLevelPoint} levelPoint={levelPoint} setLevelPoint={setLevelPoint} />
             </Container>
         </Grid>
         <Grid item xs={10} md={2}>
