@@ -295,7 +295,7 @@ export default function BattleMain(){
                 console.log(e);
             }
 
-            setComChoice(getRandomIndexOfEnemyCharaIndex());
+            setComChoice(getNextComIndex());
 
             // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
             const comFixedSlotCharInfo = await getFixedSlotCharInfo(1-tmpMyPlayerId, addressIndex);
@@ -335,7 +335,7 @@ export default function BattleMain(){
             } catch (e) {
                 console.log(e);
             }
-            setComChoice(getRandomIndexOfEnemyCharaIndex());
+            setComChoice(getNextComIndex());
         }
     })();}, [isCOM]);
 
@@ -358,7 +358,7 @@ export default function BattleMain(){
         navigate('../');
     }
 
-    function getRandomIndexOfEnemyCharaIndex(){
+    function getNextComIndex(){
         // comChoiceをランダムに更新
         var UnusedIndexes = [];
         for (let idx = 0; idx < opponentCharsUsedRounds.length; idx++) {
@@ -440,7 +440,7 @@ export default function BattleMain(){
         }
         try {
             await revealChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
-            setComChoice(getRandomIndexOfEnemyCharaIndex(comChoice));
+            setComChoice(getNextComIndex(comChoice));
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
