@@ -298,25 +298,27 @@ function eventRoundCompleted (currentRound, nextIndex, setListenToRoundRes, setC
     });
 }
 
-function eventBattleCompleted (setBattleDetail) {
+function eventBattleCompleted (battleDetail, setBattleDetail) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleCompleted(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
-        if (isDraw) {
-            console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
-            alert(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
-        } else {
-            console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
-            alert(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+        if (battleDetail == null) {
+            if (isDraw) {
+                console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
+                alert(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
+            } else {
+                console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+                alert(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+            }
+            setBattleDetail({
+                numRounds: numRounds,
+                isDraw: isDraw,
+                winner: winner,
+                loser: loser,
+                winnerCount: winnerCount,
+                loserCount: loserCount
+            });
         }
-        setBattleDetail({
-            numRounds: numRounds,
-            isDraw: isDraw,
-            winner: winner,
-            loser: loser,
-            winnerCount: winnerCount,
-            loserCount: loserCount
-        });
     });
 }
 
