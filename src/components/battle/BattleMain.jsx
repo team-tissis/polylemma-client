@@ -13,7 +13,7 @@ import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setMyPlayerSeed, set5BattleCharacter } from 'slices/myCharacter.ts';
+import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setMyPlayerSeed } from 'slices/myCharacter.ts';
 import { selectRoundResult, oneRoundDone } from 'slices/roundResult.ts';
 import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
@@ -47,9 +47,9 @@ function handleButtonStyle() {
     }
 }
 
-function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes, choice, setChoice, opponentSeedIsRevealed}){
+function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes, choice, setChoice, opponentRandomSlotState}){
     const isRS = character.isRandomSlot;
-    const isSecret = isOpponent && isRS && !opponentSeedIsRevealed;
+    const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
     const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
     const characterType = isSecret ? null : characterInfo.characterType[character.characterType];
     const isBattleDone = charUsedRounds === undefined ? false : charUsedRounds[character.index] > 0;
@@ -118,7 +118,7 @@ function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes,
     </>)
 }
 
-function PlayerYou({characters, charsUsedRounds, opponentSeedIsRevealed, remainingLevelPoint, maxLevelPoint}){
+function PlayerYou({characters, charsUsedRounds, opponentRandomSlotState, remainingLevelPoint, maxLevelPoint}){
     const opponentTotalLevels = characters.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.level;
     }, 0);
@@ -132,7 +132,7 @@ function PlayerYou({characters, charsUsedRounds, opponentSeedIsRevealed, remaini
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
                 {characters.map((character, index) => (
                     <Grid item xs={2} sm={2} md={2} key={index}>
-                        <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={true} opponentSeedIsRevealed={opponentSeedIsRevealed}/>
+                        <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={true} opponentRandomSlotState={opponentRandomSlotState}/>
                     </Grid>
                 ))}
             </Grid>
@@ -233,7 +233,8 @@ export default function BattleMain(){
 
     const [myCharsUsedRounds, setMyCharsUsedRounds] = useState();
     const [opponentCharsUsedRounds, setOpponentCharsUsedRounds] = useState();
-    const [opponentSeedIsRevealed, setOpponentSeedIsRevealed] = useState();
+    const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
+    const [opponentRandomSlotState, setOpponentRandomSlotState] = useState(-1);
 
     // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
     const [opponentRevealed, setOpponentRevealed] = useState(null);
@@ -245,7 +246,7 @@ export default function BattleMain(){
     useEffect(() => {
         // reduxに結果を反映
         if(roundDetail != null){
-            dispatch(oneRoundDone(roundDetail))
+            dispatch(oneRoundDone(roundDetail));
         }
     },[roundDetail]);
 
@@ -258,49 +259,52 @@ export default function BattleMain(){
     // })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
-        const tmpMyPlayerId = await getPlayerIdFromAddr();
-        setMyPlayerId(tmpMyPlayerId);
+        const _myPlayerId = await getPlayerIdFromAddr();
+        setMyPlayerId(_myPlayerId);
 
         const currentRound = await getCurrentRound();
         setRound(currentRound);
-        const tmpMyCharsUsedRounds = await getCharsUsedRounds(tmpMyPlayerId);
-        setMyCharsUsedRounds(tmpMyCharsUsedRounds);
-        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-tmpMyPlayerId));
+        const _myCharsUsedRounds = await getCharsUsedRounds(_myPlayerId);
+        setMyCharsUsedRounds(_myCharsUsedRounds);
+        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-_myPlayerId));
 
-        setMyRemainingLevelPoint(await getRemainingLevelPoint(tmpMyPlayerId));
-        setMyMaxLevelPoint(await getMaxLevelPoint(tmpMyPlayerId));
-        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-tmpMyPlayerId));
-        setOpponentMaxLevelPoint(await getMaxLevelPoint(1-tmpMyPlayerId));
+        setMyRemainingLevelPoint(await getRemainingLevelPoint(_myPlayerId));
+        setMyMaxLevelPoint(await getMaxLevelPoint(_myPlayerId));
+        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-_myPlayerId));
+        setOpponentMaxLevelPoint(await getMaxLevelPoint(1-_myPlayerId));
 
-        const seedIsRevealed = await playerSeedIsRevealed(1-tmpMyPlayerId);
-        if (seedIsRevealed) {
-            const opponentRandomSlot = await getRandomSlotCharInfo(1-tmpMyPlayerId);
+        const _myRandomSlotState = await playerSeedIsRevealed(_myPlayerId);
+        setMyRandomSlotState(_myRandomSlotState);
+
+        const _opponentRandomSlotState = await playerSeedIsRevealed(1-_myPlayerId);
+        setOpponentRandomSlotState(_opponentRandomSlotState);
+        if (_opponentRandomSlotState === 2) {
+            const opponentRandomSlot = await getRandomSlotCharInfo(1-_myPlayerId);
             setOpponentCharacters((character) => {
                 character[4] = opponentRandomSlot;
                 return character;
             });
         }
-        setOpponentSeedIsRevealed(seedIsRevealed);
 
         // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
-        eventChoiceRevealed(1-tmpMyPlayerId, setOpponentRevealed);
-        eventChoiceCommitted(1-tmpMyPlayerId, currentRound, setOpponentCommit);
+        eventChoiceRevealed(1-_myPlayerId, setOpponentRevealed);
+        eventChoiceCommitted(1-_myPlayerId, currentRound, setOpponentCommit);
 
         if (isCOM) {
-            const tmpCOMPlayerSeed = getRandomBytes32();
-            setCOMPlayerSeed(tmpCOMPlayerSeed);
+            const _COMPlayerSeed = getRandomBytes32();
+            setCOMPlayerSeed(_COMPlayerSeed);
             try {
-                await commitPlayerSeed(1-tmpMyPlayerId, tmpCOMPlayerSeed, addressIndex);
+                await commitPlayerSeed(1-_myPlayerId, _COMPlayerSeed, addressIndex);
             } catch (e) {
                 console.log(e);
             }
-
             setComChoice(getNextComIndex());
+        }
 
-            // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
-            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1-tmpMyPlayerId, addressIndex);
+        if (_myRandomSlotState >= 1) { // 自分の seed がコミットし終わっていたら
+            const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-_myPlayerId, addressIndex);
             // 相手の RS のレベルは書くキャラクタレベルのうち最大
-            const opponentRSLevel = comFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+            const opponentRSLevel = opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
                 return Math.max(accumulator, currentValue.level);
             }, 0);
             // 相手の RS のわからない情報は null にしておく
@@ -308,12 +312,15 @@ export default function BattleMain(){
                 index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
                 bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
             };
-            const comCharacterList = [...comFixedSlotCharInfo, opponentRandomSlot];
-            setOpponentCharacters(comCharacterList);
+            setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
+
+            const myFixedSlotCharInfo = await getFixedSlotCharInfo(_myPlayerId);
+            const myRandomSlot = await getMyRandomSlot(_myPlayerId, myInfo.myPlayerSeed);
+            setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
         }
 
-        for (let nextIndex = 0; nextIndex < tmpMyCharsUsedRounds; nextIndex++) {
-            if(tmpMyCharsUsedRounds[nextIndex] === 0){
+        for (let nextIndex = 0; nextIndex < _myCharsUsedRounds; nextIndex++) {
+            if(_myCharsUsedRounds[nextIndex] === 0){
                 setChoice(nextIndex);
                 break;
             }
@@ -328,10 +335,10 @@ export default function BattleMain(){
 
         // for debug
         if (isCOM) {
-            const tmpCOMPlayerSeed = getRandomBytes32();
-            setCOMPlayerSeed(tmpCOMPlayerSeed);
+            const _COMPlayerSeed = getRandomBytes32();
+            setCOMPlayerSeed(_COMPlayerSeed);
             try {
-                await commitPlayerSeed(1-myPlayerId, tmpCOMPlayerSeed, addressIndex);
+                await commitPlayerSeed(1-myPlayerId, _COMPlayerSeed, addressIndex);
             } catch (e) {
                 console.log(e);
             }
@@ -372,17 +379,31 @@ export default function BattleMain(){
     }
 
     async function handleSeedCommit () {
+        const _myRandomSlotState = await playerSeedIsRevealed(myPlayerId);
+        setMyRandomSlotState(_myRandomSlotState);
+
         // リロードしてモンスターが変わらないように修正
-        if(myInfo.charactersList.length === 0){
-            const myPlayerSeed = getRandomBytes32();
+        if(_myRandomSlotState === 0){
+            const myPlayerSeed = myInfo.myPlayerSeed == null ? getRandomBytes32() : myInfo.myPlayerSeed;
+
             // seedが登録されていない場合、登録する
-            if(myInfo.myPlayerSeed === null){
+            if(myInfo.myPlayerSeed == null){
                 dispatch(setMyPlayerSeed(myPlayerSeed));
             }
 
-            // 対戦に使うキャラ5体(RSを含む)をreduxに追加
-            const fixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
-            const comFixedSlotCharInfo = await getFixedSlotCharInfo(1-myPlayerId);
+            const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-myPlayerId);
+            // 相手の RS のレベルは書くキャラクタレベルのうち最大
+            const opponentRSLevel = opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+                return Math.max(accumulator, currentValue.level);
+            }, 0);
+            // 相手の RS のわからない情報は null にしておく
+            const opponentRandomSlot = {
+                index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
+                bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
+            };
+            setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
+
+            const myFixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
             try {
                 await commitPlayerSeed(myPlayerId, myPlayerSeed);
             } catch (e) {
@@ -393,22 +414,8 @@ export default function BattleMain(){
                     alert("不明なエラーが発生しました。");
                 }
             }
-            const _myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
-            const characterList = [...fixedSlotCharInfo, _myRandomSlot];
-            dispatch(set5BattleCharacter(characterList));
-
-            // 対戦相手が使うキャラ5体(RSを含む)をresuxに追加
-            // 相手の RS のレベルは書くキャラクタレベルのうち最大
-            const opponentRSLevel = comFixedSlotCharInfo.reduce((accumulator, currentValue) => {
-                return Math.max(accumulator, currentValue.level);
-            }, 0);
-            // 相手の RS のわからない情報は null にしておく
-            const opponentRandomSlot = {
-                index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
-                bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
-            };
-            const comCharacterList = [...comFixedSlotCharInfo, opponentRandomSlot];
-            setOpponentCharacters(comCharacterList);
+            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
+            setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
         }
     }
 
@@ -459,12 +466,10 @@ export default function BattleMain(){
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
 
             setMyBlindingFactor(blindingFactor);
-            // どのキャラを選んだか？の情報を追加
-            dispatch(choiceCharacterInBattle(choice));
             // 次に自動選択するindexを調べてstateを変更する
             let nextIndex;
-            for (nextIndex = 0; nextIndex < myInfo.charactersList.length; nextIndex++) {
-                if((myInfo.charactersList[nextIndex].battleDone === false || typeof (myInfo.charactersList[nextIndex].battleDone) === 'undefined') && nextIndex !== choice){
+            for (nextIndex = 0; nextIndex < myCharsUsedRounds.length; nextIndex++) {
+                if(nextIndex !== choice && myCharsUsedRounds[nextIndex] === 0){
                     break;
                 }
             }
@@ -521,15 +526,15 @@ export default function BattleMain(){
         setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
         setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
 
-        const seedIsRevealed = await playerSeedIsRevealed(1-myPlayerId);
-        if (seedIsRevealed) {
+        const _opponentRandomSlotState = await playerSeedIsRevealed(1-myPlayerId);
+        if (_opponentRandomSlotState === 2) {
             const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
             setOpponentCharacters((character) => {
                 character[4] = opponentRandomSlot;
                 return character;
             });
         }
-        setOpponentSeedIsRevealed(seedIsRevealed);
+        setOpponentRandomSlotState(_opponentRandomSlotState);
 
         setLevelPoint(0);
     }
@@ -547,14 +552,14 @@ export default function BattleMain(){
         <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 [dev]左から数えて {comChoice} 番目のトークンが選択されました。
-                <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} opponentSeedIsRevealed={opponentSeedIsRevealed}
+                <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} opponentRandomSlotState={opponentRandomSlotState}
                            remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint}/>
                 <div style={{height: 100}}/>
                 [dev]レベルポイント {levelPoint}<br/>
                 [dev]保存したmyPlayerSeed: { myInfo.myPlayerSeed }<br/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                <PlayerI characters={myInfo.charactersList} charsUsedRounds={myCharsUsedRounds}
+                <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds}
                          listenToRoundRes={listenToRoundRes} choice={choice} setChoice={setChoice}
                          remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint} />
             </Container>
@@ -627,13 +632,13 @@ export default function BattleMain(){
             </Grid>
         </Grid>
 
-        {battleDetail == null && myInfo.charactersList.length === 0 &&
+        {myRandomSlotState === 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
         }
 
-        {battleDetail == null && myInfo.charactersList.length !== 0 && choice != null && listenToRoundRes !== 'freeze' &&
+        {battleDetail == null && myCharacters.length !== 0 && choice != null && listenToRoundRes !== 'freeze' &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
