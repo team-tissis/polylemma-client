@@ -54,12 +54,14 @@ async function getBattleState (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getBattleState();
     console.log({ getBattleState: message });
+    return message;
 }
 
 async function getPlayerState (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.getPlayerState(playerId);
     console.log({ getPlayerState: message });
+    return message;
 }
 
 async function getRemainingLevelPoint (playerId, addressIndex) {
@@ -254,20 +256,20 @@ function eventChoiceCommitted (opponentPlayerId, currentRound, setCommit) {
     });
 }
 
-function eventChoiceRevealed (opponentPlayerId, setOpponentRevealed) {
+function eventChoiceRevealed (opponentPlayerId, currentRound, setOpponentStatus) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.ChoiceRevealed(null, null, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-        if(playerId === opponentPlayerId){
-            const response = {
-                numRounds: numRounds,
-                playerId: playerId,
-                levelPoint: levelPoint,
-                choice: choice
-            }
-            setOpponentRevealed(response);
+        if(numRounds === currentRound && playerId === opponentPlayerId){
+            // const response = {
+            //     numRounds: numRounds,
+            //     playerId: playerId,
+            //     levelPoint: levelPoint,
+            //     choice: choice
+            // }
+            setOpponentStatus(2);
         }
-        // console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+        console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
     });
 }
 

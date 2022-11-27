@@ -236,8 +236,8 @@ export default function BattleMain(){
     const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
     const [opponentRandomSlotState, setOpponentRandomSlotState] = useState(-1);
 
-    // A:相手のRevealを検知し、出したキャラクターをUI上でも変化させる
-    const [opponentRevealed, setOpponentRevealed] = useState(null);
+    const [myStatus, setMyStatus] = useState(-1);
+    const [opponentStatus, setOpponentStatus] = useState(-1);
 
     useEffect(() => {
         console.log("commit and reveal........");
@@ -249,14 +249,6 @@ export default function BattleMain(){
             dispatch(oneRoundDone(roundDetail));
         }
     },[roundDetail]);
-
-    // // 相手が何round目に何を出したかを"choiceRevealed"で検知する(levelPoint, choice, numRounds)
-    // useEffect(() => {(async function() {
-    //     console.log({opponentRevealed});
-    //     if( opponentRevealed != null) {
-    //         dispatch(choiceOtherCharacterInBattle(opponentRevealed.choice));
-    //     }
-    // })();}, [opponentRevealed]);
 
     useEffect(() => {(async function() {
         const _myPlayerId = await getPlayerIdFromAddr();
@@ -286,9 +278,8 @@ export default function BattleMain(){
             });
         }
 
-        // B: 相手のRevealを検知し、出したキャラクターをUI上でも変化させる
-        eventChoiceRevealed(1-_myPlayerId, setOpponentRevealed);
         eventChoiceCommitted(1-_myPlayerId, currentRound, setOpponentCommit);
+        eventChoiceRevealed(1-_myPlayerId, currentRound, setOpponentStatus);
 
         if (isCOM) {
             const _COMPlayerSeed = getRandomBytes32();
@@ -349,7 +340,6 @@ export default function BattleMain(){
     useEffect(() => {
         eventPlayerSeedCommitted();
         eventPlayerSeedRevealed();
-        eventChoiceRevealed(setOpponentRevealed);
         eventBattleCompleted(battleDetail, setBattleDetail);
         eventExceedingLevelPointCheatDetected();
         eventReusingUsedSlotCheatDetected();
@@ -380,7 +370,7 @@ export default function BattleMain(){
 
     async function handleSeedCommit () {
         const _myRandomSlotState = await playerSeedIsRevealed(myPlayerId);
-        setMyRandomSlotState(_myRandomSlotState);
+        setMyRandomSlotState(1); // うまくいくんかわからん
 
         // リロードしてモンスターが変わらないように修正
         if(_myRandomSlotState === 0){
@@ -417,6 +407,8 @@ export default function BattleMain(){
             const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
             setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
         }
+
+        setMyRandomSlotState(await playerSeedIsRevealed(myPlayerId));
     }
 
     // for debug
@@ -516,28 +508,39 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        const nextRound = await getCurrentRound();
-        eventChoiceCommitted(1-myPlayerId, nextRound, setOpponentCommit);
-        setRound(nextRound);
-        setOpponentCommit(false);
-        setMyCommit(false);
-        setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
-        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
-        setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
-        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
-
-        const _opponentRandomSlotState = await playerSeedIsRevealed(1-myPlayerId);
-        if (_opponentRandomSlotState === 2) {
-            const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
-            setOpponentCharacters((character) => {
-                character[4] = opponentRandomSlot;
-                return character;
-            });
-        }
-        setOpponentRandomSlotState(_opponentRandomSlotState);
-
-        setLevelPoint(0);
+        setMyStatus(2);
     }
+
+    useEffect(() => {(async function() {
+        if (myStatus === 2 && opponentStatus === 2) {
+            // この辺は両者の commit の reveal が終わってからじゃないといけないかも
+            const nextRound = await getCurrentRound();
+            eventChoiceCommitted(1-myPlayerId, nextRound, setOpponentCommit);
+            eventChoiceRevealed(1-myPlayerId, nextRound, setOpponentStatus);
+            setRound(nextRound);
+            setOpponentCommit(false);
+            setMyCommit(false);
+            setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
+            setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
+            setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+            setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
+
+            const _opponentRandomSlotState = await playerSeedIsRevealed(1-myPlayerId);
+            if (_opponentRandomSlotState === 2) {
+                const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
+                setOpponentCharacters((character) => {
+                    character[4] = opponentRandomSlot;
+                    return character;
+                });
+            }
+            setOpponentRandomSlotState(_opponentRandomSlotState);
+
+            setLevelPoint(0);
+
+            setMyStatus(0);
+            setOpponentStatus(0);
+        }
+    })();}, [myStatus, opponentStatus]);
 
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
