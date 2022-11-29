@@ -273,54 +273,31 @@ function eventChoiceRevealed (opponentPlayerId, currentRound, setOpponentStatus)
     });
 }
 
-function eventRoundCompleted (currentRound, nextIndex, setListenToRoundRes, setChoice, setRoundDetail) {
+function eventRoundCompleted (currentRound, completedNumRounds, setCompletedNumRounds) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.RoundCompleted(null, null, null, null, null, null);
+    const filter = contract.filters.RoundCompleted(currentRound, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
-        if (currentRound === numRounds && nextIndex !== null) {
-            console.log(`choiceを${nextIndex}に変更`);
-            setChoice(nextIndex);
-
+        if (numRounds === completedNumRounds) {
             if (isDraw) {
                 console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
             } else {
                 console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
             }
-
-            setRoundDetail({
-                numRounds: numRounds,
-                isDraw: isDraw,
-                winner: winner,
-                loser: loser,
-                winnerDamage: winnerDamage,
-                loserDamage: loserDamage
-            });
-            setListenToRoundRes('can_choice');
+            setCompletedNumRounds(numRounds+1);
         }
     });
 }
 
-function eventBattleCompleted (battleDetail, setBattleDetail) {
+function eventBattleCompleted (setBattleCompleted) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleCompleted(null, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
-        if (battleDetail == null) {
-            if (isDraw) {
-                console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
-                alert(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
-            } else {
-                console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
-                alert(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
-            }
-            setBattleDetail({
-                numRounds: numRounds,
-                isDraw: isDraw,
-                winner: winner,
-                loser: loser,
-                winnerCount: winnerCount,
-                loserCount: loserCount
-            });
+        if (isDraw) {
+            console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
+        } else {
+            console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
         }
+        setBattleCompleted(true);
     });
 }
 
