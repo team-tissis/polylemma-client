@@ -108,7 +108,6 @@ async function charge (amount, addressIndex) {
     const event = rc.events.find(event => event.event === 'AccountCharged' && event.args.charger === myAddress);
     if (event !== undefined) {
         const [ charger, chargeAmount, poolingAmount ] = event.args;
-        console.log(chargeAmount.toNumber(), poolingAmount.toNumber());
         return Number(chargeAmount.sub(poolingAmount));
     }
 }
