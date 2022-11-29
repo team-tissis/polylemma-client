@@ -33,7 +33,7 @@ async function createCharacters (fixedSlotsOfChallengers) {
 }
 
 async function makeProposers (fixedSlotsOfChallengers) {
-    if (fixedSlotsOfChallengers.length != 4) {
+    if (fixedSlotsOfChallengers.length !== 4) {
         createCharacters(fixedSlotsOfChallengers);
     }
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {

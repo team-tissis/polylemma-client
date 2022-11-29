@@ -191,7 +191,11 @@ export default function Battle() {
             dispatch(set4Characters(updatedCharactersForBattle)); //更新
             setCharactersForBattle(updatedCharactersForBattle)
         }
-        // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
+
+        // 自分が propose した時のバトル開始を検知
+        const { signer } = getContract("PLMMatchOrganizer");
+        const myAddress = await signer.getAddress();
+        eventBattleStarted(myAddress, setMatched, true);
     })();}, []);
 
     useEffect(() => {(async function() {
@@ -231,39 +235,34 @@ export default function Battle() {
             // サブスクの確認
             alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
         } else {
-            try {
-                dispatch(set4Characters(charactersForBattle)); //更新
-                if (kind === "makeOwnRoom") {
+            dispatch(set4Characters(charactersForBattle)); //更新
+            if (kind === "makeOwnRoom") {
+                try {
                     const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
                     // proposeBattleで自分が対戦要求ステータスに変更される
                     console.log({fixedSlotsOfChallenger});
                     await proposeBattle(fixedSlotsOfChallenger, rangeValue);
                     setDialogOpen(true);
-
-                    const { signer } = getContract("PLMMatchOrganizer");
-                    const myAddress = await signer.getAddress();
-                    eventBattleStarted(myAddress, setMatched, true);
-                } else if(kind === "searchRooms") {
-                    navigate('/match_make');
+                } catch (e) {
+                    setDialogOpen(false);
+                    console.log({error: e});
+                    if (e.message.substr(0, 18) === "transaction failed") {
+                        alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                    } else {
+                        alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
+                    }
                 }
-            } catch (e) {
-                setDialogOpen(false);
-                console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
-                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                } else {
-                    alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
-                }
+            } else if(kind === "searchRooms") {
+                navigate('/match_make');
             }
         }
     }
 
     async function declineProposal(){
         try {
-            setDialogOpen(false);
             await cancelProposal();
-        } catch (e) {
             setDialogOpen(false);
+        } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");

@@ -250,7 +250,7 @@ export default function BattleMain(){
         for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
             try {
                 const _opponentPlayerId = await getPlayerIdFromAddr(_addressIndex);
-                if (_opponentPlayerId == 1 - _myPlayerId) {
+                if (_opponentPlayerId === 1-_myPlayerId) {
                     setAddressIndex(_addressIndex);
                     return true;
                 }
