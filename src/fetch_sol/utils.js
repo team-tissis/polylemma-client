@@ -1,8 +1,9 @@
 import { ethers } from "ethers";
-import contractFunctions from "../broadcast/PLMGachaScript.s.sol/31337/run-latest.json";
+import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
+import dataArtifact from "../abi/PLMData.sol/PLMData.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
@@ -45,6 +46,7 @@ function getAbi (contractName) {
     if (contractName === "PLMCoin") return coinArtifact.abi;
     else if (contractName === "PLMDealer") return dealerArtifact.abi;
     else if (contractName === "PLMToken") return tokenArtifact.abi;
+    else if (contractName === "PLMData") return dataArtifact.abi;
     else if (contractName === "PLMMatchOrganizer") return matchOrganizerArtifact.abi;
     else if (contractName === "PLMBattleField") return battleFieldArtifact.abi;
 }

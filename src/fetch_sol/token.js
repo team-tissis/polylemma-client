@@ -1,5 +1,6 @@
 import { bytes32ToString, getContract } from "./utils.js";
 import { approve } from "./coin.js";
+import { getCurrentBondLevel } from "./data.js";
 
 async function updateLevel (tokenId, addressIndex) {
     const { contractAddress, signer, contract } = getContract("PLMToken", addressIndex);
@@ -8,15 +9,13 @@ async function updateLevel (tokenId, addressIndex) {
     const message = await contract.updateLevel(tokenId);
     console.log({ updateLevel: message });
 
-    const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'levelUped' && event.args.user === myAddress);
+    const event = rc.events.find(event => event.event === 'LevelUped' && Number(event.args.tokenId) === tokenId);
     if (event !== undefined) {
-        // const [ characterInfos , user ] = event.args;
-        // console.log(`${tokenId}'s level becomes ${characterInfos[tokenId].level}.`);
-        // return { characterInfos: characterInfos };
+        const [ tokenId, newLevel ] = event.args;
+        console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
+        return newLevel;
     }
-    return 0; // 後で消す
 }
 
 ////////////////////////
@@ -28,13 +27,6 @@ async function totalSupply (addressIndex) {
     const message = await contract.totalSupply();
     console.log({ totalSupply: message });
     return Number(message);
-}
-
-async function getCurrentBondLevel (char, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
-    const message = await contract.getCurrentBondLevel(char['level'], char['fromBlock']);
-    console.log({ getCurrentBondLevel: message });
-    return message;
 }
 
 async function getAllTokenOwned (addressIndex) {

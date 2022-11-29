@@ -16,9 +16,9 @@ import Icon from 'assets/icons/avatar_1.png'
 import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setMyPlayerSeed } from 'slices/myCharacter.ts';
 import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal, playerSeedIsRevealed,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
-         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult,
+         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState,
          forceInitBattle,
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
@@ -280,10 +280,10 @@ export default function BattleMain(){
         setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-_myPlayerId));
         setOpponentMaxLevelPoint(await getMaxLevelPoint(1-_myPlayerId));
 
-        const _myRandomSlotState = await playerSeedIsRevealed(_myPlayerId);
+        const _myRandomSlotState = await getRandomSlotState(_myPlayerId);
         setMyRandomSlotState(_myRandomSlotState);
 
-        const _opponentRandomSlotState = await playerSeedIsRevealed(1-_myPlayerId);
+        const _opponentRandomSlotState = await getRandomSlotState(1-_myPlayerId);
         setOpponentRandomSlotState(_opponentRandomSlotState);
         if (_opponentRandomSlotState === 2) {
             const opponentRandomSlot = await getRandomSlotCharInfo(1-_myPlayerId);
@@ -374,7 +374,7 @@ export default function BattleMain(){
     }
 
     async function handleSeedCommit () {
-        const _myRandomSlotState = await playerSeedIsRevealed(myPlayerId);
+        const _myRandomSlotState = await getRandomSlotState(myPlayerId);
         setMyRandomSlotState(1); // うまくいくんかわからん
 
         // リロードしてモンスターが変わらないように修正
@@ -413,7 +413,7 @@ export default function BattleMain(){
             setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
         }
 
-        setMyRandomSlotState(await playerSeedIsRevealed(myPlayerId));
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
     }
 
     // for debug
@@ -524,7 +524,7 @@ export default function BattleMain(){
             setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
             setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
 
-            const _opponentRandomSlotState = await playerSeedIsRevealed(1-myPlayerId);
+            const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
             if (_opponentRandomSlotState === 2) {
                 const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
                 setOpponentCharacters((character) => {
@@ -548,9 +548,9 @@ export default function BattleMain(){
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
             if (_roundResult.isDraw) {
-                alert(`${completedNumRounds} Round: Draw (${_roundResult.winnerDamage}).`);
+                alert(`Round ${completedNumRounds}: Draw (${_roundResult.winnerDamage}).`);
             } else {
-                alert(`${completedNumRounds} Round: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
+                alert(`Round ${completedNumRounds}: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
             }
 
             let nextIndex;
