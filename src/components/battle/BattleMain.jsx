@@ -198,6 +198,7 @@ const UrgeWithPleasureComponent = () => (
 
 export default function BattleMain(){
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [levelPoint, setLevelPoint] = useState(0);
 
@@ -210,12 +211,12 @@ export default function BattleMain(){
     const [opponentCharacters, setOpponentCharacters] = useState([]);
 
     // for debug
-    const addressIndex = 2;
+    const [addressIndex, setAddressIndex] = useState(-1);
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
 
     const [choice, setChoice] = useState(0);
     // COMPUTER側の選択したキャラ
-    const [comChoice, setComChoice] = useState(-1);
+    const [COMChoice, setCOMChoice] = useState(-1);
     const [round, setRound] = useState(0);
     const [opponentCommit, setOpponentCommit] = useState(false);
     const [myCommit, setMyCommit] = useState(false);
@@ -245,7 +246,26 @@ export default function BattleMain(){
         console.log("commit and reveal........");
     },[listenToRoundRes]);
 
+    async function checkIsCOM(_myPlayerId) {
+        for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
+            try {
+                const _opponentPlayerId = await getPlayerIdFromAddr(_addressIndex);
+                if (_opponentPlayerId == 1 - _myPlayerId) {
+                    setAddressIndex(_addressIndex);
+                    return true;
+                }
+            } catch (e) {
+                console.log(`Opponent is not addr ${_addressIndex}`);
+            }
+        }
+        return false;
+    }
+
     useEffect(() => {(async function() {
+        if (!(await isInBattle())) {
+            navigate('../');
+        }
+
         const _myPlayerId = await getPlayerIdFromAddr();
         setMyPlayerId(_myPlayerId);
 
@@ -280,16 +300,7 @@ export default function BattleMain(){
         setRoundResults(_roundResults);
         setCompletedNumRounds(currentRound);
 
-        if (isCOM) {
-            const _COMPlayerSeed = getRandomBytes32();
-            setCOMPlayerSeed(_COMPlayerSeed);
-            try {
-                await commitPlayerSeed(1-_myPlayerId, _COMPlayerSeed, addressIndex);
-            } catch (e) {
-                console.log(e);
-            }
-            setComChoice(getNextComIndex());
-        }
+        setIsCOM(await checkIsCOM(_myPlayerId));
 
         if (_myRandomSlotState >= 1) { // 自分の seed がコミットし終わっていたら
             const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-_myPlayerId, addressIndex);
@@ -317,14 +328,22 @@ export default function BattleMain(){
         }
     })();}, []);
 
-    const navigate = useNavigate();
-    useEffect(() => {(async function() {
-        if (await isInBattle() === false) {
-            navigate('../');
+    // COMChoiceをランダムに更新
+    function getNextCOMIndex(){
+        var UnusedIndexes = [];
+        for (let idx = 0; idx < opponentCharsUsedRounds.length; idx++) {
+            if(idx !== COMChoice && opponentCharsUsedRounds[idx] === 0){
+                UnusedIndexes.push(idx);
+            }
         }
 
-        // for debug
-        if (isCOM) {
+        const _nextCOMChoice = Math.floor( Math.random() * UnusedIndexes.length );
+        return UnusedIndexes[_nextCOMChoice];
+    }
+
+    // 相手が COM だった時の初期処理
+    useEffect(() => {(async function() {
+        if (isCOM && myRandomSlotState === 0 && opponentCharsUsedRounds) {
             const _COMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(_COMPlayerSeed);
             try {
@@ -332,9 +351,9 @@ export default function BattleMain(){
             } catch (e) {
                 console.log(e);
             }
-            setComChoice(getNextComIndex());
+            setCOMChoice(getNextCOMIndex());
         }
-    })();}, [isCOM]);
+    })();}, [isCOM, myRandomSlotState, opponentCharsUsedRounds]);
 
     useEffect(() => {
         eventPlayerSeedCommitted();
@@ -352,19 +371,6 @@ export default function BattleMain(){
         dispatch(notInBattleVerifyCharacters());
         await forceInitBattle();
         navigate('../');
-    }
-
-    function getNextComIndex(){
-        // comChoiceをランダムに更新
-        var UnusedIndexes = [];
-        for (let idx = 0; idx < opponentCharsUsedRounds.length; idx++) {
-            if(idx !== comChoice && opponentCharsUsedRounds[idx] === 0){
-                UnusedIndexes.push(idx);
-            }
-        }
-
-        const _nextComChoice = Math.floor( Math.random() * UnusedIndexes.length );
-        return UnusedIndexes[_nextComChoice];
     }
 
     async function handleSeedCommit () {
@@ -412,10 +418,10 @@ export default function BattleMain(){
 
     // for debug
     async function handleChoiceCommitCOM() {
-        // 以下、choice => comChoiceに変更
+        // 以下、choice => COMChoiceに変更
         const blindingFactor = getRandomBytes32();
         try {
-            await commitChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
+            await commitChoice(1-myPlayerId, levelPoint, COMChoice, blindingFactor, addressIndex);
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -424,7 +430,7 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        if (comChoice === 4) {
+        if (COMChoice === 4) {
             try {
                 await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
             } catch (e) {
@@ -437,8 +443,8 @@ export default function BattleMain(){
             }
         }
         try {
-            await revealChoice(1-myPlayerId, levelPoint, comChoice, blindingFactor, addressIndex);
-            setComChoice(getNextComIndex(comChoice));
+            await revealChoice(1-myPlayerId, levelPoint, COMChoice, blindingFactor, addressIndex);
+            setCOMChoice(getNextCOMIndex(COMChoice));
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -577,14 +583,12 @@ export default function BattleMain(){
         バトルの状態をリセットする
     </Button>
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
-    <Button variant="contained" size="large" color="secondary" onClick={() => setIsCOM((isCOM) => !isCOM)}>
-        COMと対戦: {isCOM ? "YES" : "NO"}
-    </Button>
+    <div>COMと対戦: {isCOM ? "YES" : "NO"}</div>
     <div>ラウンド {round+1}</div>
     <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={7}>
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
-                [dev]左から数えて {comChoice} 番目のトークンが選択されました。
+                [dev]左から数えて {COMChoice} 番目のトークンが選択されました。
                 <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} opponentRandomSlotState={opponentRandomSlotState}
                            remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint}/>
                 <div style={{height: 100}}/>
