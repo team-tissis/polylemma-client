@@ -39,13 +39,6 @@ async function reportLateReveal (playerId, addressIndex) {
     console.log({ reportLateReveal: message });
 }
 
-async function playerSeedIsRevealed (playerId, addressIndex) {
-    const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.playerSeedIsRevealed(playerId);
-    console.log({ playerSeedIsRevealed: message });
-    return message;
-}
-
 ////////////////////////
 ///      GETTERS     ///
 ////////////////////////
@@ -205,6 +198,13 @@ async function getBattleResult (addressIndex) {
     return message;
 }
 
+async function getRandomSlotState (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getRandomSlotState(playerId);
+    console.log({ getRandomSlotState: message });
+    return message;
+}
+
 //////////////////////////
 /// FUNCTIONS FOR DEMO ///
 //////////////////////////
@@ -279,9 +279,9 @@ function eventRoundCompleted (currentRound, completedNumRounds, setCompletedNumR
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
         if (numRounds === completedNumRounds) {
             if (isDraw) {
-                console.log(`${numRounds+1} Round: Draw (${winnerDamage}).`);
+                console.log(`Round ${numRounds+1}: Draw (${winnerDamage}).`);
             } else {
-                console.log(`${numRounds+1} Round: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
+                console.log(`Round ${numRounds+1}: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
             }
             setCompletedNumRounds(numRounds+1);
         }
@@ -355,9 +355,9 @@ function eventBattleCanceled () {
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal, playerSeedIsRevealed,
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
-         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult,
+         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState,
          forceInitBattle,
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
