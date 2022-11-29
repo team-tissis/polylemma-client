@@ -14,7 +14,6 @@ import Card from '@mui/material/Card';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
 import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle, setMyPlayerSeed } from 'slices/myCharacter.ts';
-import { selectRoundResult, oneRoundDone } from 'slices/roundResult.ts';
 import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal, playerSeedIsRevealed,
@@ -203,7 +202,6 @@ export default function BattleMain(){
     const [levelPoint, setLevelPoint] = useState(0);
 
     const myInfo = useSelector(selectMyCharacter);
-    const roundResultList = useSelector(selectRoundResult);
 
     const [myPlayerId, setMyPlayerId] = useState();
     const [myBlindingFactor, setMyBlindingFactor] = useState();
@@ -224,12 +222,10 @@ export default function BattleMain(){
     const [mySeedRevealed, setMySeedRevealed] = useState(false);
     const [isCOM, setIsCOM] = useState(false);
     const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
-    const [roundDetail, setRoundDetail] = useState(null);
     const [myRemainingLevelPoint, setMyRemainingLevelPoint] = useState(0);
     const [myMaxLevelPoint, setMyMaxLevelPoint] = useState(0);
     const [opponentRemainingLevelPoint, setOpponentRemainingLevelPoint] = useState(0);
     const [opponentMaxLevelPoint, setOpponentMaxLevelPoint] = useState(0);
-    const [battleDetail, setBattleDetail] = useState(null);
 
     const [myCharsUsedRounds, setMyCharsUsedRounds] = useState();
     const [opponentCharsUsedRounds, setOpponentCharsUsedRounds] = useState();
@@ -239,16 +235,15 @@ export default function BattleMain(){
     const [myStatus, setMyStatus] = useState(-1);
     const [opponentStatus, setOpponentStatus] = useState(-1);
 
+    const [completedNumRounds, setCompletedNumRounds] = useState(0);
+    const [roundResults, setRoundResults] = useState([]);
+
+    const [battleCompleted, setBattleCompleted] = useState(false);
+    const [battleResult, setBattleResult] = useState();
+
     useEffect(() => {
         console.log("commit and reveal........");
     },[listenToRoundRes]);
-
-    useEffect(() => {
-        // reduxに結果を反映
-        if(roundDetail != null){
-            dispatch(oneRoundDone(roundDetail));
-        }
-    },[roundDetail]);
 
     useEffect(() => {(async function() {
         const _myPlayerId = await getPlayerIdFromAddr();
@@ -280,6 +275,10 @@ export default function BattleMain(){
 
         eventChoiceCommitted(1-_myPlayerId, currentRound, setOpponentCommit);
         eventChoiceRevealed(1-_myPlayerId, currentRound, setOpponentStatus);
+
+        const _roundResults = await getRoundResults();
+        setRoundResults(_roundResults);
+        setCompletedNumRounds(currentRound);
 
         if (isCOM) {
             const _COMPlayerSeed = getRandomBytes32();
@@ -340,7 +339,7 @@ export default function BattleMain(){
     useEffect(() => {
         eventPlayerSeedCommitted();
         eventPlayerSeedRevealed();
-        eventBattleCompleted(battleDetail, setBattleDetail);
+        eventBattleCompleted(setBattleCompleted);
         eventExceedingLevelPointCheatDetected();
         eventReusingUsedSlotCheatDetected();
         eventLatePlayerSeedCommitDetected();
@@ -458,14 +457,8 @@ export default function BattleMain(){
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
 
             setMyBlindingFactor(blindingFactor);
-            // 次に自動選択するindexを調べてstateを変更する
-            let nextIndex;
-            for (nextIndex = 0; nextIndex < myCharsUsedRounds.length; nextIndex++) {
-                if(nextIndex !== choice && myCharsUsedRounds[nextIndex] === 0){
-                    break;
-                }
-            }
-            eventRoundCompleted(round, nextIndex, setListenToRoundRes, setChoice, setRoundDetail);
+
+            eventRoundCompleted(round, completedNumRounds, setCompletedNumRounds);
 
             setMyCommit(true);
         } catch (e) {
@@ -542,6 +535,43 @@ export default function BattleMain(){
         }
     })();}, [myStatus, opponentStatus]);
 
+    // ラウンド終了後の処理
+    useEffect(() => {(async function() {
+        if (completedNumRounds > 0) {
+            const _roundResults = await getRoundResults();
+            setRoundResults(_roundResults);
+            const _roundResult = _roundResults[completedNumRounds-1];
+            if (_roundResult.isDraw) {
+                alert(`${completedNumRounds} Round: Draw (${_roundResult.winnerDamage}).`);
+            } else {
+                alert(`${completedNumRounds} Round: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
+            }
+
+            let nextIndex;
+            for (nextIndex = 0; nextIndex < myCharsUsedRounds.length; nextIndex++) {
+                if(nextIndex !== choice && myCharsUsedRounds[nextIndex] === 0){
+                    break;
+                }
+            }
+            setChoice(nextIndex);
+
+            setListenToRoundRes('can_choice');
+        }
+    })();}, [completedNumRounds]);
+
+    // バトル終了後の処理
+    useEffect(() => {(async function() {
+        if (battleCompleted) {
+            const _battleResult = await getBattleResult();
+            setBattleResult(_battleResult);
+            if (_battleResult.isDraw) {
+                alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Draw (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
+            } else {
+                alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Winner ${_battleResult.winner} (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
+            }
+        }
+    })();}, [battleCompleted]);
+
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
@@ -582,9 +612,9 @@ export default function BattleMain(){
                     <Grid item xs={3} md={3}>勝敗</Grid>
                     <Grid item xs={3} md={3}>自分</Grid>
                     <Grid item xs={3} md={3}>相手</Grid>
-                    {roundResultList.resultList.map((roundResult, index) => (
-                        <>
-                            <Grid item xs={3} md={3}>{roundResult.numRounds + 1}</Grid>
+                    {roundResults.map((roundResult, index) => (
+                        index < round && <>
+                            <Grid item xs={3} md={3}>{index + 1}</Grid>
                             <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
                             <Grid item xs={3} md={3}>{(myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
                             <Grid item xs={3} md={3}>{(myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
@@ -592,16 +622,16 @@ export default function BattleMain(){
                     ))}
                 </Grid>
             </Card>
-            {battleDetail &&
+            {battleResult &&
             <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
                 <Grid container spacing={3}>
                     <Grid item xs={4} md={4}>勝敗</Grid>
                     <Grid item xs={4} md={4}>自分</Grid>
                     <Grid item xs={4} md={4}>相手</Grid>
 
-                    <Grid item xs={4} md={4}>{battleDetail.isDraw ? <>△</> : (myPlayerId === battleDetail.winner) ? <>○</> : <>×</>}</Grid>
-                    <Grid item xs={4} md={4}>{(myPlayerId === battleDetail.winner) ? battleDetail.winnerCount : battleDetail.loserCount}</Grid>
-                    <Grid item xs={4} md={4}>{(myPlayerId === battleDetail.winner) ? battleDetail.loserCount : battleDetail.winnerCount}</Grid>
+                    <Grid item xs={4} md={4}>{battleResult.isDraw ? <>△</> : (myPlayerId === battleResult.winner) ? <>○</> : <>×</>}</Grid>
+                    <Grid item xs={4} md={4}>{(myPlayerId === battleResult.winner) ? battleResult.winnerCount : battleResult.loserCount}</Grid>
+                    <Grid item xs={4} md={4}>{(myPlayerId === battleResult.winner) ? battleResult.loserCount : battleResult.winnerCount}</Grid>
                 </Grid>
             </Card>
             }
@@ -641,19 +671,19 @@ export default function BattleMain(){
             </Button>
         }
 
-        {battleDetail == null && myCharacters.length !== 0 && choice != null && listenToRoundRes !== 'freeze' &&
+        {!battleCompleted && myCharacters.length !== 0 && choice != null && listenToRoundRes !== 'freeze' &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
 
-        {battleDetail == null && opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
+        {!battleCompleted && opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
         }
 
-        {battleDetail == null && opponentCommit && myCommit && (choice !== 4 || (choice === 4 && mySeedRevealed)) &&
+        {!battleCompleted && opponentCommit && myCommit && (choice !== 4 || (choice === 4 && mySeedRevealed)) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトル結果を見る
             </Button>
