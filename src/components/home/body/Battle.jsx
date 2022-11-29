@@ -18,11 +18,11 @@ import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVeri
 import { battleRemove } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
+import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import { proposeBattle, isProposed, isInBattle, isNotInvolved, cancelProposal } from 'fetch_sol/match_organizer.js';
 import { forceInitBattle, eventBattleStarted } from 'fetch_sol/battle_field.js';
-import { createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
-import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
+import { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
 
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
@@ -69,7 +69,7 @@ function editButtonstyle() {
 
 const selectedNum = 4;
 
-function NFTCard({character, charactersForBattle, setStateChange, myCharacterList, setCharactersForBattle, isChanging}){
+function NFTCard({character, charactersForBattle, setStateChange, setCharactersForBattle, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
@@ -84,23 +84,21 @@ function NFTCard({character, charactersForBattle, setStateChange, myCharacterLis
 
     function handleChange(){
         const selectedData = charactersForBattle;
-        if (alreadySelected){
+        if (alreadySelected) {
             const popThisData = selectedData.filter((data, index) => {
                 return data.id !== character.id
             });
             setCharactersForBattle(popThisData)
-        }else{
-            if(selectedData.length >= selectedNum){
-                const message = "対戦に選べるキャラクターは4体までです"
-                enqueueSnackbar(message, {
-                    autoHideDuration: 1500,
-                    variant: 'error',
-                });
-            }else{
-                setCharactersForBattle([...selectedData, character])
-            }
+        } else if (selectedData.length >= selectedNum) {
+            const message = "対戦に選べるキャラクターは4体までです"
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'error',
+            });
+        } else {
+            setCharactersForBattle([...selectedData, character])
         }
-        setStateChange((prev) => prev + 1)
+        // setStateChange((prev) => prev + 1)
     }
 
     return(<>
@@ -154,7 +152,7 @@ export default function Battle() {
     useEffect(() => {
         // スマコンのアドレスを取得
         // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
-        // もし服魔れていなかったら dispatch(myCharacterRemove()); で削除
+        // もし含まれていなかったら dispatch(myCharacterRemove()); で削除
         console.log({自分が選択しているキャラ: myCharacters.requestCharacterList})
         setCharactersForBattle(myCharacters.requestCharacterList)
     }, []);
@@ -260,8 +258,6 @@ export default function Battle() {
         }
     }
 
-    // 開発用・後で消す
-    const fixedSlotsOfChallengers = [];
     async function declineProposal(){
         try {
             setDialogOpen(false);
@@ -277,6 +273,22 @@ export default function Battle() {
         }
     }
 
+    // 開発用・後で消す
+    async function devPrepareForBattle(){
+        console.log({charactersForBattle});
+        const fixedSlots = await prepareForBattle();
+        const _myCharacterList = await getOwnedCharacterWithIDList();
+        const _charactersForBattle = _myCharacterList.filter(char => {
+            for (let idx = 0; idx < fixedSlots.length; idx++) {
+                if (char.id === fixedSlots[idx]) return true;
+            }
+            return false;
+        });
+        setCharactersForBattle(_charactersForBattle);
+        dispatch(set4Characters(_charactersForBattle));
+    }
+
+    const fixedSlotsOfChallengers = [];
     async function devHandleCharacter(){
         await createCharacters(fixedSlotsOfChallengers);
     }
@@ -307,8 +319,7 @@ export default function Battle() {
             {isChanging ?
                 <>{myCharacterList.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} myCharacterList={myCharacterList} key={index}
-                            charactersForBattle={charactersForBattle} setStateChange={setStateChange}
+                        <NFTCard character={character} key={index} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
                             setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
@@ -375,6 +386,11 @@ export default function Battle() {
             バトルの状態をリセットする
         </Button>
         <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
+
+        <Button variant="contained" size="large"
+            onClick={() => devPrepareForBattle()} disabled={isChanging}>
+            [開発用] 自分のキャラを用意する
+        </Button>
 
         <Button variant="contained" size="large"
             onClick={() => devHandleCharacter()} disabled={isChanging}>
