@@ -16,7 +16,6 @@ import TextField from '@mui/material/TextField';
 import 'css/card.css';
 import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from 'slices/myCharacter.ts'
 import { battleRemove } from 'slices/battle.ts';
-import { roundResultReset } from 'slices/roundResult.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
@@ -236,7 +235,6 @@ export default function Battle() {
         } else {
             try {
                 dispatch(set4Characters(charactersForBattle)); //更新
-                dispatch(roundResultReset())
                 if (kind === "makeOwnRoom") {
                     const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
                     // proposeBattleで自分が対戦要求ステータスに変更される
