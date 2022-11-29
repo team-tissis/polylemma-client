@@ -242,6 +242,9 @@ export default function BattleMain(){
     const [battleCompleted, setBattleCompleted] = useState(false);
     const [battleResult, setBattleResult] = useState();
 
+    const [isChanging, setIsChanging] = useState(false);
+    const [isWaiting, setIsWaiting] = useState(false);
+
     useEffect(() => {
         console.log("commit and reveal........");
     },[listenToRoundRes]);
@@ -266,44 +269,59 @@ export default function BattleMain(){
             navigate('../');
         }
 
+        // playerId を取得
         const _myPlayerId = await getPlayerIdFromAddr();
         setMyPlayerId(_myPlayerId);
 
+        // COM かどうか判断
+        setIsCOM(await checkIsCOM(_myPlayerId));
+
+        // ラウンド情報取得
         const currentRound = await getCurrentRound();
         setRound(currentRound);
-        const _myCharsUsedRounds = await getCharsUsedRounds(_myPlayerId);
-        setMyCharsUsedRounds(_myCharsUsedRounds);
-        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-_myPlayerId));
-
-        setMyRemainingLevelPoint(await getRemainingLevelPoint(_myPlayerId));
-        setMyMaxLevelPoint(await getMaxLevelPoint(_myPlayerId));
-        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-_myPlayerId));
-        setOpponentMaxLevelPoint(await getMaxLevelPoint(1-_myPlayerId));
-
-        const _myRandomSlotState = await getRandomSlotState(_myPlayerId);
-        setMyRandomSlotState(_myRandomSlotState);
-
-        const _opponentRandomSlotState = await getRandomSlotState(1-_myPlayerId);
-        setOpponentRandomSlotState(_opponentRandomSlotState);
-        if (_opponentRandomSlotState === 2) {
-            const opponentRandomSlot = await getRandomSlotCharInfo(1-_myPlayerId);
-            setOpponentCharacters((character) => {
-                character[4] = opponentRandomSlot;
-                return character;
-            });
-        }
-
-        eventChoiceCommitted(1-_myPlayerId, currentRound, setOpponentCommit);
-        eventChoiceRevealed(1-_myPlayerId, currentRound, setOpponentStatus);
 
         const _roundResults = await getRoundResults();
         setRoundResults(_roundResults);
         setCompletedNumRounds(currentRound);
 
-        setIsCOM(await checkIsCOM(_myPlayerId));
+        // レベルポイントの情報を取得
+        setMyRemainingLevelPoint(await getRemainingLevelPoint(_myPlayerId));
+        setMyMaxLevelPoint(await getMaxLevelPoint(_myPlayerId));
 
-        if (_myRandomSlotState >= 1) { // 自分の seed がコミットし終わっていたら
-            const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-_myPlayerId, addressIndex);
+        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-_myPlayerId));
+        setOpponentMaxLevelPoint(await getMaxLevelPoint(1-_myPlayerId));
+
+        // 自分のキャラ情報取得
+        const myFixedSlotCharInfo = await getFixedSlotCharInfo(_myPlayerId);
+        const _myRandomSlotState = await getRandomSlotState(_myPlayerId);
+        setMyRandomSlotState(_myRandomSlotState);
+        if (_myRandomSlotState >= 1) {
+            // 自分の seed がコミットし終わっていたら、RS も込みでキャラを設定する
+            const myRandomSlot = await getMyRandomSlot(_myPlayerId, myInfo.myPlayerSeed);
+            setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
+        } else {
+            setMyCharacters(myFixedSlotCharInfo);
+        }
+        const _myCharsUsedRounds = await getCharsUsedRounds(_myPlayerId);
+        setMyCharsUsedRounds(_myCharsUsedRounds);
+        // 自分の次の手を選択する
+        for (let nextIndex = 0; nextIndex < _myCharsUsedRounds; nextIndex++) {
+            if(_myCharsUsedRounds[nextIndex] === 0){
+                setChoice(nextIndex);
+                break;
+            }
+        }
+
+        // 相手のキャラ情報取得
+        const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-_myPlayerId);
+        const _opponentRandomSlotState = await getRandomSlotState(1-_myPlayerId);
+        setOpponentRandomSlotState(_opponentRandomSlotState);
+        if (_opponentRandomSlotState === 2) {
+            // 相手の seed が reveal されていたら、RS の情報を設定する
+            const opponentRandomSlot = await getRandomSlotCharInfo(1-_myPlayerId);
+            setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
+        } else {
+            // 相手の seed が reveal されていなかったら、わかる範囲で RS の情報を設定する
             // 相手の RS のレベルは書くキャラクタレベルのうち最大
             const opponentRSLevel = opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
                 return Math.max(accumulator, currentValue.level);
@@ -314,18 +332,12 @@ export default function BattleMain(){
                 bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
             };
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
-
-            const myFixedSlotCharInfo = await getFixedSlotCharInfo(_myPlayerId);
-            const myRandomSlot = await getMyRandomSlot(_myPlayerId, myInfo.myPlayerSeed);
-            setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
         }
+        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-_myPlayerId));
 
-        for (let nextIndex = 0; nextIndex < _myCharsUsedRounds; nextIndex++) {
-            if(_myCharsUsedRounds[nextIndex] === 0){
-                setChoice(nextIndex);
-                break;
-            }
-        }
+        // イベント情報の取得
+        eventChoiceCommitted(1-_myPlayerId, currentRound, setOpponentCommit);
+        eventChoiceRevealed(1-_myPlayerId, currentRound, setOpponentStatus);
     })();}, []);
 
     // COMChoiceをランダムに更新
@@ -349,7 +361,12 @@ export default function BattleMain(){
             try {
                 await commitPlayerSeed(1-myPlayerId, _COMPlayerSeed, addressIndex);
             } catch (e) {
-                console.log(e);
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
             }
             setCOMChoice(getNextCOMIndex());
         }
@@ -374,46 +391,33 @@ export default function BattleMain(){
     }
 
     async function handleSeedCommit () {
-        const _myRandomSlotState = await getRandomSlotState(myPlayerId);
-        setMyRandomSlotState(1); // うまくいくんかわからん
+        setIsChanging(true);
 
-        // リロードしてモンスターが変わらないように修正
-        if(_myRandomSlotState === 0){
-            const myPlayerSeed = myInfo.myPlayerSeed == null ? getRandomBytes32() : myInfo.myPlayerSeed;
-
-            // seedが登録されていない場合、登録する
-            if(myInfo.myPlayerSeed == null){
-                dispatch(setMyPlayerSeed(myPlayerSeed));
-            }
-
-            const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-myPlayerId);
-            // 相手の RS のレベルは書くキャラクタレベルのうち最大
-            const opponentRSLevel = opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
-                return Math.max(accumulator, currentValue.level);
-            }, 0);
-            // 相手の RS のわからない情報は null にしておく
-            const opponentRandomSlot = {
-                index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
-                bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
-            };
-            setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
-
-            const myFixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
-            try {
-                await commitPlayerSeed(myPlayerId, myPlayerSeed);
-            } catch (e) {
-                console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
-                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                } else {
-                    alert("不明なエラーが発生しました。");
-                }
-            }
-            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
-            setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
+        const myPlayerSeed = myInfo.myPlayerSeed == null ? getRandomBytes32() : myInfo.myPlayerSeed;
+        // seedが登録されていない場合、登録する
+        if(myInfo.myPlayerSeed == null){
+            dispatch(setMyPlayerSeed(myPlayerSeed));
         }
 
+        try {
+            await commitPlayerSeed(myPlayerId, myPlayerSeed);
+        } catch (e) {
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
+        }
+
+        const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
+        setMyCharacters((character) => {
+            character.push(myRandomSlot);
+            return character;
+        });
+
         setMyRandomSlotState(await getRandomSlotState(myPlayerId));
+        setIsChanging(false);
     }
 
     // for debug
@@ -587,6 +591,7 @@ export default function BattleMain(){
     <div>ラウンド {round+1}</div>
     <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={7}>
+            {myRandomSlotState >= 1 &&
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 [dev]左から数えて {COMChoice} 番目のトークンが選択されました。
                 <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} opponentRandomSlotState={opponentRandomSlotState}
@@ -600,6 +605,7 @@ export default function BattleMain(){
                          listenToRoundRes={listenToRoundRes} choice={choice} setChoice={setChoice}
                          remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint} />
             </Container>
+            }
         </Grid>
         <Grid item xs={10} md={2}>
             {/* <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
@@ -669,25 +675,25 @@ export default function BattleMain(){
             </Grid>
         </Grid>
 
-        {myRandomSlotState === 0 &&
+        {!isChanging && myRandomSlotState === 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
         }
 
-        {!battleCompleted && myCharacters.length !== 0 && choice != null && listenToRoundRes !== 'freeze' &&
+        {!isChanging && !battleCompleted && myRandomSlotState >= 1 && choice != null && listenToRoundRes !== 'freeze' &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
 
-        {!battleCompleted && opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
+        {!isChanging && !battleCompleted && opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
         }
 
-        {!battleCompleted && opponentCommit && myCommit && (choice !== 4 || (choice === 4 && mySeedRevealed)) &&
+        {!isChanging && !battleCompleted && opponentCommit && myCommit && (choice !== 4 || (choice === 4 && mySeedRevealed)) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトル結果を見る
             </Button>
