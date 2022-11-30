@@ -534,7 +534,7 @@ export default function BattleMain(){
                     // 自分の方が遅れている状況じゃなければ相手を待つ必要がある
                     setIsWaiting(true);
                 }
-                if (_myState === 0 && _opponentState === 0) {
+                if ((_myState === 0 && _opponentState === 0) || (_myState === 2 && _opponentState === 2)) {
                     const currentRound = await getCurrentRound();
                     setRound(currentRound);
 
@@ -556,7 +556,7 @@ export default function BattleMain(){
                         setOpponentRandomSlotState(_opponentRandomSlotState);
                     }
                 } else {
-                    console.log(`States: (myState, opponentState) = (${await getPlayerState(myPlayerId)}, ${await getPlayerState(1-myPlayerId)}).`);
+                    console.log(`States: (myState, opponentState) = (${await getPlayerState(myPlayerId)}, ${await getPlayerState(1-myPlayerId)}), (${_myState}, ${_opponentState}).`);
                 }
 
                 setIsChecking(false);
@@ -592,7 +592,7 @@ export default function BattleMain(){
 
     // バトル終了後の処理
     useEffect(() => {(async function() {
-        if (battleCompleted) {
+        if (battleCompleted && !isInRound) {
             const _battleResult = await getBattleResult();
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
@@ -601,7 +601,7 @@ export default function BattleMain(){
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Winner ${_battleResult.winner} (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
             }
         }
-    })();}, [battleCompleted]);
+    })();}, [battleCompleted, isInRound]);
 
 
     return(<>
@@ -709,7 +709,7 @@ export default function BattleMain(){
             </Button>
         }
 
-        {!battleCompleted && !isChanging && myState === 1 && choice === 4 && myRandomSlotState === 1 &&
+        {!battleCompleted && !isChanging && !isChecking && myState === 1 && choice === 4 && myRandomSlotState === 1 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
