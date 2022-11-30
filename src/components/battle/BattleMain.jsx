@@ -557,7 +557,9 @@ export default function BattleMain(){
         const _opponentState = await getPlayerState(1-myPlayerId);
         setMyState(_myState);
         if (!isChanging && !isWaiting) {
-            if (_myState >= _opponentState) {
+            const _myRandomSlotState = await getRandomSlotState(myPlayerId);
+            const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
+            if (_myState >= _opponentState && !(_myRandomSlotState === 0 && _opponentRandomSlotState === 1)) {
                 // 自分の方が遅れている状況じゃなければ相手を待つ必要がある
                 setIsWaiting(true);
             }
@@ -572,7 +574,6 @@ export default function BattleMain(){
 
                     setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
                     setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
-                    const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
                     if (_opponentRandomSlotState === 2) {
                         const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
                         setOpponentCharacters((character) => {
