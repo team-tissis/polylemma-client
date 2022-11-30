@@ -304,7 +304,6 @@ export default function Battle() {
     // 開発テスト用: 自分に対戦を申し込む
     async function devHandleProposeToMe () {
         await requestChallengeToMe();
-        navigate('/battle_main');
     }
 
     async function handleForceInitBattle () {

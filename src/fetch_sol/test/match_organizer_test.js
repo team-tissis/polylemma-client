@@ -65,7 +65,7 @@ async function requestChallengeToMe () {
 
     const fixedSlotsOfChallenger = [];
     for (let i = 0; i < 4; i++) {
-        fixedSlotsOfChallenger.push((await gacha('hoge' + i.toString(), addressIndex))['id']);
+        fixedSlotsOfChallenger.push((await gacha(randomName(), addressIndex))['id']);
     }
 
     const { signer } = getContract("PLMMatchOrganizer", 1);
