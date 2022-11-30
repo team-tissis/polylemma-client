@@ -117,14 +117,11 @@ function CharacterCard({character, charUsedRounds, isOpponent, isInRound, choice
     </>)
 }
 
-function PlayerYou({characters, charsUsedRounds, opponentRandomSlotState, remainingLevelPoint, maxLevelPoint}){
-    const opponentTotalLevels = characters.reduce((accumulator, currentValue) => {
-            return accumulator + currentValue.level;
-    }, 0);
+function PlayerYou({characters, charsUsedRounds, level, remainingLevelPoint, maxLevelPoint, opponentRandomSlotState}){
     return(<>
         <Container style={{padding: 5}}>
             <div style={{ textAlign: 'right', verticalAlign: 'middle'}}>
-                <div>相手 <Chip label={`Lv.${opponentTotalLevels}`} style={{fontSize: 20}} /></div>
+                <div>相手 <Chip label={`Lv. ${level}`} style={{fontSize: 20}} /></div>
                 <img src={Icon}  alt="アイコン" width="60" height="60"/>
             </div>
             <div>残りレベルポイント: { remainingLevelPoint } / { maxLevelPoint }</div>
@@ -139,11 +136,7 @@ function PlayerYou({characters, charsUsedRounds, opponentRandomSlotState, remain
     </>)
 }
 
-function PlayerI({characters, charsUsedRounds, isInRound, choice, setChoice, remainingLevelPoint, maxLevelPoint, setLevelPoint}){
-    const myTotalLevels = characters.reduce((accumulator, currentValue) => {
-            return accumulator + currentValue.level;
-    }, 0);
-
+function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLevelPoint, setLevelPoint, isInRound, choice, setChoice}){
     const marks = [];
     for (let lp = 0; lp <= remainingLevelPoint; lp++) {
         marks.push({ value: lp, label: lp });
@@ -178,7 +171,7 @@ function PlayerI({characters, charsUsedRounds, isInRound, choice, setChoice, rem
             </Stack>
         </Box>
 
-        <div>自分 <Chip label={`Lv.${myTotalLevels}`} style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}} /></div>
+        <div>自分 <Chip label={`Lv. ${level}`} style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}} /></div>
         <img src={Icon}  alt="アイコン" width="60" height="60"/>
     </Container>
     </>)
@@ -227,6 +220,9 @@ export default function BattleMain(){
     const [opponentCharacters, setOpponentCharacters] = useState([]);
     const [opponentCharsUsedRounds, setOpponentCharsUsedRounds] = useState();
 
+    const [myLevel, setMyLevel] = useState();
+    const [opponentLevel, setOpponentLevel] = useState();
+
     const [isChanging, setIsChanging] = useState(false);
     const [isWaiting, setIsWaiting] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
@@ -234,7 +230,6 @@ export default function BattleMain(){
 
     const [myState, setMyState] = useState(-1);
     const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
-    const [opponentState, setOpponentState] = useState(-1);
     const [opponentRandomSlotState, setOpponentRandomSlotState] = useState(-1);
 
     const [completedNumRounds, setCompletedNumRounds] = useState(0);
@@ -306,6 +301,9 @@ export default function BattleMain(){
                 break;
             }
         }
+        setMyLevel(myFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.level;
+        }, 0));
 
         // 相手のキャラ情報取得
         const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-_myPlayerId);
@@ -318,9 +316,9 @@ export default function BattleMain(){
         } else {
             // 相手の seed が reveal されていなかったら、わかる範囲で RS の情報を設定する
             // 相手の RS のレベルは書くキャラクタレベルのうち最大
-            const opponentRSLevel = opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
-                return Math.max(accumulator, currentValue.level);
-            }, 0);
+            const opponentRSLevel = Math.floor(opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+                return accumulator + currentValue.level;
+            }, 0) / 4);
             // 相手の RS のわからない情報は null にしておく
             const opponentRandomSlot = {
                 index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
@@ -329,6 +327,9 @@ export default function BattleMain(){
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
         }
         setOpponentCharsUsedRounds(await getCharsUsedRounds(1-_myPlayerId));
+        setOpponentLevel(opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.level;
+        }, 0));
 
         // イベント情報の取得
         if (_opponentRandomSlotState === 0) {
@@ -528,7 +529,6 @@ export default function BattleMain(){
             const _myState = await getPlayerState(myPlayerId);
             const _opponentState = await getPlayerState(1-myPlayerId);
             setMyState(_myState);
-            setOpponentState(_opponentState);
             if (!isChanging && !isWaiting) {
                 if (_myState >= _opponentState) {
                     // 自分の方が遅れている状況じゃなければ相手を待つ必要がある
@@ -616,16 +616,16 @@ export default function BattleMain(){
             {myRandomSlotState >= 1 &&
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 [dev]左から数えて {COMChoice} 番目のトークンが選択されました。
-                <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} opponentRandomSlotState={opponentRandomSlotState}
-                           remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint}/>
+                <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} level={opponentLevel}
+                           remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint} opponentRandomSlotState={opponentRandomSlotState}/>
                 <div style={{height: 100}}/>
                 [dev]レベルポイント {levelPoint}<br/>
                 [dev]保存したmyPlayerSeed: { myInfo.myPlayerSeed }<br/>
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds}
-                         isInRound={isInRound} choice={choice} setChoice={setChoice}
-                         remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint} />
+                <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds} level={myLevel}
+                         remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint}
+                         isInRound={isInRound} choice={choice} setChoice={setChoice} />
             </Container>
             }
         </Grid>
