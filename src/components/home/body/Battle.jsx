@@ -15,7 +15,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import 'css/card.css';
 import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from 'slices/myCharacter.ts'
-import { battleRemove } from 'slices/battle.ts';
+import { initializeBattle } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
@@ -146,10 +146,10 @@ export default function Battle() {
 
     const [matched, setMatched] = useState(false);
 
-    // 対戦情報ステータスを初期化する
-    dispatch(battleRemove());
 
     useEffect(() => {
+        // 対戦情報ステータスを初期化する
+        dispatch(initializeBattle());
         // スマコンのアドレスを取得
         // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
         // もし含まれていなかったら dispatch(myCharacterRemove()); で削除
@@ -221,7 +221,7 @@ export default function Battle() {
     useEffect(() => {(async function() {
         if (matched) {
             // 対戦情報ステータスを初期化する
-            dispatch(battleRemove());
+            dispatch(initializeBattle());
             navigate('/battle_main');
         }
     })();}, [matched]);
