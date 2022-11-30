@@ -200,13 +200,14 @@ export default function BattleMain(){
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [levelPoint, setLevelPoint] = useState(0);
+    const maxRounds = 5;
 
     const myInfo = useSelector(selectMyCharacter);
 
     const [myPlayerId, setMyPlayerId] = useState();
     const [choice, setChoice] = useState(0);
     const [myBlindingFactor, setMyBlindingFactor] = useState(null);
+    const [levelPoint, setLevelPoint] = useState(0);
 
     // for debug
     const [isCOM, setIsCOM] = useState(false);
@@ -331,12 +332,13 @@ export default function BattleMain(){
 
         // イベント情報の取得
         if (_opponentRandomSlotState === 0) {
-            setIsWaiting(true);
             eventPlayerSeedCommitted(1-_myPlayerId, setIsWaiting);
         }
-        eventChoiceCommitted(currentRound, 1-_myPlayerId, setIsWaiting);
-        eventChoiceRevealed(currentRound, 1-_myPlayerId, setIsWaiting);
-        eventRoundCompleted(completedNumRounds, setCompletedNumRounds);
+        for (let r = currentRound; r < maxRounds; r++) {
+            eventChoiceCommitted(r, 1-_myPlayerId, setIsWaiting);
+            eventChoiceRevealed(r, 1-_myPlayerId, setIsWaiting);
+            eventRoundCompleted(r, setCompletedNumRounds);
+        }
     })();}, []);
 
 
@@ -528,40 +530,33 @@ export default function BattleMain(){
             setMyState(_myState);
             setOpponentState(_opponentState);
             if (!isChanging && !isWaiting) {
-                console.log(`States: (myState, opponentState) = (${_myState}, ${_opponentState}).`);
-                if (_myState === _opponentState) {
+                if (_myState >= _opponentState) {
+                    // 自分の方が遅れている状況じゃなければ相手を待つ必要がある
+                    setIsWaiting(true);
+                }
+                if (_myState === 0 && _opponentState === 0) {
                     const currentRound = await getCurrentRound();
-                    if (_myState === 0) {
-                        setRound(currentRound);
+                    setRound(currentRound);
 
-                        if (currentRound > 0) {
-                            setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
-                            setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
-                            setLevelPoint(0);
+                    if (currentRound > 0) {
+                        setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+                        setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
+                        setLevelPoint(0);
 
-                            setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
-                            setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
-                            const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
-                            if (_opponentRandomSlotState === 2) {
-                                const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
-                                setOpponentCharacters((character) => {
-                                    character[4] = opponentRandomSlot;
-                                    return character;
-                                });
-                            }
-                            setOpponentRandomSlotState(_opponentRandomSlotState);
-
-                            setIsWaiting(true);
-                            eventChoiceRevealed(currentRound, 1-myPlayerId, setIsWaiting);
-                        } else {
-                            setIsWaiting(true);
+                        setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
+                        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
+                        const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
+                        if (_opponentRandomSlotState === 2) {
+                            const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
+                            setOpponentCharacters((character) => {
+                                character[4] = opponentRandomSlot;
+                                return character;
+                            });
                         }
-                    } else if (_myState === 1) {
-                        setIsWaiting(true);
-                        eventChoiceCommitted(currentRound+1, 1-myPlayerId, setIsWaiting);
+                        setOpponentRandomSlotState(_opponentRandomSlotState);
                     }
                 } else {
-                    console.log(`States differ: (myState, opponentState) = (${await getPlayerState(myPlayerId)}, ${await getPlayerState(1-myPlayerId)}).`);
+                    console.log(`States: (myState, opponentState) = (${await getPlayerState(myPlayerId)}, ${await getPlayerState(1-myPlayerId)}).`);
                 }
 
                 setIsChecking(false);
@@ -581,7 +576,6 @@ export default function BattleMain(){
             } else {
                 alert(`Round ${completedNumRounds}: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
             }
-            eventRoundCompleted(completedNumRounds, setCompletedNumRounds);
 
             let nextIndex;
             for (nextIndex = 0; nextIndex < myCharsUsedRounds.length; nextIndex++) {
