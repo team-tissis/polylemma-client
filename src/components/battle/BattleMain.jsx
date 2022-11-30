@@ -703,19 +703,19 @@ export default function BattleMain(){
             </Button>
         }
 
-        {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && opponentState === 0 && myRandomSlotState >= 1 &&
+        {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && myRandomSlotState >= 1 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
 
-        {!battleCompleted && !isChanging && myState === 1 && opponentState === 1 && choice === 4 && myRandomSlotState === 1 &&
+        {!battleCompleted && !isChanging && myState === 1 && choice === 4 && myRandomSlotState === 1 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
         }
 
-        {!battleCompleted && !isChanging && !isChecking && myState === 1 && opponentState === 1 && (choice !== 4 || (choice === 4 && myRandomSlotState === 2)) &&
+        {!battleCompleted && !isChanging && !isChecking && myState === 1 && (choice !== 4 || (choice === 4 && myRandomSlotState === 2)) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトル結果を見る
             </Button>
