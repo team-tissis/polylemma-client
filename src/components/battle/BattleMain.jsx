@@ -46,7 +46,7 @@ function handleButtonStyle() {
     }
 }
 
-function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes, choice, setChoice, opponentRandomSlotState}){
+function CharacterCard({character, charUsedRounds, isOpponent, isInRound, choice, setChoice, opponentRandomSlotState}){
     const isRS = character.isRandomSlot;
     const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
     const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
@@ -62,7 +62,7 @@ function CharacterCard({character, charUsedRounds, isOpponent, listenToRoundRes,
     function handleCharacterChoice() {
         if(isOpponent){ return }
         if(isBattleDone){ return }
-        if(listenToRoundRes === 'freeze'){ return }
+        if(isInRound){ return }
         setChoice(character.index);
     }
 
@@ -139,7 +139,7 @@ function PlayerYou({characters, charsUsedRounds, opponentRandomSlotState, remain
     </>)
 }
 
-function PlayerI({characters, charsUsedRounds, listenToRoundRes, choice, setChoice, remainingLevelPoint, maxLevelPoint, setLevelPoint}){
+function PlayerI({characters, charsUsedRounds, isInRound, choice, setChoice, remainingLevelPoint, maxLevelPoint, setLevelPoint}){
     const myTotalLevels = characters.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.level;
     }, 0);
@@ -155,7 +155,7 @@ function PlayerI({characters, charsUsedRounds, listenToRoundRes, choice, setChoi
             {characters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
                     <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={false}
-                        listenToRoundRes={listenToRoundRes} choice={choice} setChoice={setChoice}/>
+                        isInRound={isInRound} choice={choice} setChoice={setChoice}/>
                 </Grid>
             ))}
         </Grid>
@@ -173,7 +173,7 @@ function PlayerI({characters, charsUsedRounds, listenToRoundRes, choice, setChoi
                     marks={marks}
                     min={0}
                     max={maxLevelPoint}
-                    disabled={listenToRoundRes === 'freeze'}
+                    disabled={isInRound}
                 />
             </Stack>
         </Box>
@@ -205,49 +205,42 @@ export default function BattleMain(){
     const myInfo = useSelector(selectMyCharacter);
 
     const [myPlayerId, setMyPlayerId] = useState();
-    const [myBlindingFactor, setMyBlindingFactor] = useState();
-
-    const [myCharacters, setMyCharacters] = useState([]);
-    const [opponentCharacters, setOpponentCharacters] = useState([]);
+    const [choice, setChoice] = useState(0);
+    const [myBlindingFactor, setMyBlindingFactor] = useState(null);
 
     // for debug
+    const [isCOM, setIsCOM] = useState(false);
     const [addressIndex, setAddressIndex] = useState(-1);
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
-
-    const [choice, setChoice] = useState(0);
-    // COMPUTER側の選択したキャラ
     const [COMChoice, setCOMChoice] = useState(-1);
+    const [COMBlindingFactor, setCOMBlindingFactor] = useState(null);
+
     const [round, setRound] = useState(0);
-    const [opponentCommit, setOpponentCommit] = useState(false);
-    const [myCommit, setMyCommit] = useState(false);
-    const [mySeedRevealed, setMySeedRevealed] = useState(false);
-    const [isCOM, setIsCOM] = useState(false);
-    const [listenToRoundRes, setListenToRoundRes] = useState('can_choice');
     const [myRemainingLevelPoint, setMyRemainingLevelPoint] = useState(0);
     const [myMaxLevelPoint, setMyMaxLevelPoint] = useState(0);
     const [opponentRemainingLevelPoint, setOpponentRemainingLevelPoint] = useState(0);
     const [opponentMaxLevelPoint, setOpponentMaxLevelPoint] = useState(0);
 
+    const [myCharacters, setMyCharacters] = useState([]);
     const [myCharsUsedRounds, setMyCharsUsedRounds] = useState();
+    const [opponentCharacters, setOpponentCharacters] = useState([]);
     const [opponentCharsUsedRounds, setOpponentCharsUsedRounds] = useState();
-    const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
-    const [opponentRandomSlotState, setOpponentRandomSlotState] = useState(-1);
 
-    const [myStatus, setMyStatus] = useState(-1);
-    const [opponentStatus, setOpponentStatus] = useState(-1);
+    const [isChanging, setIsChanging] = useState(false);
+    const [isWaiting, setIsWaiting] = useState(false);
+    const [isChecking, setIsChecking] = useState(false);
+    const [isInRound, setIsInRound] = useState(false);
+
+    const [myState, setMyState] = useState(-1);
+    const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
+    const [opponentState, setOpponentState] = useState(-1);
+    const [opponentRandomSlotState, setOpponentRandomSlotState] = useState(-1);
 
     const [completedNumRounds, setCompletedNumRounds] = useState(0);
     const [roundResults, setRoundResults] = useState([]);
 
     const [battleCompleted, setBattleCompleted] = useState(false);
     const [battleResult, setBattleResult] = useState();
-
-    const [isChanging, setIsChanging] = useState(false);
-    const [isWaiting, setIsWaiting] = useState(false);
-
-    useEffect(() => {
-        console.log("commit and reveal........");
-    },[listenToRoundRes]);
 
     async function checkIsCOM(_myPlayerId) {
         for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
@@ -263,6 +256,7 @@ export default function BattleMain(){
         }
         return false;
     }
+
 
     useEffect(() => {(async function() {
         if (!(await isInBattle())) {
@@ -336,11 +330,36 @@ export default function BattleMain(){
         setOpponentCharsUsedRounds(await getCharsUsedRounds(1-_myPlayerId));
 
         // イベント情報の取得
-        eventChoiceCommitted(1-_myPlayerId, currentRound, setOpponentCommit);
-        eventChoiceRevealed(1-_myPlayerId, currentRound, setOpponentStatus);
+        if (_opponentRandomSlotState === 0) {
+            setIsWaiting(true);
+            eventPlayerSeedCommitted(1-_myPlayerId, setIsWaiting);
+        }
+        eventChoiceCommitted(currentRound, 1-_myPlayerId, setIsWaiting);
+        eventChoiceRevealed(currentRound, 1-_myPlayerId, setIsWaiting);
+        eventRoundCompleted(completedNumRounds, setCompletedNumRounds);
     })();}, []);
 
-    // COMChoiceをランダムに更新
+
+    useEffect(() => {
+        eventPlayerSeedRevealed();
+        eventBattleCompleted(setBattleCompleted);
+        eventExceedingLevelPointCheatDetected();
+        eventReusingUsedSlotCheatDetected();
+        eventLatePlayerSeedCommitDetected();
+        eventLateChoiceCommitDetected();
+        eventLateChoiceRevealDetected();
+        eventBattleCanceled();
+    }, []);
+
+
+    async function handleForceInitBattle () {
+        dispatch(notInBattleVerifyCharacters());
+        await forceInitBattle();
+        navigate('../');
+    }
+
+
+    // COMChoice をランダムに更新
     function getNextCOMIndex(){
         var UnusedIndexes = [];
         for (let idx = 0; idx < opponentCharsUsedRounds.length; idx++) {
@@ -353,9 +372,35 @@ export default function BattleMain(){
         return UnusedIndexes[_nextCOMChoice];
     }
 
-    // 相手が COM だった時の初期処理
-    useEffect(() => {(async function() {
-        if (isCOM && myRandomSlotState === 0 && opponentCharsUsedRounds) {
+
+    async function handleSeedCommit () {
+        setIsChanging(true);
+        setIsChecking(true);
+
+        const myPlayerSeed = myInfo.myPlayerSeed == null ? getRandomBytes32() : myInfo.myPlayerSeed;
+        // seed が登録されていない場合、登録する
+        if(myInfo.myPlayerSeed == null){
+            dispatch(setMyPlayerSeed(myPlayerSeed));
+        }
+
+        try {
+            await commitPlayerSeed(myPlayerId, myPlayerSeed);
+            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
+            setMyCharacters((character) => {
+                character.push(myRandomSlot);
+                return character;
+            });
+        } catch (e) {
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
+        }
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
+
+        if (isCOM) {
             const _COMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(_COMPlayerSeed);
             try {
@@ -370,107 +415,20 @@ export default function BattleMain(){
             }
             setCOMChoice(getNextCOMIndex());
         }
-    })();}, [isCOM, myRandomSlotState, opponentCharsUsedRounds]);
 
-    useEffect(() => {
-        eventPlayerSeedCommitted();
-        eventPlayerSeedRevealed();
-        eventBattleCompleted(setBattleCompleted);
-        eventExceedingLevelPointCheatDetected();
-        eventReusingUsedSlotCheatDetected();
-        eventLatePlayerSeedCommitDetected();
-        eventLateChoiceCommitDetected();
-        eventLateChoiceRevealDetected();
-        eventBattleCanceled();
-    }, []);
-
-    async function handleForceInitBattle () {
-        dispatch(notInBattleVerifyCharacters());
-        await forceInitBattle();
-        navigate('../');
-    }
-
-    async function handleSeedCommit () {
-        setIsChanging(true);
-
-        const myPlayerSeed = myInfo.myPlayerSeed == null ? getRandomBytes32() : myInfo.myPlayerSeed;
-        // seedが登録されていない場合、登録する
-        if(myInfo.myPlayerSeed == null){
-            dispatch(setMyPlayerSeed(myPlayerSeed));
-        }
-
-        try {
-            await commitPlayerSeed(myPlayerId, myPlayerSeed);
-        } catch (e) {
-            console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
-        }
-
-        const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
-        setMyCharacters((character) => {
-            character.push(myRandomSlot);
-            return character;
-        });
-
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
     }
 
-    // for debug
-    async function handleChoiceCommitCOM() {
-        // 以下、choice => COMChoiceに変更
-        const blindingFactor = getRandomBytes32();
-        try {
-            await commitChoice(1-myPlayerId, levelPoint, COMChoice, blindingFactor, addressIndex);
-        } catch (e) {
-            console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
-        }
-        if (COMChoice === 4) {
-            try {
-                await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
-            } catch (e) {
-                console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
-                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                } else {
-                    alert("不明なエラーが発生しました。");
-                }
-            }
-        }
-        try {
-            await revealChoice(1-myPlayerId, levelPoint, COMChoice, blindingFactor, addressIndex);
-            setCOMChoice(getNextCOMIndex(COMChoice));
-        } catch (e) {
-            console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
-        }
-    }
 
     async function handleChoiceCommit() {
-        setListenToRoundRes('freeze');
-        // reduxに保存して、使ったことのないものを使用する
-        const blindingFactor = getRandomBytes32();
+        setIsChanging(true);
+        setIsChecking(true);
+        setIsInRound(true);
+
+        const blindingFactor = myBlindingFactor == null ? getRandomBytes32() : myBlindingFactor;
+        setMyBlindingFactor(blindingFactor);
         try {
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
-
-            setMyBlindingFactor(blindingFactor);
-
-            eventRoundCompleted(round, completedNumRounds, setCompletedNumRounds);
-
-            setMyCommit(true);
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -481,11 +439,27 @@ export default function BattleMain(){
         }
 
         if (isCOM) {
-            await handleChoiceCommitCOM();
+            const _COMblindingFactor = getRandomBytes32();
+            setCOMBlindingFactor(_COMblindingFactor);
+            try {
+                await commitChoice(1-myPlayerId, levelPoint, COMChoice, _COMblindingFactor, addressIndex);
+            } catch (e) {
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
+            }
         }
+
+        setIsChanging(false);
     }
 
+
     async function handleSeedReveal() {
+        setIsChanging(true);
+
         try {
             await revealPlayerSeed(myPlayerId, myInfo.myPlayerSeed);
         } catch (e) {
@@ -496,11 +470,16 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        setMySeedRevealed(true);
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
+
+        setIsChanging(false);
     }
 
+
     async function handleChoiceReveal() {
-        setMySeedRevealed(false);
+        setIsChanging(true);
+        setIsChecking(true);
+
         try {
             await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
         } catch (e) {
@@ -511,39 +490,81 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        setMyStatus(2);
+
+        if (isCOM) {
+            if (COMChoice === 4) {
+                try {
+                    await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
+                } catch (e) {
+                    console.log({error: e});
+                    if (e.message.substr(0, 18) === "transaction failed") {
+                        alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                    } else {
+                        alert("不明なエラーが発生しました。");
+                    }
+                }
+            }
+            try {
+                await revealChoice(1-myPlayerId, levelPoint, COMChoice, COMBlindingFactor, addressIndex);
+            } catch (e) {
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
+            }
+            setCOMChoice(getNextCOMIndex());
+        }
+
+        setIsChanging(false);
     }
 
+    // 各処理終了時の処理
     useEffect(() => {(async function() {
-        if (myStatus === 2 && opponentStatus === 2) {
-            // この辺は両者の commit の reveal が終わってからじゃないといけないかも
-            const nextRound = await getCurrentRound();
-            eventChoiceCommitted(1-myPlayerId, nextRound, setOpponentCommit);
-            eventChoiceRevealed(1-myPlayerId, nextRound, setOpponentStatus);
-            setRound(nextRound);
-            setOpponentCommit(false);
-            setMyCommit(false);
-            setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
-            setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
-            setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
-            setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
+        if (myPlayerId !== undefined) {
+            const _myState = await getPlayerState(myPlayerId);
+            const _opponentState = await getPlayerState(1-myPlayerId);
+            setMyState(_myState);
+            setOpponentState(_opponentState);
+            if (!isChanging && !isWaiting) {
+                console.log(`States: (myState, opponentState) = (${_myState}, ${_opponentState}).`)
+                if (_myState === _opponentState) {
+                    const currentRound = await getCurrentRound();
+                    if (_myState === 0) {
+                        setRound(currentRound);
 
-            const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
-            if (_opponentRandomSlotState === 2) {
-                const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
-                setOpponentCharacters((character) => {
-                    character[4] = opponentRandomSlot;
-                    return character;
-                });
+                        if (currentRound > 0) {
+                            setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+                            setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
+                            setLevelPoint(0);
+
+                            setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
+                            setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
+                            const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
+                            if (_opponentRandomSlotState === 2) {
+                                const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
+                                setOpponentCharacters((character) => {
+                                    character[4] = opponentRandomSlot;
+                                    return character;
+                                });
+                            }
+                            setOpponentRandomSlotState(_opponentRandomSlotState);
+
+                            eventChoiceRevealed(currentRound, 1-myPlayerId, setIsWaiting);
+                        }
+                    } else if (_myState === 1) {
+                        eventChoiceCommitted(currentRound+1, 1-myPlayerId, setIsWaiting);
+                    }
+                } else {
+                    console.log(`States differ: (myState, opponentState) = (${_myState}, ${_opponentState}).`)
+                }
+
+                setIsChecking(false);
             }
-            setOpponentRandomSlotState(_opponentRandomSlotState);
-
-            setLevelPoint(0);
-
-            setMyStatus(0);
-            setOpponentStatus(0);
         }
-    })();}, [myStatus, opponentStatus]);
+    })();}, [myPlayerId, isChanging, isWaiting]);
+
 
     // ラウンド終了後の処理
     useEffect(() => {(async function() {
@@ -556,6 +577,7 @@ export default function BattleMain(){
             } else {
                 alert(`Round ${completedNumRounds}: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
             }
+            eventRoundCompleted(completedNumRounds, setCompletedNumRounds);
 
             let nextIndex;
             for (nextIndex = 0; nextIndex < myCharsUsedRounds.length; nextIndex++) {
@@ -565,9 +587,10 @@ export default function BattleMain(){
             }
             setChoice(nextIndex);
 
-            setListenToRoundRes('can_choice');
+            setIsInRound(false);
         }
     })();}, [completedNumRounds]);
+
 
     // バトル終了後の処理
     useEffect(() => {(async function() {
@@ -581,6 +604,7 @@ export default function BattleMain(){
             }
         }
     })();}, [battleCompleted]);
+
 
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
@@ -602,7 +626,7 @@ export default function BattleMain(){
                 [dev]左から数えて {choice} 番目のトークンが選択されました。
 
                 <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds}
-                         listenToRoundRes={listenToRoundRes} choice={choice} setChoice={setChoice}
+                         isInRound={isInRound} choice={choice} setChoice={setChoice}
                          remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint} />
             </Container>
             }
@@ -681,19 +705,19 @@ export default function BattleMain(){
             </Button>
         }
 
-        {!isChanging && !battleCompleted && myRandomSlotState >= 1 && choice != null && listenToRoundRes !== 'freeze' &&
+        {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && opponentState === 0 && myRandomSlotState >= 1 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
 
-        {!isChanging && !battleCompleted && opponentCommit && myCommit && !mySeedRevealed && choice === 4 &&
+        {!battleCompleted && !isChanging && myState === 1 && opponentState === 1 && choice === 4 && myRandomSlotState === 1 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
         }
 
-        {!isChanging && !battleCompleted && opponentCommit && myCommit && (choice !== 4 || (choice === 4 && mySeedRevealed)) &&
+        {!battleCompleted && !isChanging && !isChecking && myState === 1 && opponentState === 1 && (choice !== 4 || (choice === 4 && myRandomSlotState === 2)) &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトル結果を見る
             </Button>

@@ -224,66 +224,55 @@ function eventBattleStarted (myAddress, setMatched, isHome) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleStarted(isHome ? myAddress : null, isHome ? null : myAddress) ;
     contract.on(filter, (aliceAddr, bobAddr) => {
-        console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
         setMatched(true);
+        console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
     });
 }
 
-function eventPlayerSeedCommitted (opponentPlayerId) {
+function eventPlayerSeedCommitted (opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.PlayerSeedCommitted(null);
+    const filter = contract.filters.PlayerSeedCommitted(opponentPlayerId);
     contract.on(filter, (playerId) => {
+        setIsWaiting(false);
         console.log(`Player${playerId} has committed.`);
     });
 }
 
-function eventPlayerSeedRevealed (opponentPlayerId) {
+function eventPlayerSeedRevealed (currentRound, opponentPlayerId) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.PlayerSeedRevealed(null, null, null);
+    const filter = contract.filters.PlayerSeedRevealed(currentRound, opponentPlayerId, null);
     contract.on(filter, (numRounds, playerId, playerSeed) => {
         console.log(`Round ${numRounds+1}: Player${playerId}'s seed has revealed.`);
     });
 }
 
-function eventChoiceCommitted (opponentPlayerId, currentRound, setCommit) {
+function eventChoiceCommitted (currentRound, opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.ChoiceCommitted(null, null);
+    const filter = contract.filters.ChoiceCommitted(currentRound, opponentPlayerId);
     contract.on(filter, (numRounds, playerId) => {
+        setIsWaiting(false);
         console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
-        if (playerId === opponentPlayerId && currentRound === numRounds) {
-            setCommit(true);
-        }
     });
 }
 
-function eventChoiceRevealed (opponentPlayerId, currentRound, setOpponentStatus) {
+function eventChoiceRevealed (currentRound, opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.ChoiceRevealed(null, null, null, null);
+    const filter = contract.filters.ChoiceRevealed(currentRound, opponentPlayerId, null, null);
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-        if(numRounds === currentRound && playerId === opponentPlayerId){
-            // const response = {
-            //     numRounds: numRounds,
-            //     playerId: playerId,
-            //     levelPoint: levelPoint,
-            //     choice: choice
-            // }
-            setOpponentStatus(2);
-        }
+        setIsWaiting(false);
         console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
     });
 }
 
-function eventRoundCompleted (currentRound, completedNumRounds, setCompletedNumRounds) {
+function eventRoundCompleted (currentRound, setCompletedNumRounds) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.RoundCompleted(currentRound, null, null, null, null, null);
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
-        if (numRounds === completedNumRounds) {
-            if (isDraw) {
-                console.log(`Round ${numRounds+1}: Draw (${winnerDamage}).`);
-            } else {
-                console.log(`Round ${numRounds+1}: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
-            }
-            setCompletedNumRounds(numRounds+1);
+        setCompletedNumRounds((round) => Math.max(round, numRounds+1));
+        if (isDraw) {
+            console.log(`Round ${numRounds+1}: Draw (${winnerDamage}).`);
+        } else {
+            console.log(`Round ${numRounds+1}: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
         }
     });
 }
