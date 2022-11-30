@@ -232,9 +232,13 @@ function eventBattleStarted (myAddress, setMatched, isHome) {
 function eventPlayerSeedCommitted (opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.PlayerSeedCommitted(opponentPlayerId);
+    let isUsed = false;
     contract.on(filter, (playerId) => {
-        setIsWaiting(false);
-        console.log(`Player${playerId} has committed.`);
+        if (!isUsed) {
+            isUsed = true;
+            setIsWaiting(false);
+            console.log(`Player${playerId} has committed.`);
+        }
     });
 }
 
@@ -249,18 +253,26 @@ function eventPlayerSeedRevealed (currentRound, opponentPlayerId) {
 function eventChoiceCommitted (currentRound, opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.ChoiceCommitted(currentRound, opponentPlayerId);
+    let isUsed = false;
     contract.on(filter, (numRounds, playerId) => {
-        setIsWaiting(false);
-        console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
+        if (!isUsed) {
+            isUsed = true;
+            setIsWaiting(false);
+            console.log(`Round ${numRounds+1}: Player${playerId} has committed.`);
+        }
     });
 }
 
 function eventChoiceRevealed (currentRound, opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.ChoiceRevealed(currentRound, opponentPlayerId, null, null);
+    let isUsed = false;
     contract.on(filter, (numRounds, playerId, levelPoint, choice) => {
-        setIsWaiting(false);
-        console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+        if (!isUsed) {
+            isUsed = true;
+            setIsWaiting(false);
+            console.log(`Round ${numRounds+1}: Player${playerId}'s choice has revealed (levelPoint, choice) = (${levelPoint}, ${choice}).`);
+        }
     });
 }
 
@@ -280,13 +292,17 @@ function eventRoundCompleted (currentRound, setCompletedNumRounds) {
 function eventBattleCompleted (setBattleCompleted) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleCompleted(null, null, null, null, null, null);
+    let isUsed = false;
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
-        if (isDraw) {
-            console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
-        } else {
-            console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+        if (!isUsed) {
+            isUsed = true;
+            setBattleCompleted(true);
+            if (isDraw) {
+                console.log(`Battle Result (${numRounds+1} Rounds): Draw (${winnerCount} - ${loserCount}).`);
+            } else {
+                console.log(`Battle Result (${numRounds+1} Rounds): Winner ${winner} (${winnerCount} - ${loserCount}).`);
+            }
         }
-        setBattleCompleted(true);
     });
 }
 

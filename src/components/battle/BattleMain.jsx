@@ -528,7 +528,7 @@ export default function BattleMain(){
             setMyState(_myState);
             setOpponentState(_opponentState);
             if (!isChanging && !isWaiting) {
-                console.log(`States: (myState, opponentState) = (${_myState}, ${_opponentState}).`)
+                console.log(`States: (myState, opponentState) = (${_myState}, ${_opponentState}).`);
                 if (_myState === _opponentState) {
                     const currentRound = await getCurrentRound();
                     if (_myState === 0) {
@@ -551,13 +551,17 @@ export default function BattleMain(){
                             }
                             setOpponentRandomSlotState(_opponentRandomSlotState);
 
+                            setIsWaiting(true);
                             eventChoiceRevealed(currentRound, 1-myPlayerId, setIsWaiting);
+                        } else {
+                            setIsWaiting(true);
                         }
                     } else if (_myState === 1) {
+                        setIsWaiting(true);
                         eventChoiceCommitted(currentRound+1, 1-myPlayerId, setIsWaiting);
                     }
                 } else {
-                    console.log(`States differ: (myState, opponentState) = (${_myState}, ${_opponentState}).`)
+                    console.log(`States differ: (myState, opponentState) = (${await getPlayerState(myPlayerId)}, ${await getPlayerState(1-myPlayerId)}).`);
                 }
 
                 setIsChecking(false);
