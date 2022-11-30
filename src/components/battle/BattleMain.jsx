@@ -13,8 +13,8 @@ import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
-import { selectMyCharacter, notInBattleVerifyCharacters, choiceCharacterInBattle } from 'slices/myCharacter.ts';
-import { selectBattleInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setChoiceUsed, setMyBlindingFactor, setBlindingFactorUsed } from 'slices/battle.ts';
+import { selectBattleInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
+         setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
 import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
@@ -256,6 +256,7 @@ export default function BattleMain(){
 
     useEffect(() => {(async function() {
         if (!(await isInBattle())) {
+            dispatch(initializeBattle());
             navigate('../');
         }
 
@@ -269,10 +270,12 @@ export default function BattleMain(){
         if (_myState === 0 && !battleInfo.isChoiceRevealed) {
             setIsChoiceFrozen(true);
             setChoice(battleInfo.myChoice);
+            setLevelPoint(battleInfo.myLevelPoint);
         } else if (_myState === 1) {
             setIsInRound(true);
             setIsChoiceFrozen(true);
             setChoice(battleInfo.myChoice);
+            setLevelPoint(battleInfo.myLevelPoint);
         } else {
             // 自分の次の手を選択する
             for (let nextIndex = 0; nextIndex < _myCharsUsedRounds.length; nextIndex++) {
@@ -368,7 +371,7 @@ export default function BattleMain(){
 
 
     async function handleForceInitBattle () {
-        dispatch(notInBattleVerifyCharacters());
+        dispatch(initializeBattle());
         await forceInitBattle();
         navigate('../');
     }
@@ -443,6 +446,7 @@ export default function BattleMain(){
         const blindingFactor = battleInfo.isBlindingFactorUsed ? getRandomBytes32() : battleInfo.myBlindingFactor;
         dispatch(setMyBlindingFactor(blindingFactor));
         dispatch(setMyChoice(choice));
+        dispatch(setMyLevelPoint(levelPoint));
 
         try {
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);

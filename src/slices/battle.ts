@@ -5,12 +5,13 @@ interface IBattleInfo {
     myPlayerId: null | number;
     myPlayerSeed: null | string;
     myChoice: null | number;
+    myLevelPoint: null | number;
     isChoiceRevealed: boolean;
     myBlindingFactor: null | string;
     isBlindingFactorUsed: boolean;
 }
 
-const initialState: IBattleInfo = { myPlayerId: null, myPlayerSeed: null, myChoice: null, isChoiceRevealed: true, myBlindingFactor: null, isBlindingFactorUsed: true };
+const initialState: IBattleInfo = { myPlayerId: null, myPlayerSeed: null, myChoice: null, myLevelPoint: null, isChoiceRevealed: true, myBlindingFactor: null, isBlindingFactorUsed: true };
 const battleInfoSlice = createSlice({
     name: 'battleInfo',
     initialState,
@@ -24,6 +25,9 @@ const battleInfoSlice = createSlice({
         setMyChoice(state, action: PayloadAction<number>) {
             state.myChoice = action.payload;
             state.isChoiceRevealed = false;
+        },
+        setMyLevelPoint(state, action: PayloadAction<number>) {
+            state.myLevelPoint = action.payload;
         },
         setChoiceUsed(state) {
             state.isChoiceRevealed = true;
@@ -47,5 +51,6 @@ const battleInfoSlice = createSlice({
 });
 
 export const selectBattleInfo = (state: RootState): IBattleInfo => state.battleInfo;
-export const { setMyPlayerId, setMyPlayerSeed, setMyChoice, setChoiceUsed, setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } = battleInfoSlice.actions;
+export const { setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
+               setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } = battleInfoSlice.actions;
 export default battleInfoSlice.reducer;
