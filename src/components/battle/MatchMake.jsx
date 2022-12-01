@@ -32,7 +32,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 
-function BattleAccount({proposerToBattle}){
+function BattleAccount({proposalAccount}){
     const myCharacters = useSelector(selectMyCharacter);
     const [open, setOpen] = useState(false);
 
@@ -44,9 +44,8 @@ function BattleAccount({proposerToBattle}){
             // サブスクの確認
             alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
         } else {
-
             const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
-            await requestChallenge(proposerToBattle.home, fixedSlotsOfChallenger);
+            await requestChallenge(proposalAccount.home, fixedSlotsOfChallenger);
         }
     };
 
@@ -57,10 +56,10 @@ function BattleAccount({proposerToBattle}){
                     image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">アカウント</Typography>
-                    <Typography variant="body1" color="text.primary">アドレス: {proposerToBattle.home}</Typography>
-                    <Typography variant="body1" color="text.primary">要求レベル下限: {proposerToBattle.lowerBound}</Typography>
-                    <Typography variant="body1" color="text.primary">要求レベル上限: {proposerToBattle.upperBound}</Typography>
-                    <Typography variant="body1" color="text.primary">キャラクターレベル合計値 {proposerToBattle.totalLevel}</Typography>
+                    <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
+                    <Typography variant="body1" color="text.primary">要求レベル下限: {proposalAccount.lowerBound}</Typography>
+                    <Typography variant="body1" color="text.primary">要求レベル上限: {proposalAccount.upperBound}</Typography>
+                    <Typography variant="body1" color="text.primary">アドレス: {proposalAccount.home}</Typography>
                 </CardContent>
             </CardActionArea>
         </Card>
@@ -113,7 +112,7 @@ export default function MatchMake() {
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
             <>{proposalAccounts.map((proposalAccount, index) => (
                 <Grid item xs={12} sm={4} md={4} key={index}>
-                    <BattleAccount proposerToBattle={proposalAccount}/>
+                    <BattleAccount proposalAccount={proposalAccount}/>
                 </Grid>
             ))}</>
         </Grid>
