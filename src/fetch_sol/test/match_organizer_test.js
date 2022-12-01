@@ -34,11 +34,11 @@ async function createCharacters (fixedSlotsOfChallengers) {
 
 async function makeProposers (fixedSlotsOfChallengers) {
     if (fixedSlotsOfChallengers.length !== 4) {
-        createCharacters(fixedSlotsOfChallengers);
+        await createCharacters(fixedSlotsOfChallengers);
     }
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
         if (isNotInvolved(addressIndex)) {
-            await proposeBattle(fixedSlotsOfChallengers[addressIndex], {min: 4, max: 1020}, addressIndex);
+            await proposeBattle({min: 4, max: 1020}, fixedSlotsOfChallengers[addressIndex], addressIndex);
         } else {
             console.log(addressIndex.toString() + " is proposed or in battle.");
         }
