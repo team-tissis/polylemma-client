@@ -17,9 +17,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { useSelector } from 'react-redux';
-import { selectMyCharacter } from 'slices/myCharacter.ts'
+import { selectMyCharacter } from 'slices/myCharacter.ts';
 import { getContract } from 'fetch_sol/utils.js';
-import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer';
+import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
+import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer.js';
 import { eventBattleStarted } from 'fetch_sol/battle_field.js';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -33,53 +34,39 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function BattleAccount({proposerToBattle}){
     const myCharacters = useSelector(selectMyCharacter);
-    const navigate = useNavigate();
-    const [matched, setMatched] = useState(false);
-
-    const [open, setOpen] = React.useState(false);
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    useEffect(() => {(async function() {
-        if (matched) {
-            navigate('/battle_main');
-        }
-    })();}, [matched]);
+    const [open, setOpen] = useState(false);
 
     async function handleClickStartBattle () {
-        const proposalAddressIndex = 0;
-        const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
-        console.log({対戦を申し込む相手のアドレス: proposerToBattle[proposalAddressIndex],
-                    対戦時に使うキャラのアドレス: fixedSlotsOfChallenger})
-        await requestChallenge(proposerToBattle[proposalAddressIndex], fixedSlotsOfChallenger);
+        if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
+            // スタミナがあるか確認
+            alert("スタミナが足りません。チャージしてください。");
+        } else if ((await subscIsExpired()) === true) {
+            // サブスクの確認
+            alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
+        } else {
 
-        const { signer } = getContract("PLMMatchOrganizer");
-        const myAddress = await signer.getAddress();
-        eventBattleStarted(myAddress, setMatched, false);
+            const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
+            await requestChallenge(proposerToBattle.home, fixedSlotsOfChallenger);
+        }
     };
 
     return(<>
-        <Card onClick={ handleClickOpen }>
+        <Card onClick={() => setOpen(true)}>
             <CardActionArea>
                 <CardMedia component="img" height="200"
                     image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
                 <CardContent>
-                <Typography gutterBottom variant="h5" component="div">アカウント</Typography>
-                <Typography variant="body1" color="text.primary">アドレス: {proposerToBattle[0]}</Typography>
-                <Typography variant="body1" color="text.primary">要求レベル下限: {proposerToBattle[1]}</Typography>
-                <Typography variant="body1" color="text.primary">要求レベル上限: {proposerToBattle[2]}</Typography>
-                <Typography variant="body1" color="text.primary">キャラクターレベル合計値 {proposerToBattle[3]}</Typography>
-                {/* <Typography variant="body1" color="text.primary">ブロック番号: {proposerToBattle[4]}</Typography> */}
+                    <Typography gutterBottom variant="h5" component="div">アカウント</Typography>
+                    <Typography variant="body1" color="text.primary">アドレス: {proposerToBattle.home}</Typography>
+                    <Typography variant="body1" color="text.primary">要求レベル下限: {proposerToBattle.lowerBound}</Typography>
+                    <Typography variant="body1" color="text.primary">要求レベル上限: {proposerToBattle.upperBound}</Typography>
+                    <Typography variant="body1" color="text.primary">キャラクターレベル合計値 {proposerToBattle.totalLevel}</Typography>
                 </CardContent>
             </CardActionArea>
         </Card>
         <Dialog
             open={open}
-            onClose={handleClose}
+            onClose={() => setOpen(false)}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
@@ -87,31 +74,44 @@ function BattleAccount({proposerToBattle}){
                 対戦を行う
             </DialogTitle>
             <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-                アカウントと対戦しますか？
-            </DialogContentText>
+                <DialogContentText id="alert-dialog-description">
+                    アカウントと対戦しますか？
+                </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button onClick={handleClose}>やめる</Button>
-            <Button onClick={() => handleClickStartBattle()} autoFocus>
-                対戦する
-            </Button>
+                <Button onClick={() => setOpen(false)}>やめる</Button>
+                <Button onClick={() => handleClickStartBattle()} autoFocus>
+                    対戦する
+                </Button>
             </DialogActions>
         </Dialog>
     </>)
 }
 
+
 export default function MatchMake() {
-    const [putProposalAccounts, setPutProposalAccounts] = useState([]);
+    const navigate = useNavigate();
+    const [proposalAccounts, setProposalAccounts] = useState([]);
+    const [matched, setMatched] = useState(false);
 
     useEffect(() => {(async function() {
-        setPutProposalAccounts(await getProposalList());
+        const { signer } = getContract("PLMMatchOrganizer");
+        const myAddress = await signer.getAddress();
+        eventBattleStarted(myAddress, setMatched, false);
+
+        setProposalAccounts(await getProposalList());
     })();}, []);
+
+    useEffect(() => {(async function() {
+        if (matched) {
+            navigate('/battle_main');
+        }
+    })();}, [matched]);
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-            <>{putProposalAccounts.map((proposalAccount, index) => (
+            <>{proposalAccounts.map((proposalAccount, index) => (
                 <Grid item xs={12} sm={4} md={4} key={index}>
                     <BattleAccount proposerToBattle={proposalAccount}/>
                 </Grid>
