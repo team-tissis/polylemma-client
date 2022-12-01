@@ -50,9 +50,11 @@ export default function Header() {
     const exchangeRate = getExchangeRate();
 
     const [staminaDetail, setStaminaDetail] = useState({
-        currentStamina: 0, maxStamina: 0,
-        staminaPerBattle: 0, restoreStaminaFee: 0,
-        currentStaminapercentage: 0
+        currentStamina: 0,
+        maxStamina: 0,
+        staminaPerBattle: 0,
+        restoreStaminaFee: 0,
+        currentStaminaPercentage: 0
     })
 
     useEffect(() => {(async function() {
@@ -65,7 +67,7 @@ export default function Header() {
             maxStamina: staminaMax,
             staminaPerBattle: staminaPerBattle,
             restoreStaminaFee: restoreStaminaFee,
-            currentStaminapercentage: Math.round((currentStamina/staminaMax)*100)
+            currentStaminaPercentage: Math.round((currentStamina / staminaMax) * 100)
         });
     })()},[]);
 
@@ -166,7 +168,7 @@ export default function Header() {
         }
 	}
 
-    const handleClickeRstoreStamina = async () => {
+    const handleClickRestoreStamina = async () => {
         if (await balanceOf() < await getRestoreStaminaFee()) {
             alert("スタミナを回復するのにコインが足りません。");
         } else {
@@ -182,7 +184,7 @@ export default function Header() {
                     maxStamina: staminaMax,
                     staminaPerBattle: staminaPerBattle,
                     restoreStaminaFee: restoreStaminaFee,
-                    currentStaminapercentage: Math.round((currentStamina/staminaMax)*100)
+                    currentStaminaPercentage: Math.round((currentStamina/staminaMax)*100)
                 });
             } catch (e) {
                 console.log({error: e});
@@ -278,11 +280,11 @@ export default function Header() {
         </Main>
         <Drawer
             sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
                 width: drawerWidth,
-            },
+                flexShrink: 0,
+                '& .MuiDrawer-paper': {
+                    width: drawerWidth,
+                },
             }}
             variant="persistent"
             anchor="right"
@@ -304,7 +306,7 @@ export default function Header() {
                         スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
                         <Button variant="contained"
                             disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) || (staminaDetail.restoreStaminaFee > currentCoin)}
-                            onClick={handleClickeRstoreStamina} style={{margin: 10, width: 345}}>
+                            onClick={handleClickRestoreStamina} style={{margin: 10, width: 345}}>
                             コインを消費してスタミナを回復する
                         </Button>
                     </div><hr/>
@@ -334,11 +336,10 @@ export default function Header() {
                         ※: 累進課税式ですが、デモ用に MATIC は消費しないようにしています。
                     </div>
                     {exchangeRate.map((plm, matic) => (
-                        <Button variant="contained" onClick={() => handleClickCharge(plm, matic)} style={{margin: 10, width: 345}}>
+                        <Button variant="contained" key={`exchange${matic}`} onClick={() => handleClickCharge(plm, matic)} style={{margin: 10, width: 345}}>
                             {matic} MATIC を {plm} PLM に交換する
                         </Button>
                     ))}
-
                     <hr/>
                 </Box>
             </List>

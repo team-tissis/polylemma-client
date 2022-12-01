@@ -77,6 +77,45 @@ const defaultOptions = {
     }
 };
 
+
+function CharacterCard({character}){
+    const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
+    const characterType = characterInfo.characterType[character.characterType];
+
+    return(<>
+        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}} >
+            <div className="card_name">
+                { character.name }
+            </div>
+
+            <div className="box" style={{padding: 10}}>
+                レベル: { character.level }
+            </div>
+
+            <div className="character_type_box"
+                style={{backgroundColor: characterType['backgroundColor'], borderColor: characterType['borderColor']}}>
+                { characterType['jaName'] }
+            </div>
+
+            <div className="img_box">
+                <img className={'img_div'} src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
+            </div>
+
+            <div className="attribute_box">
+                レア度 {character.rarity}<br/>
+                { characterAttribute["title"] }
+            </div>
+
+            <div className="detail_box">
+                <div style={{margin: 10}}>
+                    { characterAttribute["description"] }
+                </div>
+            </div>
+        </div>
+    </>)
+}
+
+
 export default function GachaGacha(){
     const [isOpened, setIsOpened] = useState(false);
 
@@ -134,47 +173,22 @@ export default function GachaGacha(){
             </DialogTitle>
             <DialogContent>
                 {(newToken == null) ? <>
-                <div style={{width: '100%', textAlign: 'center'}}>
-                    <BallTriangle
-                        height="150"
-                        width="150"
-                        radisu={10}
-                        color="#4fa94d"
-                        ariaLabel="puff-loading"
-                        wrapperStyle={{display: 'inlineBlock'}}
-                        wrapperClass=""
-                        visible={true}
-                    />
-                </div>
+                    <div style={{width: '100%', textAlign: 'center'}}>
+                        <BallTriangle
+                            height="150"
+                            width="150"
+                            radius={10}
+                            color="#4fa94d"
+                            ariaLabel="puff-loading"
+                            wrapperStyle={{display: 'inlineBlock'}}
+                            wrapperClass=""
+                            visible={true}
+                        />
+                    </div>
                 </>:<>
                     <div onClick={() =>  newToken == null ? null : setIsOpened(true)} style={{margin: 50}}>
                         {isOpened ? <>
-                            {newToken && <>
-                                <div className="card_parent" style={{width: 400, margin: '0 auto'}}>
-                                <div className="card_name">
-                                    { newToken.name }
-                                </div>
-                                <div className="box" style={{padding: 10}}>
-                                    レベル: { newToken.level }<br/>
-                                </div>
-
-                                <div className="character_type_box" style={{backgroundColor: characterInfo.characterType[newToken.characterType]['backgroundColor'],
-                                                                    borderColor: characterInfo.characterType[newToken.characterType]['borderColor']}}>
-                                    { characterInfo.characterType[newToken.characterType]['jaName'] }
-                                </div>
-                                <div className="img_box" style={{height: 'auto'}}>
-                                    <img className='img_div' src={ newToken.imgURI } style={{width: '98%', height: 'auto', objectFit: 'fill'}} alt="sample"/>
-                                </div>
-                                <div className="attribute_box">
-                                    レア度 {newToken.rarity} / { characterInfo.attributes[newToken.attributeIds[0]]["title"] }
-                                </div>
-                                <div className="detail_box">
-                                    <div style={{margin: 10}}>
-                                        { characterInfo.attributes[newToken.attributeIds[0]]["description"] }
-                                    </div>
-                                </div>
-                            </div>
-                            </>}
+                            {newToken && <CharacterCard character={newToken}/>}
                         </> : <Lottie options={defaultOptions} height={400} width={400} />
                         }
                     </div>
@@ -210,7 +224,7 @@ export default function GachaGacha(){
                 <div>トークン: {currentToken}</div>
             </Grid>
             <Grid item xs={12} sm={8} md={8}>
-                <h2>Polyemmaガチャを引いてキャラを取得する</h2><hr/>
+                <h2>Polylemma ガチャを引いてキャラを獲得する</h2><hr/>
 
                 <h3>キャラの使い方<hr style={{margin: 0, padding: 0}}/></h3>
                 <p>他のプレイヤーと自分の所有するキャラを4対使用して、バトルすることができます。</p>
