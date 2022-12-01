@@ -31,8 +31,8 @@ export default function ProgressBar({stamina}) {
     return <>
     <ExternalDiv>
         <CircularProgressbarWithChildren
-            value={stamina.currentStaminapercentage}
-            text={`${stamina.currentStaminapercentage}%`}
+            value={stamina.currentStaminaPercentage}
+            text={`${stamina.currentStaminaPercentage}%`}
             strokeWidth={10}
             styles={buildStyles({
                 strokeLinecap: "butt"

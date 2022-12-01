@@ -320,7 +320,7 @@ export default function Battle() {
                     <Puff
                         height="150"
                         width="150"
-                        radisu={10}
+                        radius={10}
                         color="#4fa94d"
                         ariaLabel="puff-loading"
                         wrapperStyle={{display: 'inlineBlock'}}
