@@ -402,9 +402,9 @@ export default function BattleMain(){
         try {
             await commitPlayerSeed(myPlayerId, myPlayerSeed);
             const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
-            setMyCharacters((character) => {
-                character.push(myRandomSlot);
-                return character;
+            setMyCharacters((characters) => {
+                characters.push(myRandomSlot);
+                return characters;
             });
         } catch (e) {
             console.log({error: e});
