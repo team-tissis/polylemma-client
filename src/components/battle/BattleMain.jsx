@@ -47,7 +47,7 @@ function handleButtonStyle() {
     }
 }
 
-function CharacterCard({character, charUsedRounds, isOpponent, isChoiceFrozen, choice, setChoice, opponentRandomSlotState}){
+function BattleCard({character, charUsedRounds, isOpponent, isChoiceFrozen, choice, setChoice, opponentRandomSlotState}){
     const isRS = character.isRandomSlot;
     const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
     const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
@@ -129,7 +129,7 @@ function PlayerYou({characters, charsUsedRounds, level, remainingLevelPoint, max
             <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
                 {characters.map((character, index) => (
                     <Grid item xs={2} sm={2} md={2} key={index}>
-                        <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={true} opponentRandomSlotState={opponentRandomSlotState}/>
+                        <BattleCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={true} opponentRandomSlotState={opponentRandomSlotState}/>
                     </Grid>
                 ))}
             </Grid>
@@ -148,7 +148,7 @@ function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLe
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {characters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <CharacterCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={false}
+                    <BattleCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={false}
                         isChoiceFrozen={isChoiceFrozen} choice={choice} setChoice={setChoice}/>
                 </Grid>
             ))}
@@ -337,7 +337,7 @@ export default function BattleMain(){
             // 相手の RS のわからない情報は null にしておく
             const opponentRandomSlot = {
                 index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
-                bondLevel: null, rarity: null, attributeIds: null, isRandomSlot: true, battleDone: false
+                bondLevel: null, rarity: null, attributeIds: [], isRandomSlot: true
             };
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
         }
