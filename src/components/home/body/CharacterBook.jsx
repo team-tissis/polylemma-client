@@ -16,6 +16,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
+
 function CharacterCard({character, myOwnedCharacters}){
     const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
     const characterType = characterInfo.characterType[character.characterType];

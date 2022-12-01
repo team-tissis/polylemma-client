@@ -3,7 +3,7 @@ import { approve } from "./coin.js";
 import { getCurrentBondLevel } from "./data.js";
 
 async function updateLevel (tokenId, addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMToken", addressIndex);
+    const { contractAddress, contract } = getContract("PLMToken", addressIndex);
     const coinForLevelUp = getNecessaryExp(tokenId);
     await approve(contractAddress, coinForLevelUp, addressIndex);
     const message = await contract.updateLevel(tokenId);
