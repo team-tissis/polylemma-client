@@ -34,7 +34,7 @@ async function getAllTokenOwned (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.getAllTokenOwned(myAddress);
     console.log({ getAllTokenOwned: message });
-    return message;
+    return message.map(myToken => myToken.toNumber());
 }
 
 async function getNumberOfOwnedTokens (addressIndex) {
@@ -55,8 +55,7 @@ async function getAllCharacterInfo (addressIndex) {
             level: message[i]['level'],
             bondLevel: await getCurrentBondLevel(message[i]),
             rarity: message[i]['rarity'],
-            attributeIds: message[i]['attributeIds'],
-            isRandomSlot: false
+            attributeIds: message[i]['attributeIds']
         });
     }
     console.log({ allCharacterInfo: allCharacterInfo });
@@ -85,7 +84,7 @@ async function getImgURI (imgId, addressIndex) {
 }
 
 async function getOwnedCharacterWithIDList (addressIndex) {
-    const myTokenIds = (await getAllTokenOwned(addressIndex)).map(myToken => myToken.toNumber());
+    const myTokenIds = await getAllTokenOwned(addressIndex);
     const ownedCharacters = []
     for (let i = 0; i < myTokenIds.length; i++) {
         const characterInfo = await getCurrentCharacterInfo(myTokenIds[i], addressIndex);
