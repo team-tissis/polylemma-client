@@ -14,7 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import 'css/card.css';
-import { set5BattleCharacter, myCharacterRemove, set4Characters, notInBattleVerifyCharacters, selectMyCharacter} from 'slices/myCharacter.ts'
+import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacter.ts';
 import { initializeBattle } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
@@ -35,7 +35,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function handleCreateRoomButtonStyle() {
+function createRoomButtonStyle() {
     return {
         position: 'fixed',
         bottom: 10,
@@ -45,7 +45,7 @@ function handleCreateRoomButtonStyle() {
         fontWeight: 600
     }
 }
-function handleSearchRoomButtonStyle() {
+function searchRoomsButtonStyle() {
     return {
         position: 'fixed',
         bottom: 10,
@@ -56,7 +56,7 @@ function handleSearchRoomButtonStyle() {
     }
 }
 
-function editButtonstyle() {
+function editButtonStyle() {
     return {
         position: 'fixed',
         bottom: 50,
@@ -67,38 +67,33 @@ function editButtonstyle() {
     }
 }
 
-const selectedNum = 4;
+const maxNumBattleCharacters = 4;
 
-function NFTCard({character, charactersForBattle, setStateChange, setCharactersForBattle, isChanging}){
+function NFTCard({character, setMyBattleCharacters, isChanging}){
     const { enqueueSnackbar } = useSnackbar();
+    const myCharacters = useSelector(selectMyCharacter);
+
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    var color = 'white'
-    const result = charactersForBattle.filter(cha => cha.id === character.id);
-    const alreadySelected = (result.length > 0) ? true : false;
-    if(isChanging && alreadySelected){
-        color = 'black'
-    }
-    const borderColor = (isChanging && alreadySelected) ? 'black' : 'silver'
-    const cardBackColor = (isChanging && alreadySelected) ? 'orange' : '#FFDBC9'
+    const isSelected = myCharacters.battleCharacters.some(char => char.id === character.id);
+    const color = (isChanging && isSelected) ? 'black' : 'white';
+    const borderColor = (isChanging && isSelected) ? 'black' : 'silver';
+    const cardBackColor = (isChanging && isSelected) ? 'orange' : '#FFDBC9';
 
     function handleChange(){
-        const selectedData = charactersForBattle;
-        if (alreadySelected) {
-            const popThisData = selectedData.filter((data, index) => {
-                return data.id !== character.id
-            });
-            setCharactersForBattle(popThisData)
-        } else if (selectedData.length >= selectedNum) {
-            const message = "対戦に選べるキャラクターは4体までです"
+        if (isSelected) {
+            removeBattleCharacters(character);
+            setMyBattleCharacters(myCharacters.battleCharacters);
+        } else if (myCharacters.battleCharacters.length >= maxNumBattleCharacters) {
+            const message = `対戦に選べるキャラクターは ${maxNumBattleCharacters} 体までです`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'error',
             });
         } else {
-            setCharactersForBattle([...selectedData, character])
+            addBattleCharacters(character);
+            setMyBattleCharacters(myCharacters.battleCharacters);
         }
-        // setStateChange((prev) => prev + 1)
     }
 
     return(<>
@@ -132,65 +127,30 @@ function NFTCard({character, charactersForBattle, setStateChange, setCharactersF
 
 export default function Battle() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
 
     const myCharacters = useSelector(selectMyCharacter);
 
-    const [charactersForBattle, setCharactersForBattle] = useState([]);
-    const [isChanging, setIsChanging] = useState(false);
-    const [stateChange, setStateChange] = useState(0);
-    const navigate = useNavigate();
-    const [myCharacterList, setMyCharacterList] = useState([]);
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const { enqueueSnackbar } = useSnackbar();
+    const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
+    const [myBattleCharacters, setMyBattleCharacters] = useState([]);
     const [rangeValue, setRangeValue] = useState({min: 4, max: 1020});
-
     const [matched, setMatched] = useState(false);
+    const [isChanging, setIsChanging] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
-
-    useEffect(() => {
+    useEffect(() => {(async function() {
         // 対戦情報ステータスを初期化する
         dispatch(initializeBattle());
-        // スマコンのアドレスを取得
-        // 自分の持ってるキャラを参照して、myCharactersがが含まれていたらOK
-        // もし含まれていなかったら dispatch(myCharacterRemove()); で削除
-        console.log({自分が選択しているキャラ: myCharacters.requestCharacterList})
-        setCharactersForBattle(myCharacters.requestCharacterList)
-    }, []);
 
-    // キャラクターを所持していないのに、キャラがバトル画面で表示されてしまうバグの修正
-    useEffect(() => {(async function() {
-        const _myCharacterList = await getOwnedCharacterWithIDList()
-        // FEATURE:ローカルストレージに保存している値と自分が持ってるキャラが一致しているか確認する
-        const updatedCharactersForBattle = []
-        var hasToUpdateState = false
+        // バトルキャラの情報を更新する
+        const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+        setMyOwnedCharacters(_myOwnedCharacters);
+        dispatch(updateBattleCharacters(_myOwnedCharacters));
+        setMyBattleCharacters(myCharacters.battleCharacters);
 
-        // [修正] バトルが終わった後なのに手持ちにRSがないか/あった場合は削除
-        dispatch(notInBattleVerifyCharacters()); //更新
-        for (let step = 0; step < myCharacters.requestCharacterList.length; step++) {
-            // const thisChara = _myCharacterList[step];
-            const matchedCharaFromAPI = _myCharacterList.find(char => char.id === myCharacters.requestCharacterList[step].id);
-            if (_myCharacterList.find(char => char.id === myCharacters.requestCharacterList[step].id)) {
-                if(myCharacters.isRandomSlot){
-                    continue
-                }
-                if( myCharacters.requestCharacterList[step].level === matchedCharaFromAPI.level ){
-                    updatedCharactersForBattle.push(matchedCharaFromAPI)
-                    continue
-                } else {
-                    // 育成が反映されていないので更新する必要がある
-                    updatedCharactersForBattle.push(matchedCharaFromAPI)
-                    hasToUpdateState = true
-                    continue
-                }
-            } else {
-                hasToUpdateState = true
-                continue
-            }
-        }
-        if(hasToUpdateState){
-            dispatch(set4Characters(updatedCharactersForBattle)); //更新
-            setCharactersForBattle(updatedCharactersForBattle)
-        }
+        // 現在対戦申し込み中の場合は、ダイアログを表示
+        setDialogOpen(await isProposed());
 
         // 自分が propose した時のバトル開始を検知
         const { signer } = getContract("PLMMatchOrganizer");
@@ -198,25 +158,6 @@ export default function Battle() {
         eventBattleStarted(myAddress, setMatched, true);
     })();}, []);
 
-    useEffect(() => {(async function() {
-        // 現在対戦申し込み中の場合は、ダイアログを表示
-        setDialogOpen(await isProposed());
-        const _myCharacterList = await getOwnedCharacterWithIDList();
-        setMyCharacterList(_myCharacterList);
-        if(_myCharacterList.length < selectedNum){
-            const message = "対戦するためにはキャラクターを最低でも4体保持する必要があります。"
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'info',
-            });
-        }
-    })();}, [stateChange]);
-
-    function handleUpdate(){
-        dispatch(set4Characters(charactersForBattle)); //更新
-        setIsChanging(false);
-        setStateChange((prev) => prev + 1);
-    }
 
     useEffect(() => {(async function() {
         if (matched) {
@@ -226,37 +167,58 @@ export default function Battle() {
         }
     })();}, [matched]);
 
-    async function handleCharacterSelected(kind){
-        // 4体あるか確認する redux に保存する
+
+    async function handleUpdate(){
+        setIsChanging(false);
+
+        const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+        setMyOwnedCharacters(_myOwnedCharacters);
+        dispatch(updateBattleCharacters(_myOwnedCharacters));
+        setMyBattleCharacters(myCharacters.battleCharacters);
+
+        if(_myOwnedCharacters.length < maxNumBattleCharacters){
+            const message = `対戦するためにはキャラクターを最低でも ${maxNumBattleCharacters} 体保持する必要があります。`;
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'info',
+            });
+        }
+    }
+
+
+    async function createRoom() {
         if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
             // スタミナがあるか確認
             alert("スタミナが足りません。チャージしてください。");
-        } else if ((await subscIsExpired()) === true) {
+        } else if (await subscIsExpired()) {
             // サブスクの確認
             alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
         } else {
-            dispatch(set4Characters(charactersForBattle)); //更新
-            if (kind === "makeOwnRoom") {
-                try {
-                    const fixedSlotsOfChallenger = myCharacters.requestCharacterList.map(character => character.id);
-                    // proposeBattleで自分が対戦要求ステータスに変更される
-                    console.log({fixedSlotsOfChallenger});
-                    await proposeBattle(fixedSlotsOfChallenger, rangeValue);
-                    setDialogOpen(true);
-                } catch (e) {
-                    setDialogOpen(false);
-                    console.log({error: e});
-                    if (e.message.substr(0, 18) === "transaction failed") {
-                        alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                    } else {
-                        alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
-                    }
+            setDialogOpen(true);
+            try {
+                const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
+                console.log({fixedSlotsOfChallenger});
+                // proposeBattle で自分が対戦要求ステータスに変更される
+                await proposeBattle(rangeValue, fixedSlotsOfChallenger);
+            } catch (e) {
+                setDialogOpen(false);
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
                 }
-            } else if(kind === "searchRooms") {
-                navigate('/match_make');
             }
         }
     }
+
+
+    function searchRooms() {
+        // 対戦情報ステータスを初期化する
+        dispatch(initializeBattle());
+        navigate('/match_make');
+    }
+
 
     async function declineProposal(){
         try {
@@ -272,19 +234,15 @@ export default function Battle() {
         }
     }
 
+
     // 開発用・後で消す
     async function devPrepareForBattle(){
-        console.log({charactersForBattle});
         const fixedSlots = await prepareForBattle();
-        const _myCharacterList = await getOwnedCharacterWithIDList();
-        const _charactersForBattle = _myCharacterList.filter(char => {
-            for (let idx = 0; idx < fixedSlots.length; idx++) {
-                if (char.id === fixedSlots[idx]) return true;
-            }
-            return false;
-        });
-        setCharactersForBattle(_charactersForBattle);
-        dispatch(set4Characters(_charactersForBattle));
+        const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+        setMyOwnedCharacters(_myOwnedCharacters);
+        const _myBattleCharacters = _myOwnedCharacters.filter(char => fixedSlots.includes(char.id));
+        setMyBattleCharacters(_myBattleCharacters);
+        dispatch(setBattleCharacters(_myBattleCharacters));
     }
 
     const fixedSlotsOfChallengers = [];
@@ -315,30 +273,28 @@ export default function Battle() {
 
         <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {isChanging ?
-                <>{myCharacterList.map((character, index) => (
-                    <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} key={index} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
-                            setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
-                    </Grid>
-                ))}</>
-                :
-                <>{charactersForBattle.map((character, index) => (
-                    <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} key={index} charactersForBattle={charactersForBattle} setStateChange={setStateChange}
-                            setCharactersForBattle={setCharactersForBattle} isChanging={isChanging}/>
-                    </Grid>
-                ))}</>
+            <>{myOwnedCharacters.map((character, index) => (
+                <Grid item xs={3} sm={3} md={3} key={index}>
+                    <NFTCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                </Grid>
+            ))}</>
+            :
+            <>{myBattleCharacters.map((character, index) => (
+                <Grid item xs={3} sm={3} md={3} key={index}>
+                    <NFTCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                </Grid>
+            ))}</>
             }
         </Grid>
         {isChanging ?
-            <Button variant="contained" size="large" color="secondary"
-                style={ editButtonstyle() } onClick={() => handleUpdate() }>
-                変更を保存する
-            </Button>
-            :
-            <Button variant="contained" size="large" style={{marginTop: 10}} onClick={() => setIsChanging(true) }>
-                変更
-            </Button>
+        <Button variant="contained" size="large" color="secondary"
+            style={ editButtonStyle() } onClick={() => handleUpdate()}>
+            変更を保存する
+        </Button>
+        :
+        <Button variant="contained" size="large" style={{marginTop: 10}} onClick={() => setIsChanging(true)}>
+            変更
+        </Button>
         }
 
         </Box>
@@ -365,18 +321,18 @@ export default function Battle() {
                     />
                 </div>
 
-            <DialogContentText id="alert-dialog-description">
-                他プレイヤーが対戦を申し込んでくると、自動でバトル画面に遷移します。<br/>
-                このままお待ちください
-            </DialogContentText>
+                <DialogContentText id="alert-dialog-description">
+                    他プレイヤーが対戦を申し込んでくると、自動でバトル画面に遷移します。<br/>
+                    このままお待ちください
+                </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button variant="outlined" color="secondary" onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
-                [dev]自分に対戦を申し込ませる
-            </Button>
-            <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
-                対戦申告を取り下げる
-            </Button>
+                <Button variant="outlined" color="secondary" onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+                    [dev] 自分に対戦を申し込ませる
+                </Button>
+                <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
+                    対戦申告を取り下げる
+                </Button>
             </DialogActions>
         </Dialog>
 
@@ -387,63 +343,62 @@ export default function Battle() {
 
         <Button variant="contained" size="large"
             onClick={() => devPrepareForBattle()} disabled={isChanging}>
-            [開発用] 自分のキャラを用意する
+            [dev] 自分のキャラを用意する
         </Button>
 
         <Button variant="contained" size="large"
             onClick={() => devHandleCharacter()} disabled={isChanging}>
-            [開発用] ユーザー2~4のキャラを用意する
+            [dev] ユーザー2~4のキャラを用意する
         </Button>
 
         <Button variant="contained" size="large"
             onClick={() => devHandleProposal()} disabled={isChanging}>
-            [開発用] ユーザー2~4の3名を対戦可能状態にする
+            [dev] ユーザー2~4の3名を対戦可能状態にする
         </Button>
 
         <Button variant="outlined" color="secondary" onClick={() => devHandleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
-            [dev]全ユーザーのProposalを取り下げる
+            [dev] 全ユーザーのProposalを取り下げる
         </Button>
 
-        { (charactersForBattle.length >= selectedNum) &&
-            <>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        '& > :not(style)': { m: 1 },
-                    }}
-                >
-                    <div>対戦相手の希望レベル上限下限<br/>(4 ~ 1020)まで指定可能</div>
-                    <TextField
-                        error={false}
-                        type = 'number'
-                        min="4" max="1020"
-                        helperText={ false ? "対戦相手希望下限レベルを正しく入力してください"  : ""}
-                        id="demo-helper-text-aligned"
-                        defaultValue={rangeValue.min}
-                        onChange={(e) => setRangeValue({ ...rangeValue, min: Number(e.target.value)})}
-                    />
-                    から
-                    <TextField
-                        error={false}
-                        type = 'number'
-                        min="4" max="1020"
-                        helperText= {false ? "対戦相手希望上限レベルを正しく入力してください" : ""}
-                        id="demo-helper-text-aligned-no-helper"
-                        defaultValue={rangeValue.max}
-                        onChange={(e) => setRangeValue({ ...rangeValue, max: Number(e.target.value)})}
-                    />
-                    の範囲で対戦部屋を作成
-                </Box>
+        {(myBattleCharacters.length >= maxNumBattleCharacters) &&
+        <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    '& > :not(style)': { m: 1 },
+                }}
+            >
+                <div>対戦相手の希望レベル上限下限<br/>(4 ~ 1020)まで指定可能</div>
+                <TextField
+                    error={false}
+                    type = 'number'
+                    min="4" max="1020"
+                    helperText={ false ? "対戦相手希望下限レベルを正しく入力してください"  : ""}
+                    id="demo-helper-text-aligned"
+                    defaultValue={rangeValue.min}
+                    onChange={(e) => setRangeValue({ ...rangeValue, min: Number(e.target.value)})}
+                />
+                から
+                <TextField
+                    error={false}
+                    type = 'number'
+                    min="4" max="1020"
+                    helperText= {false ? "対戦相手希望上限レベルを正しく入力してください" : ""}
+                    id="demo-helper-text-aligned-no-helper"
+                    defaultValue={rangeValue.max}
+                    onChange={(e) => setRangeValue({ ...rangeValue, max: Number(e.target.value)})}
+                />
+                の範囲で対戦部屋を作成
+            </Box>
 
-                <Button variant="contained" size="large" style={ handleCreateRoomButtonStyle() }
-                    onClick={() => handleCharacterSelected('makeOwnRoom') } disabled={isChanging}>
-                    対戦の部屋を作る
-                </Button>
-                <Button variant="contained" size="large" style={ handleSearchRoomButtonStyle() } onClick={() => handleCharacterSelected('searchRooms')} disabled={isChanging}>
-                    対戦相手を探す
-                </Button>
-            </>
+            <Button variant="contained" size="large" style={createRoomButtonStyle()} onClick={() => createRoom()} disabled={isChanging}>
+                対戦の部屋を作る
+            </Button>
+            <Button variant="contained" size="large" style={searchRoomsButtonStyle()} onClick={() => searchRooms()} disabled={isChanging}>
+                対戦相手を探す
+            </Button>
+        </>
         }
     </>)
 }
