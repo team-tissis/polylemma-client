@@ -69,20 +69,22 @@ function editButtonStyle() {
 
 const maxNumBattleCharacters = 4;
 
-function NFTCard({character, setMyBattleCharacters, isChanging}){
+function CharacterCard({character, setMyBattleCharacters, isChanging}){
+    const dispatch = useDispatch();
     const { enqueueSnackbar } = useSnackbar();
     const myCharacters = useSelector(selectMyCharacter);
 
-    const thisCharacterAttribute = character.attributeIds[0];
-    const charaType = characterInfo.characterType[character.characterType];
+    const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
+    const characterType = characterInfo.characterType[character.characterType];
     const isSelected = myCharacters.battleCharacters.some(char => char.id === character.id);
-    const color = (isChanging && isSelected) ? 'black' : 'white';
     const borderColor = (isChanging && isSelected) ? 'black' : 'silver';
-    const cardBackColor = (isChanging && isSelected) ? 'orange' : '#FFDBC9';
+    const backgroundColor = (isChanging && isSelected) ? 'orange' : '#FFDBC9';
+    const imgBackgroundColor = (isChanging && isSelected) ? 'black' : 'white';
 
     function handleChange(){
+        if (!isChanging) { return }
         if (isSelected) {
-            removeBattleCharacters(character);
+            dispatch(removeBattleCharacters(character));
             setMyBattleCharacters(myCharacters.battleCharacters);
         } else if (myCharacters.battleCharacters.length >= maxNumBattleCharacters) {
             const message = `対戦に選べるキャラクターは ${maxNumBattleCharacters} 体までです`;
@@ -91,33 +93,39 @@ function NFTCard({character, setMyBattleCharacters, isChanging}){
                 variant: 'error',
             });
         } else {
-            addBattleCharacters(character);
+            dispatch(addBattleCharacters(character));
             setMyBattleCharacters(myCharacters.battleCharacters);
         }
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} onClick={ isChanging ? () => handleChange() : null}>
+        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}} onClick={() => handleChange()}>
             <div className="card_name">
                 { character.name }
             </div>
-            <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor, padding: 10}}>
+
+            <div className="box" style={{borderColor: borderColor, backgroundColor: backgroundColor, padding: 10}}>
                 レベル: { character.level }<br/>
                 絆レベル: { character.bondLevel }
             </div>
+
             <div className="character_type_box"
-                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
-                { charaType['jaName'] }
+                style={{backgroundColor: characterType['backgroundColor'], borderColor: characterType['borderColor']}}>
+                { characterType['jaName'] }
             </div>
-            <div className="img_box" style={{backgroundColor: color}}>
+
+            <div className="img_box" style={{backgroundColor: imgBackgroundColor}}>
                 <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
+
             <div className="attribute_box">
-                レア度 {character.rarity} / { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity}<br/>
+                { characterAttribute["title"] }
             </div>
+
             <div className="detail_box">
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
+                    { characterAttribute["description"] }
                 </div>
             </div>
         </div>
@@ -275,13 +283,13 @@ export default function Battle() {
             {isChanging ?
             <>{myOwnedCharacters.map((character, index) => (
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <NFTCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                    <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
                 </Grid>
             ))}</>
             :
             <>{myBattleCharacters.map((character, index) => (
                 <Grid item xs={3} sm={3} md={3} key={index}>
-                    <NFTCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                    <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
                 </Grid>
             ))}</>
             }
