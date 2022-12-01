@@ -4,7 +4,7 @@ import { getContract } from "./utils.js";
 /// MATCH ORGANIZER FUNCTIONS ///
 /////////////////////////////////
 
-async function proposeBattle (fixedSlotsOfProposer, requestRange, addressIndex) {
+async function proposeBattle (requestRange, fixedSlotsOfProposer, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await contract.proposeBattle(
         requestRange.min,
