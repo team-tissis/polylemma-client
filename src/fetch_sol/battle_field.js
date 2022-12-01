@@ -100,8 +100,7 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
             bondLevel: await getBondLevelAtBattleStart(message[i]),
             rarity: message[i]['rarity'],
             attributeIds: message[i]['attributeIds'],
-            isRandomSlot: false, // reduxに保存用
-            battleDone: false // reduxに保存用
+            isRandomSlot: false
         })
     }
     return response;
@@ -130,8 +129,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
         bondLevel: 0,
         rarity: message['rarity'],
         attributeIds: message['attributeIds'],
-        isRandomSlot: true,
-        battleDone: false,
+        isRandomSlot: true
     };
 }
 
@@ -150,8 +148,7 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
         bondLevel: 0,
         rarity: message['rarity'],
         attributeIds: message['attributeIds'],
-        isRandomSlot: true,
-        battleDone: true
+        isRandomSlot: true
     };
 }
 
