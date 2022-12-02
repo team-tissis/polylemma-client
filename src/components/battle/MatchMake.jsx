@@ -3,6 +3,7 @@ import 'react-tabs/style/react-tabs.css';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import { experimentalStyled as styled } from '@mui/material/styles';
@@ -22,6 +23,7 @@ import { getContract } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer.js';
 import { eventBattleStarted } from 'fetch_sol/battle_field.js';
+import PersonIcon from '@mui/icons-material/Person';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -50,16 +52,16 @@ function BattleAccount({proposalAccount}){
     };
 
     return(<>
-        <Card onClick={() => setOpen(true)}>
+        <Card onClick={() => setOpen(true)} >
             <CardActionArea>
-                <CardMedia component="img" height="200"
-                    image="https://www.picng.com/upload/sun/png_sun_7636.png" alt="green iguana" />
                 <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">アカウント</Typography>
+                    <Typography variant="body1" color="text.primary">
+                        <PersonIcon/>アドレス: <br/> 
+                        <Chip label={proposalAccount.home} color="primary" />
+                    </Typography>
                     <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
                     <Typography variant="body1" color="text.primary">要求レベル下限: {proposalAccount.lowerBound}</Typography>
                     <Typography variant="body1" color="text.primary">要求レベル上限: {proposalAccount.upperBound}</Typography>
-                    <Typography variant="body1" color="text.primary">アドレス: {proposalAccount.home}</Typography>
                 </CardContent>
             </CardActionArea>
         </Card>
@@ -74,12 +76,14 @@ function BattleAccount({proposalAccount}){
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                    アカウントと対戦しますか？
+                {proposalAccount.totalLevel}.Lv　の アカウントと対戦しますか？
+                <br/>
+                相手のアドレス番号: {proposalAccount.home}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setOpen(false)}>やめる</Button>
-                <Button onClick={() => handleClickStartBattle()} autoFocus>
+                <Button onClick={() => setOpen(false)}  variant="contained">やめる</Button>
+                <Button onClick={() => handleClickStartBattle()}  variant="contained" color="primary">
                     対戦する
                 </Button>
             </DialogActions>
