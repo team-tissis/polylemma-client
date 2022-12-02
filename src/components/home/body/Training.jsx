@@ -8,7 +8,7 @@ import characterInfo from "assets/character_info.json";
 import { balanceOf } from 'fetch_sol/coin.js';
 import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 
-function bottomBoxstyle() {
+function bottomBoxStyle() {
     return {
         zIndex: 30,
         position: 'fixed',
@@ -27,23 +27,23 @@ function bottomBoxstyle() {
     }
 }
 
-function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenId, setLevelBefore}) {
+
+function CharacterCard({character, selectedTokenId, setSelectedTokenId, setLevelBefore, setNecessaryExp}) {
     const thisCharacterAttribute = character.attributeIds[0];
     const charaType = characterInfo.characterType[character.characterType];
-    const _backgroundColor = (selectedTokenId === character.id) ? 'grey' : 'white'
-    const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver'
-    const cardBackColor = (selectedTokenId === character.id) ? 'orange' : '#FFDBC9'
+    const _backgroundColor = (selectedTokenId === character.id) ? 'grey' : 'white';
+    const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver';
+    const cardBackColor = (selectedTokenId === character.id) ? 'orange' : '#FFDBC9';
 
-    const handleClickCharacter = async (id) => {
-        setNecessaryExp(await getNecessaryExp(id));
-        setSelectedTokenId(id);
-        const characterBefore = await getCurrentCharacterInfo(id);
-        setLevelBefore(characterBefore.level);
+    async function handleClickCharacter() {
+        setSelectedTokenId(character.id);
+        setLevelBefore((await getCurrentCharacterInfo(character.id)).level);
+        setNecessaryExp(await getNecessaryExp(character.id));
     }
 
     return(<>
         <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
-            onClick={ () => handleClickCharacter(character.id) } >
+            onClick={() => handleClickCharacter()} >
             <div className="card_name">
                 { character.name }
             </div>
@@ -69,30 +69,33 @@ function NFTCard({character, setNecessaryExp, selectedTokenId, setSelectedTokenI
         </div>
     </>);
 }
+
+
 export default function ModelTraining(){
-    const [isLoading, setIsLoading] = useState(0);
+    const { enqueueSnackbar } = useSnackbar();
+
+    const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
+
     const [selectedTokenId, setSelectedTokenId] = useState();
     const [levelBefore, setLevelBefore] = useState();
     const [necessaryExp, setNecessaryExp] = useState();
-    const [currentCoin, setCurrentCoin] = useState();
-    const [myCharacterList, setMyCharacterList] = useState([]);
-    const { enqueueSnackbar } = useSnackbar();
+
+    const [isTraining, setIsTraining] = useState(false);
 
     useEffect(() => {(async function() {
-        setMyCharacterList(await getOwnedCharacterWithIDList())
-        setCurrentCoin(await balanceOf());
-    })();}, [isLoading]);
+        setMyOwnedCharacters(await getOwnedCharacterWithIDList());
+    })();}, []);
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
-        // トークンが足りなかった場合snackbarを表示
-        if (currentCoin < necessaryExp) {
+        setIsTraining(true);
+        // トークンが足りなかった場合 snackbar を表示
+        if ((await balanceOf()) < necessaryExp) {
             const message = "コインが足りないです、チャージしてください。";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'error',
             });
-            return
         } else {
             try {
                 const updatedLevel = await updateLevel(selectedTokenId);
@@ -101,11 +104,12 @@ export default function ModelTraining(){
                     autoHideDuration: 1500,
                     variant: 'success',
                 });
+
+                // レベルアップ後に情報を更新する
+                const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+                setLevelBefore(_myOwnedCharacters.find(character => character.id === selectedTokenId).level);
                 setNecessaryExp(await getNecessaryExp(selectedTokenId));
-                // isLoadingが更新されると画面を再描画するように設定 AND LvUp後にisLoadingを更新
-                const characterBefore = await getCurrentCharacterInfo(selectedTokenId);
-                setLevelBefore(characterBefore.level);
-                setIsLoading((prev) => prev + 1);
+                setMyOwnedCharacters(_myOwnedCharacters);
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -115,65 +119,57 @@ export default function ModelTraining(){
                 }
             }
         }
+        setIsTraining(false);
     }
-
-    const [state, setState] = useState({
-        top: false,
-        left: false,
-        bottom: false,
-        right: false,
-    });
-    
-    // 画面サイズを取得
-    var windowWidth = window.innerWidth;
 
     return(<>
         <h1>キャラ一覧</h1>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
-        <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
-            {myCharacterList.map((character, index) => (<>
-                <Grid item xs={3} sm={3} md={3} key={index}>
-                    <NFTCard character={character}  setNecessaryExp={setNecessaryExp}
-                        selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId} setLevelBefore={setLevelBefore}/>
-                </Grid>
-            </>))}
-        </Grid>
-        </Box>
-        {selectedTokenId &&
-            <Box style={ bottomBoxstyle() }>
-                <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-                    <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={11} sm={2} md={2}>キャラID {selectedTokenId}</Grid>
-                    <Grid item xs={1} sm={6} md={6}/>
-
-                    <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={4} sm={3} md={3}>レベル</Grid>
-                    <Grid item xs={1} sm={1} md={1}>{levelBefore}</Grid>
-                    <Grid item xs={2} sm={1} md={1}><>→</></Grid>
-                    <Grid item xs={1} sm={1} md={1}>{levelBefore+1}</Grid>
-                    <Grid item xs={1} sm={4} md={4}/>
-                </Grid>
-
-                <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }}>
-                    <Grid item xs={1} sm={3} md={3}/>
-                    <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
-                    <Grid item xs={1} sm={1} md={1}>{necessaryExp}</Grid>
-                    <Grid item xs={4} sm={1} md={1}>コイン</Grid>
-                    <Grid item xs={1} sm={2} md={2}/>
-                </Grid>
-
-                <Grid container style={{fontSize: 24, marginTop: 5}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-                    <Grid item xs={1} sm={4.5} md={4.5}/>
-                    <Grid item xs={10} sm={3} md={3}>
-                        <Button variant="contained" onClick={handleClickLevelUp} style={{width: '100%', height: 80, fontSize: 30}}>
-                            確定
-                        </Button>
+            <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
+                {myOwnedCharacters.map((character, index) => (
+                    <Grid item xs={3} sm={3} md={3} key={index}>
+                        <CharacterCard character={character} selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId}
+                            setLevelBefore={setLevelBefore} setNecessaryExp={setNecessaryExp}/>
                     </Grid>
-                    <Grid item xs={1} sm={1} md={1}/>
-                    <Grid item xs={1} sm={0} md={0}/>
-                    <Grid item xs={1} sm={1} md={1}/>
+                ))}
+            </Grid>
+        </Box>
+
+        {selectedTokenId && levelBefore && necessaryExp &&
+        <Box style={ bottomBoxStyle() }>
+            <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
+                <Grid item xs={1} sm={3} md={3}/>
+                <Grid item xs={11} sm={2} md={2}>キャラID: {selectedTokenId}</Grid>
+                <Grid item xs={1} sm={6} md={6}/>
+
+                <Grid item xs={1} sm={3} md={3}/>
+                <Grid item xs={4} sm={3} md={3}>レベル</Grid>
+                <Grid item xs={1} sm={1} md={1}>{levelBefore}</Grid>
+                <Grid item xs={2} sm={1} md={1}><>→</></Grid>
+                <Grid item xs={1} sm={1} md={1}>{levelBefore+1}</Grid>
+                <Grid item xs={1} sm={4} md={4}/>
+            </Grid>
+
+            <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }}>
+                <Grid item xs={1} sm={3} md={3}/>
+                <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
+                <Grid item xs={1} sm={1} md={1}>{necessaryExp}</Grid>
+                <Grid item xs={4} sm={1} md={1}>コイン</Grid>
+                <Grid item xs={1} sm={2} md={2}/>
+            </Grid>
+
+            <Grid container style={{fontSize: 24, marginTop: 5}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
+                <Grid item xs={1} sm={4.5} md={4.5}/>
+                <Grid item xs={10} sm={3} md={3}>
+                    <Button variant="contained" onClick={() => handleClickLevelUp()} style={{width: '100%', height: 80, fontSize: 30}} disabled={isTraining}>
+                        確定
+                    </Button>
                 </Grid>
-            </Box>
+                <Grid item xs={1} sm={1} md={1}/>
+                <Grid item xs={1} sm={0} md={0}/>
+                <Grid item xs={1} sm={1} md={1}/>
+            </Grid>
+        </Box>
         }
     </>)
 }
