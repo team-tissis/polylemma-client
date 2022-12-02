@@ -29,11 +29,11 @@ function bottomBoxStyle() {
 
 
 function CharacterCard({character, selectedTokenId, setSelectedTokenId, setLevelBefore, setNecessaryExp}) {
-    const thisCharacterAttribute = character.attributeIds[0];
-    const charaType = characterInfo.characterType[character.characterType];
-    const _backgroundColor = (selectedTokenId === character.id) ? 'grey' : 'white';
+    const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
+    const characterType = characterInfo.characterType[character.characterType];
     const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver';
-    const cardBackColor = (selectedTokenId === character.id) ? 'orange' : '#FFDBC9';
+    const backgroundColor = (selectedTokenId === character.id) ? 'orange' : '#FFDBC9';
+    const imgBackgroundColor = (selectedTokenId === character.id) ? 'black' : 'white';
 
     async function handleClickCharacter() {
         setSelectedTokenId(character.id);
@@ -42,28 +42,34 @@ function CharacterCard({character, selectedTokenId, setSelectedTokenId, setLevel
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}}
+        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}}
             onClick={() => handleClickCharacter()} >
             <div className="card_name">
                 { character.name }
             </div>
-            <div className="box" style={{borderColor: borderColor, backgroundColor: cardBackColor, padding: 10}}>
+
+            <div className="box" style={{borderColor: borderColor, backgroundColor: backgroundColor, padding: 10}}>
                 レベル: { character.level }<br/>
                 絆レベル: { character.bondLevel }
             </div>
+
             <div className="character_type_box"
-                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
-                { charaType['jaName'] }
+                style={{backgroundColor: characterType['backgroundColor'], borderColor: characterType['borderColor']}}>
+                { characterType['jaName'] }
             </div>
-            <div className="img_box" style={{backgroundColor: _backgroundColor}}>
+
+            <div className="img_box" style={{backgroundColor: imgBackgroundColor}}>
                 <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
+
             <div className="attribute_box">
-                レア度 {character.rarity} / { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity}<br/>
+                { characterAttribute["title"] }
             </div>
+
             <div className="detail_box">
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
+                    { characterAttribute["description"] }
                 </div>
             </div>
         </div>
