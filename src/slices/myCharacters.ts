@@ -17,8 +17,8 @@ interface IMyCharacters {
 }
 
 const initialState: IMyCharacters = { battleCharacters: [] };
-const myCharacterSlice = createSlice({
-    name: 'myCharacter',
+const myCharactersSlice = createSlice({
+    name: 'myCharacters',
     initialState,
     reducers: {
         setBattleCharacters(state, action: PayloadAction<IMyCharacter[]>) {
@@ -34,12 +34,18 @@ const myCharacterSlice = createSlice({
         },
         updateBattleCharacters(state, action: PayloadAction<IMyCharacter[]>) {
             const ownedCharacters = action.payload;
+            const isUpdated = [];
+            for (let battleIdx = 0; battleIdx < state.battleCharacters.length; battleIdx++) {
+                isUpdated.push(false);
+            }
             for (let ownedIdx = 0; ownedIdx < ownedCharacters.length; ownedIdx++) {
                 const battleIdx = state.battleCharacters.findIndex(character => character.id === ownedCharacters[ownedIdx].id);
                 if (battleIdx >= 0) {
+                    isUpdated[battleIdx] = true;
                     state.battleCharacters[battleIdx] = ownedCharacters[ownedIdx];
                 }
             }
+            state.battleCharacters = state.battleCharacters.filter((character, index) => isUpdated[index]);
         },
         initializeBattleCharacters(state)  {
             state.battleCharacters = [];
@@ -47,6 +53,6 @@ const myCharacterSlice = createSlice({
     },
 });
 
-export const selectMyCharacter = (state: RootState): IMyCharacters => state.myCharacter;
-export const { setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } = myCharacterSlice.actions;
-export default myCharacterSlice.reducer;
+export const selectMyCharacter = (state: RootState): IMyCharacters => state.myCharacters;
+export const { setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } = myCharactersSlice.actions;
+export default myCharactersSlice.reducer;

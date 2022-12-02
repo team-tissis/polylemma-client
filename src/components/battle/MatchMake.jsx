@@ -17,7 +17,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { useSelector } from 'react-redux';
-import { selectMyCharacter } from 'slices/myCharacter.ts';
+import { selectMyCharacter } from 'slices/myCharacters.ts';
 import { getContract } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer.js';

@@ -14,7 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import 'css/card.css';
-import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacter.ts';
+import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
 import { initializeBattle } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
@@ -81,7 +81,7 @@ function CharacterCard({character, setMyBattleCharacters, isChanging}){
     const backgroundColor = (isChanging && isSelected) ? 'orange' : '#FFDBC9';
     const imgBackgroundColor = (isChanging && isSelected) ? 'black' : 'white';
 
-    function handleChange(){
+    function handleClickCharacter(){
         if (!isChanging) { return }
         if (isSelected) {
             dispatch(removeBattleCharacters(character));
@@ -99,7 +99,7 @@ function CharacterCard({character, setMyBattleCharacters, isChanging}){
     }
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}} onClick={() => handleChange()}>
+        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}} onClick={() => handleClickCharacter()}>
             <div className="card_name">
                 { character.name }
             </div>
