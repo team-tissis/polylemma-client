@@ -6,29 +6,19 @@ import Button from '@mui/material/Button';
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
 import { balanceOf } from 'fetch_sol/coin.js';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from '@mui/material/Dialog';
 import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
-
-function bottomBoxStyle() {
-    return {
-        zIndex: 30,
-        position: 'fixed',
-        borderStyle: 'solid',
-        borderColor: '#CCCCCC',
-        borderWidth: 1.5,
-        borderRadius: 10,
-        paddingTop: 10,
-        passingBottom: 10,
-        bottom: 0,
-        left: '1%',
-        width: '98%',
-        fontSize: 20,
-        fontWeight: 600,
-        backgroundColor: '#F7F7F7'
-    }
-}
+import DialogActions from '@mui/material/DialogActions';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import Chip from '@mui/material/Chip';
 
 
-function CharacterCard({character, selectedTokenId, setSelectedTokenId, setLevelBefore, setNecessaryExp}) {
+function CharacterCard({character, selectedTokenId, setSelectedTokenId, setOpen, setSelectedCharacter, setLevelBefore, setNecessaryExp}) {
     const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
     const characterType = characterInfo.characterType[character.characterType];
     const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver';
@@ -36,9 +26,11 @@ function CharacterCard({character, selectedTokenId, setSelectedTokenId, setLevel
     const imgBackgroundColor = (selectedTokenId === character.id) ? 'black' : 'white';
 
     async function handleClickCharacter() {
+        setSelectedCharacter(character)
         setSelectedTokenId(character.id);
         setLevelBefore((await getCurrentCharacterInfo(character.id)).level);
         setNecessaryExp(await getNecessaryExp(character.id));
+        setOpen(true)
     }
 
     return(<>
@@ -76,17 +68,55 @@ function CharacterCard({character, selectedTokenId, setSelectedTokenId, setLevel
     </>);
 }
 
+// ダイアログ時に表示するカード
+function DialogCharacterCard({character}) {
+    const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
+    const characterType = characterInfo.characterType[character.characterType];
+
+    return(<>
+        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}} >
+            <div className="card_name">
+                { character.name }
+            </div>
+
+            <div className="box" style={{ padding: 10}}>
+                レベル: { character.level }<br/>
+                絆レベル: { character.bondLevel }
+            </div>
+
+            <div className="character_type_box"
+                style={{backgroundColor: characterType['backgroundColor']}}>
+                { characterType['jaName'] }
+            </div>
+
+            <div className="img_box">
+                <img className='img_div' src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
+            </div>
+
+            <div className="attribute_box">
+                レア度 {character.rarity}<br/>
+                { characterAttribute["title"] }
+            </div>
+
+            <div className="detail_box">
+                <div style={{margin: 10}}>
+                    { characterAttribute["description"] }
+                </div>
+            </div>
+        </div>
+    </>);
+}
+
 
 export default function ModelTraining(){
     const { enqueueSnackbar } = useSnackbar();
-
+    const [open, setOpen] = useState(false);
     const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
 
     const [selectedTokenId, setSelectedTokenId] = useState();
+    const [selectedCharacter, setSelectedCharacter] = useState();
     const [levelBefore, setLevelBefore] = useState();
     const [necessaryExp, setNecessaryExp] = useState();
-
-    const [isTraining, setIsTraining] = useState(false);
 
     useEffect(() => {(async function() {
         setMyOwnedCharacters(await getOwnedCharacterWithIDList());
@@ -94,7 +124,6 @@ export default function ModelTraining(){
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
-        setIsTraining(true);
         // トークンが足りなかった場合 snackbar を表示
         if ((await balanceOf()) < necessaryExp) {
             const message = "コインが足りないです、チャージしてください。";
@@ -125,8 +154,13 @@ export default function ModelTraining(){
                 }
             }
         }
-        setIsTraining(false);
+        setOpen(false)
     }
+
+    const steps = [
+        `現在(Lv. ${levelBefore})`,
+        `レベルアップ後(Lv. ${levelBefore + 1})`
+    ];
 
     return(<>
         <h1>キャラ一覧</h1>
@@ -135,47 +169,39 @@ export default function ModelTraining(){
                 {myOwnedCharacters.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
                         <CharacterCard character={character} selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId}
+                            setSelectedCharacter={setSelectedCharacter} setOpen={setOpen}
                             setLevelBefore={setLevelBefore} setNecessaryExp={setNecessaryExp}/>
                     </Grid>
                 ))}
             </Grid>
         </Box>
-
-        {selectedTokenId && levelBefore && necessaryExp &&
-        <Box style={ bottomBoxStyle() }>
-            <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-                <Grid item xs={1} sm={3} md={3}/>
-                <Grid item xs={11} sm={2} md={2}>キャラID: {selectedTokenId}</Grid>
-                <Grid item xs={1} sm={6} md={6}/>
-
-                <Grid item xs={1} sm={3} md={3}/>
-                <Grid item xs={4} sm={3} md={3}>レベル</Grid>
-                <Grid item xs={1} sm={1} md={1}>{levelBefore}</Grid>
-                <Grid item xs={2} sm={1} md={1}><>→</></Grid>
-                <Grid item xs={1} sm={1} md={1}>{levelBefore+1}</Grid>
-                <Grid item xs={1} sm={4} md={4}/>
-            </Grid>
-
-            <Grid container style={{fontSize: 24}} spacing={{ xs: 5, md: 5 }}>
-                <Grid item xs={1} sm={3} md={3}/>
-                <Grid item xs={5} sm={3} md={3}>レベルアップに必要なコイン数</Grid>
-                <Grid item xs={1} sm={1} md={1}>{necessaryExp}</Grid>
-                <Grid item xs={4} sm={1} md={1}>コイン</Grid>
-                <Grid item xs={1} sm={2} md={2}/>
-            </Grid>
-
-            <Grid container style={{fontSize: 24, marginTop: 5}} spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-                <Grid item xs={1} sm={4.5} md={4.5}/>
-                <Grid item xs={10} sm={3} md={3}>
-                    <Button variant="contained" onClick={() => handleClickLevelUp()} style={{width: '100%', height: 80, fontSize: 30}} disabled={isTraining}>
-                        確定
-                    </Button>
-                </Grid>
-                <Grid item xs={1} sm={1} md={1}/>
-                <Grid item xs={1} sm={0} md={0}/>
-                <Grid item xs={1} sm={1} md={1}/>
-            </Grid>
-        </Box>
-        }
+        {selectedCharacter && <>
+            <Dialog onClose={() => setOpen(false)} open={open} style={{margin: 20, padding: 20}}>
+                <DialogTitle style={{textAlign: 'center'}}>{selectedCharacter.name} </DialogTitle>
+                <List sx={{ pt: 0 }} style={{margin: 20, padding: 20}}>
+                    <ListItem style={{minWidth: 345}}>
+                        <DialogCharacterCard character={selectedCharacter}/>
+                    </ListItem>
+                    <ListItem style={{minWidth: 345}}>
+                        <Box sx={{ width: '100%' }}>
+                            <Stepper activeStep={0} alternativeLabel>
+                                {steps.map((label) => (
+                                    <Step key={label}>
+                                    <StepLabel>{label}</StepLabel>
+                                    </Step>
+                                ))}
+                            </Stepper>
+                        </Box><br/>
+                    </ListItem>
+                    <ListItem  style={{minWidth: 345}}>
+                        レベルアップに必要なコイン数:&ensp;<Chip label={`${necessaryExp} PLM`} variant="outlined" /><br/>
+                    </ListItem>
+                </List>
+                <DialogActions>
+                    <Button variant="contained" onClick={() => setOpen(false)}>戻る</Button>
+                    <Button variant="contained" onClick={ async () => await handleClickLevelUp()}>レベルを上げる</Button>
+                </DialogActions>
+            </Dialog>
+        </>}
     </>)
 }
