@@ -14,6 +14,7 @@ import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSnackbar } from 'notistack';
+import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/user.ts'
 import { balanceOf } from 'fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
@@ -21,6 +22,7 @@ import { restoreFullStamina, getCurrentStamina, getStaminaMax, getStaminaPerBatt
          subscIsExpired, extendSubscPeriod, getSubscExpiredBlock, getSubscRemainingBlockNum, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum,
          getPLMCoin } from 'fetch_sol/dealer.js';
 import ProgressBar from 'components/battle/ProgressBar';
+import SwipeableTemporaryDrawer from 'components/applications/drawer'
 
 function getExchangeRate () {
     const exchangeRate = [];
@@ -245,21 +247,11 @@ export default function Header() {
     return (<>
         <Box sx={{ display: 'flex'}}>
         <AppBar position="fixed" open={open}>
+            <SwipeableTemporaryDrawer/>
             <Toolbar>
                 <Typography variant="h6" noWrap sx={{ flexGrow: 1 }} component="div">
                     Polylemma
                 </Typography>
-
-                {/* <Button variant="outlined" color="inherit" onClick={() => handleDeleteWalletData() } style={{marginLeft: 20}}>
-                    [開発者用]Walletデータを消去
-                </Button>
-                {walletAddress ?
-                    <Chip label={`${walletAddress.ethAmount} ETH`}
-                    style={{fontSize: 20, backgroundColor: 'white', margin: 15, padding: 10}} variant="outlined" />
-                    : <Button  variant="outlined" color="inherit" onClick={() => handleEnableToConnect() } style={{marginLeft: 20}}>
-                        MetaMaskと連携する
-                    </Button>
-                } */}
                 <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
                     所持コイン: {`${currentCoin} PLM`}
                 </Button>
@@ -274,10 +266,11 @@ export default function Header() {
                 </IconButton>
             </Toolbar>
         </AppBar>
-
+        
         <Main open={open} style={{margin: 0, padding: 5, height: 50}}>
             <DrawerHeader />
         </Main>
+
         <Drawer
             sx={{
                 width: drawerWidth,
@@ -305,7 +298,7 @@ export default function Header() {
                         バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
                         スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
                         <Button variant="contained"
-                            disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) || (staminaDetail.restoreStaminaFee > currentCoin)}
+                            // disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) || (staminaDetail.restoreStaminaFee > currentCoin)}
                             onClick={handleClickRestoreStamina} style={{margin: 10, width: 345}}>
                             コインを消費してスタミナを回復する
                         </Button>
