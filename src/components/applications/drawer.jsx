@@ -1,5 +1,6 @@
 import React , { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import MenuIcon from '@mui/icons-material/Menu';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
@@ -50,6 +51,19 @@ export default function SwipeableTemporaryDrawer() {
     const { enqueueSnackbar } = useSnackbar();
     const exchangeRate = getExchangeRate();
 
+    useEffect(() => {(async function() {
+        const currentStamina = await getCurrentStamina();
+        const staminaMax = await getStaminaMax();
+        const staminaPerBattle = await getStaminaPerBattle();
+        const restoreStaminaFee = await getRestoreStaminaFee();
+        setStaminaDetail({
+            currentStamina: currentStamina,
+            maxStamina: staminaMax,
+            staminaPerBattle: staminaPerBattle,
+            restoreStaminaFee: restoreStaminaFee,
+            currentStaminaPercentage: Math.round((currentStamina / staminaMax) * 100)
+        });
+    })()},[]);
 
     useEffect(() => {(async function() {
         setCurrentCoin(await balanceOf());
@@ -156,10 +170,10 @@ export default function SwipeableTemporaryDrawer() {
 
   const list = () => (<>
     <Box
-      sx={{ width: 400 }}
-      role="presentation"
-    //   onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
+        sx={{ width: 400 }}
+        role="presentation"
+        // onClick={toggleDrawer(false)}
+        onKeyDown={toggleDrawer(false)}
     >
         <List style={{margin: 8}}>
             <DrawerHeader>
@@ -219,15 +233,22 @@ export default function SwipeableTemporaryDrawer() {
   return (
     <div>
         <React.Fragment key={'right'}>
-          <Button style={{backgroundColor: 'white'}} onClick={toggleDrawer(true)}>{'right'}</Button>
-          <SwipeableDrawer
-            anchor={'right'}
-            open={state}
-            onClose={toggleDrawer(false)}
-            onOpen={toggleDrawer(true)}
-          >
-            {list()}
-          </SwipeableDrawer>
+            <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="end"
+                onClick={toggleDrawer(true)}
+            >
+                <MenuIcon />
+            </IconButton>
+            <SwipeableDrawer
+                anchor={'right'}
+                open={state}
+                onClose={toggleDrawer(false)}
+                onOpen={toggleDrawer(true)}
+            >
+                {list()}
+            </SwipeableDrawer>
         </React.Fragment>
     </div>
   );
