@@ -136,8 +136,6 @@ export default function Header() {
         display: 'flex',
         alignItems: 'center',
         padding: theme.spacing(0, 1),
-        // padding: 0,
-        // necessary for content to be below app bar
         ...theme.mixins.toolbar,
         justifyContent: 'flex-start',
     }));

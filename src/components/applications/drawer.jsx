@@ -3,26 +3,11 @@ import Box from '@mui/material/Box';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useSelector, useDispatch } from 'react-redux';
 import { styled, useTheme } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSnackbar } from 'notistack';
-import ClickAwayListener from '@mui/base/ClickAwayListener';
-import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from 'slices/user.ts'
 import { balanceOf } from 'fetch_sol/coin.js';
 import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import { restoreFullStamina, getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee,
@@ -64,6 +49,18 @@ export default function SwipeableTemporaryDrawer() {
     const [subscBlock, setSubscBlock] = useState();
     const { enqueueSnackbar } = useSnackbar();
     const exchangeRate = getExchangeRate();
+
+
+    useEffect(() => {(async function() {
+        setCurrentCoin(await balanceOf());
+        setCurrentToken(await getNumberOfOwnedTokens());
+
+        setSubscExpiredBlock(await getSubscExpiredBlock());
+        setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+        setSubscExpired(await subscIsExpired());
+        setSubscFee(await getSubscFeePerUnitPeriod());
+        setSubscBlock(await getSubscUnitPeriodBlockNum());
+    })();}, []);
 
     const [staminaDetail, setStaminaDetail] = useState({
         currentStamina: 0,
@@ -157,28 +154,28 @@ export default function SwipeableTemporaryDrawer() {
         }
     };
 
-  const list = () => (
+  const list = () => (<>
     <Box
       sx={{ width: 400 }}
       role="presentation"
-      onClick={toggleDrawer(false)}
+    //   onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
+        <List style={{margin: 8}}>
             <DrawerHeader>
                 <IconButton>
                     {theme.direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                     アカウント設定
                 </IconButton>
             </DrawerHeader>
-            <List style={{margin: 8}}>
-                <Box component="span">
+            <Box component="span">
                     <h4>{`現在のスタミナ状況 ${ staminaDetail.currentStamina }/${ staminaDetail.maxStamina }`}</h4>
                     <ProgressBar stamina={staminaDetail}/>
                     <div style={{marginTop: 10}}>
                         バトルごとの消費スタミナ: { staminaDetail.staminaPerBattle }<br/>
                         スタミナ回復/コイン: { staminaDetail.restoreStaminaFee }<br/>
                         <Button variant="contained"
-                            // disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) || (staminaDetail.restoreStaminaFee > currentCoin)}
+                            disabled={(staminaDetail.currentStamina === staminaDetail.maxStamina) || (staminaDetail.restoreStaminaFee > currentCoin)}
                             onClick={handleClickRestoreStamina} style={{margin: 10, width: 345}}>
                             コインを消費してスタミナを回復する
                         </Button>
@@ -215,9 +212,9 @@ export default function SwipeableTemporaryDrawer() {
                     ))}
                     <hr/>
                 </Box>
-            </List>
+        </List>
     </Box>
-  );
+    </>);
 
   return (
     <div>
