@@ -40,7 +40,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
 }));
 
-export default function SwipeableTemporaryDrawer() {
+export default function HeaderDrawer() {
+    const theme = useTheme();
     const [currentCoin, setCurrentCoin] = useState();
     const [currentToken, setCurrentToken] = useState();
     const [subscExpired, setSubscExpired] = useState(true);
@@ -50,6 +51,14 @@ export default function SwipeableTemporaryDrawer() {
     const [subscBlock, setSubscBlock] = useState();
     const { enqueueSnackbar } = useSnackbar();
     const exchangeRate = getExchangeRate();
+    const [staminaDetail, setStaminaDetail] = useState({
+        currentStamina: 0,
+        maxStamina: 0,
+        staminaPerBattle: 0,
+        restoreStaminaFee: 0,
+        currentStaminaPercentage: 0
+    })
+    const [state, setState] = React.useState(false);
 
     useEffect(() => {(async function() {
         const currentStamina = await getCurrentStamina();
@@ -75,17 +84,6 @@ export default function SwipeableTemporaryDrawer() {
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
     })();}, []);
-
-    const [staminaDetail, setStaminaDetail] = useState({
-        currentStamina: 0,
-        maxStamina: 0,
-        staminaPerBattle: 0,
-        restoreStaminaFee: 0,
-        currentStaminaPercentage: 0
-    })
-    const theme = useTheme();
-
-    const [state, setState] = React.useState(false);
 
     const toggleDrawer = (open) => (event) => {
         if (
