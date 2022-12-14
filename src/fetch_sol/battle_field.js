@@ -1,5 +1,6 @@
 import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
 import { getImgURI } from "./token.js";
+import { getTypeName } from "./data.js";
 
 //////////////////////////////
 /// BATTLE FIELD FUNCTIONS ///
@@ -93,13 +94,13 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
     for (let i = 0; i < message.length; i++) {
         response.push({
             index: i,
-            name: bytes32ToString(message[i]['name']),
-            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
-            characterType: message[i]['characterType'],
-            level: message[i]['level'],
+            name: bytes32ToString(message[i].name),
+            imgURI: await getImgURI(message[i].imgId, addressIndex),
+            characterType: await getTypeName(message.characterTypeId, addressIndex),
+            level: message[i].level,
             bondLevel: await getBondLevelAtBattleStart(message[i]),
-            rarity: message[i]['rarity'],
-            attributeIds: message[i]['attributeIds'],
+            rarity: message[i].rarity,
+            attributeIds: message[i].attributeIds,
             isRandomSlot: false
         })
     }
@@ -122,13 +123,13 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
     const message = await getVirtualRandomSlotCharInfo(playerId, randomSlotId, addressIndex);
     return {
         index: 4,
-        name: bytes32ToString(message['name']),
-        imgURI: await getImgURI(message['imgId'], addressIndex),
-        characterType: message['characterType'],
-        level: message['level'],
+        name: bytes32ToString(message.name),
+        imgURI: await getImgURI(message.imgId, addressIndex),
+        characterType: await getTypeName(message.characterTypeId, addressIndex),
+        level: message.level,
         bondLevel: 0,
-        rarity: message['rarity'],
-        attributeIds: message['attributeIds'],
+        rarity: message.rarity,
+        attributeIds: message.attributeIds,
         isRandomSlot: true
     };
 }
@@ -141,13 +142,13 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
 
     return {
         index: 4,
-        name: bytes32ToString(message['name']),
-        imgURI: await getImgURI(message['imgId'], addressIndex),
-        characterType: message['characterType'],
-        level: message['level'],
+        name: bytes32ToString(message.name),
+        imgURI: await getImgURI(message.imgId, addressIndex),
+        characterType: await getTypeName(message.characterTypeId, addressIndex),
+        level: message.level,
         bondLevel: 0,
-        rarity: message['rarity'],
-        attributeIds: message['attributeIds'],
+        rarity: message.rarity,
+        attributeIds: message.attributeIds,
         isRandomSlot: true
     };
 }
