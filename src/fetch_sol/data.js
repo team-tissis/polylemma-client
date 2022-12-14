@@ -10,7 +10,6 @@ async function getCurrentBondLevel (char, addressIndex) {
 async function getTypeName (typeId, addressIndex) {
     const { contract } = getContract("PLMData", addressIndex);
     const message = await contract.getTypeName(typeId);
-    console.log({ getTypeName: message });
     return message;
 }
 

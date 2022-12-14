@@ -96,7 +96,7 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
             index: i,
             name: bytes32ToString(message[i].name),
             imgURI: await getImgURI(message[i].imgId, addressIndex),
-            characterType: await getTypeName(message.characterTypeId, addressIndex),
+            characterType: await getTypeName(message[i].characterTypeId, addressIndex),
             level: message[i].level,
             bondLevel: await getBondLevelAtBattleStart(message[i]),
             rarity: message[i].rarity,
