@@ -19,7 +19,7 @@ import { getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
-         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState,
+         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
          forceInitBattle,
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
@@ -329,12 +329,8 @@ export default function BattleMain(){
             const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
         } else {
-            // 相手の seed が reveal されていなかったら、わかる範囲で RS の情報を設定する
-            // 相手の RS のレベルは書くキャラクタレベルのうち最大
-            const opponentRSLevel = Math.floor(opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
-                return accumulator + currentValue.level;
-            }, 0) / 4);
-            // 相手の RS のわからない情報は null にしておく
+            // 相手の seed が reveal されていなかったら、わからない情報は null にして RS の情報を設定する
+            const opponentRSLevel = await getRandomSlotLevel(1-myPlayerId);
             const opponentRandomSlot = {
                 index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
                 bondLevel: null, rarity: null, attributeIds: [], isRandomSlot: true

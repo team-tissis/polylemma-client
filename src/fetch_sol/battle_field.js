@@ -203,6 +203,13 @@ async function getRandomSlotState (playerId, addressIndex) {
     return message;
 }
 
+async function getRandomSlotLevel (playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleField", addressIndex);
+    const message = await contract.getRandomSlotLevel(playerId);
+    console.log({ getRandomSlotLevel: message });
+    return message;
+}
+
 //////////////////////////
 /// FUNCTIONS FOR DEMO ///
 //////////////////////////
@@ -360,7 +367,7 @@ function eventBattleCanceled () {
 
 export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
-         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState,
+         getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
          forceInitBattle,
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
