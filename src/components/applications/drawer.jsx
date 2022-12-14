@@ -58,7 +58,7 @@ export default function HeaderDrawer() {
         restoreStaminaFee: 0,
         currentStaminaPercentage: 0
     })
-    const [state, setState] = React.useState(false);
+    const [state, setState] = useState(false);
 
     useEffect(() => {(async function() {
         const currentStamina = await getCurrentStamina();
@@ -136,7 +136,7 @@ export default function HeaderDrawer() {
             }
         }
     };
-    
+
     const handleClickRestoreStamina = async () => {
         if (await balanceOf() < await getRestoreStaminaFee()) {
             alert("スタミナを回復するのにコインが足りません。");
@@ -166,21 +166,21 @@ export default function HeaderDrawer() {
         }
     };
 
-  const list = () => (<>
-    <Box
-        sx={{ width: 400 }}
-        role="presentation"
-        // onClick={toggleDrawer(false)}
-        onKeyDown={toggleDrawer(false)}
-    >
-        <List style={{margin: 8}}>
-            <DrawerHeader>
-                <IconButton>
-                    {theme.direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                    アカウント設定
-                </IconButton>
-            </DrawerHeader>
-            <Box component="span">
+    const list = () => (<>
+        <Box
+            sx={{ width: 400 }}
+            role="presentation"
+            // onClick={toggleDrawer(false)}
+            onKeyDown={toggleDrawer(false)}
+        >
+            <List style={{margin: 8}}>
+                <DrawerHeader>
+                    <IconButton>
+                        {theme.direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                        アカウント設定
+                    </IconButton>
+                </DrawerHeader>
+                <Box component="span">
                     <h4>{`現在のスタミナ状況 ${ staminaDetail.currentStamina }/${ staminaDetail.maxStamina }`}</h4>
                     <ProgressBar stamina={staminaDetail}/>
                     <div style={{marginTop: 10}}>
@@ -218,36 +218,36 @@ export default function HeaderDrawer() {
                         ※: 累進課税式ですが、デモ用に MATIC は消費しないようにしています。
                     </div>
                     {exchangeRate.map((plm, matic) => (
-                        <Button variant="contained" key={`exchange${matic}`} onClick={() => handleClickCharge(plm, matic)} style={{margin: 10, width: 345}}>
-                            {matic} MATIC を {plm} PLM に交換する
-                        </Button>
+                    <Button variant="contained" key={`exchange${matic}`} onClick={() => handleClickCharge(plm, matic)} style={{margin: 10, width: 345}}>
+                        {matic} MATIC を {plm} PLM に交換する
+                    </Button>
                     ))}
                     <hr/>
                 </Box>
-        </List>
-    </Box>
+            </List>
+        </Box>
     </>);
 
-  return (
-    <div>
-        <React.Fragment key={'right'}>
-            <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="end"
-                onClick={toggleDrawer(true)}
-            >
-                <MenuIcon />
-            </IconButton>
-            <SwipeableDrawer
-                anchor={'right'}
-                open={state}
-                onClose={toggleDrawer(false)}
-                onOpen={toggleDrawer(true)}
-            >
-                {list()}
-            </SwipeableDrawer>
-        </React.Fragment>
-    </div>
-  );
+    return (
+        <div>
+            <React.Fragment key={'right'}>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="end"
+                    onClick={toggleDrawer(true)}
+                >
+                    <MenuIcon />
+                </IconButton>
+                <SwipeableDrawer
+                    anchor={'right'}
+                    open={state}
+                    onClose={toggleDrawer(false)}
+                    onOpen={toggleDrawer(true)}
+                >
+                    {list()}
+                </SwipeableDrawer>
+            </React.Fragment>
+        </div>
+    );
 }
