@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import 'react-tabs/style/react-tabs.css';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
@@ -55,9 +54,9 @@ function BattleAccount({proposalAccount}){
         <Card onClick={() => setOpen(true)} >
             <CardActionArea>
                 <CardContent>
+                    <Typography variant="body1" color="text.primary"><PersonIcon/></Typography>
                     <Typography variant="body1" color="text.primary">
-                        <PersonIcon/>アドレス: <br/> 
-                        <Chip label={proposalAccount.home} color="primary" />
+                        アドレス: <Chip label={proposalAccount.home} color="primary" component="span" />
                     </Typography>
                     <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
                     <Typography variant="body1" color="text.primary">要求レベル下限: {proposalAccount.lowerBound}</Typography>
@@ -76,9 +75,9 @@ function BattleAccount({proposalAccount}){
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                {proposalAccount.totalLevel}.Lv　の アカウントと対戦しますか？
-                <br/>
-                相手のアドレス番号: {proposalAccount.home}
+                    以下のアカウントと対戦しますか？
+                    <Typography variant="body1" color="text.primary">アドレス: {proposalAccount.home}</Typography>
+                    <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -113,13 +112,16 @@ export default function MatchMake() {
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
-        <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
-            <>{proposalAccounts.map((proposalAccount, index) => (
-                <Grid item xs={12} sm={4} md={4} key={index}>
-                    <BattleAccount proposalAccount={proposalAccount}/>
-                </Grid>
-            ))}</>
-        </Grid>
-    </Box>
+            <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
+                <>{proposalAccounts.map((proposalAccount, index) => (
+                    <Grid item xs={12} sm={4} md={4} key={index}>
+                        <BattleAccount proposalAccount={proposalAccount}/>
+                    </Grid>
+                ))}</>
+            </Grid>
+        </Box>
+        <Button variant="contained" size="large" onClick={() => navigate('../')}>
+            メインページに戻る
+        </Button>
     </>)
 }
