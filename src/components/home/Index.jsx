@@ -6,8 +6,8 @@ import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import 'css/App.css';
 import Battle from 'components/home/body/Battle';
-import ModelTraining from 'components/home/body/Training';
-import GachaGacha from 'components/home/body/Gacha';
+import Training from 'components/home/body/Training';
+import Gacha from 'components/home/body/Gacha';
 import CharacterBook from 'components/home/body/CharacterBook';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
@@ -27,10 +27,10 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }));
 
 
-function HomeIndex() {
+function HomeIndex({currentCoin, setCurrentCoin}) {
     const [alignment, setAlignment] = useState('battle');
 
-    const handleAlignment = (event,newAlignment) => {
+    const handleAlignment = (event, newAlignment) => {
         if(!(newAlignment == null)){
             setAlignment(newAlignment);
         }
@@ -46,13 +46,13 @@ function HomeIndex() {
 
     function homeBody(){
         if(alignment === "battle"){
-            return <Battle/>
+            return <Battle />
         }else if(alignment === "training"){
-            return <ModelTraining/>
+            return <Training currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
         }else if(alignment === "gacha"){
-            return <GachaGacha/>
-        }else if(alignment === "pictorial_book"){
-            return <CharacterBook/>
+            return <Gacha currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+        }else if(alignment === "character_book"){
+            return <CharacterBook />
         }
     }
 
@@ -72,7 +72,7 @@ function HomeIndex() {
                 <ToggleButton value="battle" style={ toggleStyle("battle") }>バトル</ToggleButton>
                 <ToggleButton value="training" style={ toggleStyle("training") }>育成</ToggleButton>
                 <ToggleButton value="gacha" style={ toggleStyle("gacha") }>ガチャ</ToggleButton>
-                <ToggleButton value="pictorial_book" style={ toggleStyle("pictorial_book") }>図鑑</ToggleButton>
+                <ToggleButton value="character_book" style={ toggleStyle("character_book") }>図鑑</ToggleButton>
             </StyledToggleButtonGroup>
         </Paper>
         { homeBody() }

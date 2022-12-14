@@ -1,4 +1,4 @@
-import React , { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import MenuIcon from '@mui/icons-material/Menu';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
@@ -10,7 +10,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useSnackbar } from 'notistack';
 import { balanceOf } from 'fetch_sol/coin.js';
-import { getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import { restoreFullStamina, getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee,
          subscIsExpired, extendSubscPeriod, getSubscExpiredBlock, getSubscRemainingBlockNum, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum,
          getPLMCoin } from 'fetch_sol/dealer.js';
@@ -32,6 +31,7 @@ function getExchangeRate () {
     return exchangeRate;
 }
 
+
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
@@ -40,10 +40,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
 }));
 
-export default function HeaderDrawer() {
+
+export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
     const theme = useTheme();
-    const [currentCoin, setCurrentCoin] = useState();
-    const [currentToken, setCurrentToken] = useState();
     const [subscExpired, setSubscExpired] = useState(true);
     const [subscExpiredBlock, setSubscExpiredBlock] = useState();
     const [subscRemainingBlocks, setSubscRemainingBlocks] = useState();
@@ -75,23 +74,22 @@ export default function HeaderDrawer() {
     })()},[]);
 
     useEffect(() => {(async function() {
-        setCurrentCoin(await balanceOf());
-        setCurrentToken(await getNumberOfOwnedTokens());
-
         setSubscExpiredBlock(await getSubscExpiredBlock());
         setSubscRemainingBlocks(await getSubscRemainingBlockNum());
         setSubscExpired(await subscIsExpired());
         setSubscFee(await getSubscFeePerUnitPeriod());
         setSubscBlock(await getSubscUnitPeriodBlockNum());
+
+        setCurrentCoin(await balanceOf());
     })();}, []);
 
     const toggleDrawer = (open) => (event) => {
         if (
-        event &&
-        event.type === 'keydown' &&
-        (event.key === 'Tab' || event.key === 'Shift')
+            event &&
+            event.type === 'keydown' &&
+            (event.key === 'Tab' || event.key === 'Shift')
         ) {
-        return;
+            return;
         }
 
         setState(open);
@@ -209,10 +207,9 @@ export default function HeaderDrawer() {
                 </Box>
 
                 <Box component="span">
-                    <h4>ステータス</h4>
+                    <h4>課金</h4>
                     <div style={{marginTop: 10}}>
-                        <div>コイン: {currentCoin}</div>
-                        <div>トークン: {currentToken} 体</div>
+                        <div>所持コイン: {currentCoin}</div>
                     </div>
                     <div>
                         ※: 累進課税式ですが、デモ用に MATIC は消費しないようにしています。
