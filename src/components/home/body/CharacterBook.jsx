@@ -30,11 +30,8 @@ function CharacterCard({character, myOwnedCharacters}){
             </div>
 
             <div className="box" style={{padding: 10}}>
-                レベル: { character.level }
-                {isOwned && <>
-                <br/>
+                レベル: { character.level }<br/>
                 絆レベル: { character.bondLevel }
-                </>}
             </div>
 
             <div className="character_type_box"
