@@ -6,6 +6,7 @@ import Lottie from 'react-lottie';
 import Paper from '@mui/material/Paper';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import { useSnackbar } from 'notistack';
 import { Skeleton } from 'react-skeleton-generator';
 import Container from '@mui/material/Container';
 import Chip from '@mui/material/Chip';
@@ -116,38 +117,47 @@ function CharacterCard({character}){
 }
 
 
-export default function GachaGacha(){
-    const [isOpened, setIsOpened] = useState(false);
+export default function Gacha({currentCoin, setCurrentCoin}){
+    const { enqueueSnackbar } = useSnackbar();
 
+    const [isOpened, setIsOpened] = useState(false);
     const [open, setOpen] = useState(false);
     const [gachaFee, setGachaFee] = useState();
-    const [currentCoin, setCurrentCoin] = useState();
     const [currentToken, setCurrentToken] = useState();
     const [characterName, setCharacterName] = useState('');
     const [newToken, setNewToken] = useState();
 
     useEffect(() => {(async function() {
         setGachaFee(await getGachaFee());
-        setCurrentCoin(await balanceOf());
         setCurrentToken(await getNumberOfOwnedTokens());
+        setCurrentCoin(await balanceOf());
     })();}, []);
 
     const handleClickGacha = async () => {
         setNewToken(null);
         setOpen(true);
-        try {
-            const newGotToken = await gacha(characterName);
-            setNewToken(newGotToken);
-            setCurrentCoin(await balanceOf());
-            setCurrentToken(await getNumberOfOwnedTokens());
-        } catch (e) {
-            console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
+        // トークンが足りなかった場合 snackbar を表示
+        if (currentCoin < gachaFee) {
+            const message = "コインが足りないです、チャージしてください。";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'error',
+            });
+        } else {
+            try {
+                const newGotToken = await gacha(characterName);
+                setNewToken(newGotToken);
+                setCurrentToken(await getNumberOfOwnedTokens());
+                setCurrentCoin(await balanceOf());
+            } catch (e) {
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。");
+                }
+                setOpen(false);
             }
-            setOpen(false);
         }
     };
 
@@ -220,8 +230,7 @@ export default function GachaGacha(){
                 <Button variant="contained" onClick={() => handleClickGacha()} disabled={characterName === ''} style={{margin: 10, width: 345}}>
                     ガチャを1回引く
                 </Button>
-                <div>コイン: {currentCoin}</div>
-                <div>トークン: {currentToken}</div>
+                <div>所持トークン: {currentToken}</div>
             </Grid>
             <Grid item xs={12} sm={8} md={8}>
                 <h2>Polylemma ガチャを引いてキャラを獲得する</h2><hr/>

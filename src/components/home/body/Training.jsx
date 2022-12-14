@@ -17,7 +17,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Chip from '@mui/material/Chip';
 
 
-function CharacterCard({character, selectedTokenId, setSelectedTokenId, setOpen, setSelectedCharacter, setLevelBefore, setNecessaryExp}) {
+function CharacterCard({character, selectedTokenId, setSelectedTokenId, setOpen, setSelectedCharacter, setCurrentLevel, setNecessaryExp}) {
     const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
     const characterType = characterInfo.characterType[character.characterType];
     const borderColor = (selectedTokenId === character.id) ? 'black' : 'silver';
@@ -27,7 +27,7 @@ function CharacterCard({character, selectedTokenId, setSelectedTokenId, setOpen,
     async function handleClickCharacter() {
         setSelectedCharacter(character);
         setSelectedTokenId(character.id);
-        setLevelBefore((await getCurrentCharacterInfo(character.id)).level);
+        setCurrentLevel((await getCurrentCharacterInfo(character.id)).level);
         setNecessaryExp(await getNecessaryExp(character.id));
         setOpen(true);
     }
@@ -107,17 +107,18 @@ function DialogCharacterCard({character}) {
 }
 
 
-export default function ModelTraining(){
+export default function Training({currentCoin, setCurrentCoin}){
     const { enqueueSnackbar } = useSnackbar();
     const [open, setOpen] = useState(false);
     const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
 
     const [selectedTokenId, setSelectedTokenId] = useState();
     const [selectedCharacter, setSelectedCharacter] = useState();
-    const [levelBefore, setLevelBefore] = useState();
+    const [currentLevel, setCurrentLevel] = useState();
     const [necessaryExp, setNecessaryExp] = useState();
 
     useEffect(() => {(async function() {
+        setCurrentCoin(await balanceOf());
         setMyOwnedCharacters(await getOwnedCharacterWithIDList());
     })();}, []);
 
@@ -125,7 +126,7 @@ export default function ModelTraining(){
     const handleClickLevelUp = async () => {
         setOpen(false);
         // トークンが足りなかった場合 snackbar を表示
-        if ((await balanceOf()) < necessaryExp) {
+        if (currentCoin < necessaryExp) {
             const message = "コインが足りないです、チャージしてください。";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
@@ -141,6 +142,7 @@ export default function ModelTraining(){
                 });
 
                 // レベルアップ後に情報を更新する
+                setCurrentCoin(await balanceOf());
                 setMyOwnedCharacters(await getOwnedCharacterWithIDList());
             } catch (e) {
                 console.log({error: e});
@@ -154,8 +156,8 @@ export default function ModelTraining(){
     }
 
     const steps = [
-        `現在(Lv. ${levelBefore})`,
-        `レベルアップ後(Lv. ${levelBefore + 1})`
+        `現在(Lv. ${currentLevel})`,
+        `レベルアップ後(Lv. ${currentLevel + 1})`
     ];
 
     return(<>
@@ -166,7 +168,7 @@ export default function ModelTraining(){
                     <Grid item xs={3} sm={3} md={3} key={index}>
                         <CharacterCard character={character} selectedTokenId={selectedTokenId} setSelectedTokenId={setSelectedTokenId}
                             setSelectedCharacter={setSelectedCharacter} setOpen={setOpen}
-                            setLevelBefore={setLevelBefore} setNecessaryExp={setNecessaryExp}/>
+                            setCurrentLevel={setCurrentLevel} setNecessaryExp={setNecessaryExp}/>
                     </Grid>
                 ))}
             </Grid>

@@ -1,19 +1,11 @@
-import React , { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import MuiAppBar from '@mui/material/AppBar';
-import { balanceOf } from 'fetch_sol/coin.js';
-import HeaderDrawer from 'components/applications/drawer'
+import HeaderDrawer from 'components/applications/drawer';
 
-export default function Header() {
-    const [currentCoin, setCurrentCoin] = useState();
-
-    useEffect(() => {(async function() {
-        setCurrentCoin(await balanceOf());
-    })();}, []);
-
+export default function Header({currentCoin, setCurrentCoin}) {
     return (<>
         <Box sx={{ display: 'flex'}} style={{height: 60, backgroundColor: 'grey'}}>
             <MuiAppBar position="fixed">
@@ -24,7 +16,7 @@ export default function Header() {
                     <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
                         所持コイン: {`${currentCoin} PLM`}
                     </Button>
-                    <HeaderDrawer/>
+                    <HeaderDrawer currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
                 </Toolbar>
             </MuiAppBar>
         </Box>
