@@ -8,7 +8,6 @@ import characterInfo from "assets/character_info.json";
 import { balanceOf } from 'fetch_sol/coin.js';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { updateLevel, getNecessaryExp, getCurrentCharacterInfo, getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import DialogActions from '@mui/material/DialogActions';
@@ -26,11 +25,11 @@ function CharacterCard({character, selectedTokenId, setSelectedTokenId, setOpen,
     const imgBackgroundColor = (selectedTokenId === character.id) ? 'black' : 'white';
 
     async function handleClickCharacter() {
-        setSelectedCharacter(character)
+        setSelectedCharacter(character);
         setSelectedTokenId(character.id);
         setLevelBefore((await getCurrentCharacterInfo(character.id)).level);
         setNecessaryExp(await getNecessaryExp(character.id));
-        setOpen(true)
+        setOpen(true);
     }
 
     return(<>
@@ -124,6 +123,7 @@ export default function ModelTraining(){
 
     // コインを使用してレベルアップさせる
     const handleClickLevelUp = async () => {
+        setOpen(false);
         // トークンが足りなかった場合 snackbar を表示
         if ((await balanceOf()) < necessaryExp) {
             const message = "コインが足りないです、チャージしてください。";
@@ -141,10 +141,7 @@ export default function ModelTraining(){
                 });
 
                 // レベルアップ後に情報を更新する
-                const _myOwnedCharacters = await getOwnedCharacterWithIDList();
-                setLevelBefore(_myOwnedCharacters.find(character => character.id === selectedTokenId).level);
-                setNecessaryExp(await getNecessaryExp(selectedTokenId));
-                setMyOwnedCharacters(_myOwnedCharacters);
+                setMyOwnedCharacters(await getOwnedCharacterWithIDList());
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -154,7 +151,6 @@ export default function ModelTraining(){
                 }
             }
         }
-        setOpen(false)
     }
 
     const steps = [
@@ -176,32 +172,31 @@ export default function ModelTraining(){
             </Grid>
         </Box>
         {selectedCharacter && <>
-            <Dialog onClose={() => setOpen(false)} open={open} style={{margin: 20, padding: 20}}>
-                <DialogTitle style={{textAlign: 'center'}}>{selectedCharacter.name} </DialogTitle>
-                <List sx={{ pt: 0 }} style={{margin: 20, padding: 20}}>
-                    <ListItem style={{minWidth: 345}}>
-                        <DialogCharacterCard character={selectedCharacter}/>
-                    </ListItem>
-                    <ListItem style={{minWidth: 345}}>
-                        <Box sx={{ width: '100%' }}>
-                            <Stepper activeStep={0} alternativeLabel>
-                                {steps.map((label) => (
-                                    <Step key={label}>
-                                    <StepLabel>{label}</StepLabel>
-                                    </Step>
-                                ))}
-                            </Stepper>
-                        </Box><br/>
-                    </ListItem>
-                    <ListItem  style={{minWidth: 345}}>
-                        レベルアップに必要なコイン数:&ensp;<Chip label={`${necessaryExp} PLM`} variant="outlined" /><br/>
-                    </ListItem>
-                </List>
-                <DialogActions>
-                    <Button variant="contained" onClick={() => setOpen(false)}>戻る</Button>
-                    <Button variant="contained" onClick={ async () => await handleClickLevelUp()}>レベルを上げる</Button>
-                </DialogActions>
-            </Dialog>
+        <Dialog onClose={() => setOpen(false)} open={open} style={{margin: 20, padding: 20}}>
+            <List sx={{ pt: 0 }} style={{margin: 20, padding: 20}}>
+                <ListItem style={{minWidth: 345}}>
+                    <DialogCharacterCard character={selectedCharacter}/>
+                </ListItem>
+                <ListItem style={{minWidth: 345}}>
+                    <Box sx={{ width: '100%' }}>
+                        <Stepper activeStep={0} alternativeLabel>
+                            {steps.map((label) => (
+                            <Step key={label}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
+                            ))}
+                        </Stepper>
+                    </Box>
+                </ListItem>
+                <ListItem  style={{minWidth: 345}}>
+                    レベルアップに必要なコイン数: <Chip label={`${necessaryExp} PLM`} variant="outlined" component="span" /><br/>
+                </ListItem>
+            </List>
+            <DialogActions>
+                <Button variant="contained" onClick={() => setOpen(false)}>戻る</Button>
+                <Button variant="contained" onClick={ async () => await handleClickLevelUp()}>レベルを上げる</Button>
+            </DialogActions>
+        </Dialog>
         </>}
     </>)
 }
