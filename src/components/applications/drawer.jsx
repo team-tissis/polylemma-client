@@ -173,7 +173,7 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
         >
             <List style={{margin: 8}}>
                 <DrawerHeader>
-                    <IconButton>
+                    <IconButton onClick={() => setState(false)}>
                         {theme.direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                         アカウント設定
                     </IconButton>
