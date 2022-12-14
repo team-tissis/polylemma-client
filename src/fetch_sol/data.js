@@ -7,4 +7,11 @@ async function getCurrentBondLevel (char, addressIndex) {
     return message;
 }
 
-export { getCurrentBondLevel };
+async function getTypeName (typeId, addressIndex) {
+    const { contract } = getContract("PLMData", addressIndex);
+    const message = await contract.getTypeName(typeId);
+    console.log({ getTypeName: message });
+    return message;
+}
+
+export { getCurrentBondLevel, getTypeName };

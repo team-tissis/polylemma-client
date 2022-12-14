@@ -1,6 +1,6 @@
 import { bytes32ToString, getContract } from "./utils.js";
 import { approve } from "./coin.js";
-import { getCurrentBondLevel } from "./data.js";
+import { getCurrentBondLevel, getTypeName } from "./data.js";
 
 async function updateLevel (tokenId, addressIndex) {
     const { contractAddress, contract } = getContract("PLMToken", addressIndex);
@@ -49,13 +49,13 @@ async function getAllCharacterInfo (addressIndex) {
     for (let i = 0; i < message.length; i++) {
         allCharacterInfo.push({
             id: i + 1,
-            name: bytes32ToString(message[i]['name']),
-            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
-            characterType: message[i]['characterType'],
-            level: message[i]['level'],
+            name: bytes32ToString(message[i].name),
+            imgURI: await getImgURI(message[i].imgId, addressIndex),
+            characterType: await getTypeName(message[i].characterTypeId, addressIndex),
+            level: message[i].level,
             bondLevel: await getCurrentBondLevel(message[i]),
-            rarity: message[i]['rarity'],
-            attributeIds: message[i]['attributeIds']
+            rarity: message[i].rarity,
+            attributeIds: message[i].attributeIds
         });
     }
     console.log({ allCharacterInfo: allCharacterInfo });
@@ -90,13 +90,13 @@ async function getOwnedCharacterWithIDList (addressIndex) {
         const characterInfo = await getCurrentCharacterInfo(myTokenIds[i], addressIndex);
         ownedCharacters.push({
             id: myTokenIds[i],
-            name: bytes32ToString(characterInfo['name']),
-            imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
-            characterType: characterInfo['characterType'],
-            level: characterInfo['level'],
+            name: bytes32ToString(characterInfo.name),
+            imgURI: await getImgURI(characterInfo.imgId, addressIndex),
+            characterType: await getTypeName(characterInfo.characterTypeId, addressIndex),
+            level: characterInfo.level,
             bondLevel: await getCurrentBondLevel(characterInfo),
-            rarity: characterInfo['rarity'],
-            attributeIds: characterInfo['attributeIds']
+            rarity: characterInfo.rarity,
+            attributeIds: characterInfo.attributeIds
         });
     }
     console.log({ ownedCharacters: ownedCharacters });
