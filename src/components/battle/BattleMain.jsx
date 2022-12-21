@@ -28,17 +28,10 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          eventBattleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-}));
-
 function handleButtonStyle() {
     return {
         position: 'fixed',
+        zIndex: 999,
         bottom: 20,
         right: '38%',
         width: '24%',
@@ -138,6 +131,10 @@ function PlayerYou({characters, charsUsedRounds, level, remainingLevelPoint, max
 }
 
 function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLevelPoint, setLevelPoint, isChoiceFrozen, choice, setChoice}){
+    useEffect(() => {
+        console.log("charactors reloading...")
+    }, [remainingLevelPoint, maxLevelPoint]);
+
     const marks = [];
     for (let lp = 0; lp <= remainingLevelPoint; lp++) {
         marks.push({ value: lp, label: lp });
@@ -386,6 +383,14 @@ export default function BattleMain(){
         return UnusedIndexes[_nextCOMChoice];
     }
 
+    // ダイアログでエラーを表示する
+    function alertError(error){
+        if (error.message.substr(0, 18) === "transaction failed") {
+            alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+        } else {
+            alert("不明なエラーが発生しました。");
+        }
+    }
 
     async function handleSeedCommit () {
         setIsChanging(true);
@@ -404,11 +409,7 @@ export default function BattleMain(){
             });
         } catch (e) {
             console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
+            alertError(e)
         }
         setMyRandomSlotState(await getRandomSlotState(myPlayerId));
 
@@ -419,11 +420,7 @@ export default function BattleMain(){
                 await commitPlayerSeed(1-myPlayerId, _COMPlayerSeed, addressIndex);
             } catch (e) {
                 console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
-                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                } else {
-                    alert("不明なエラーが発生しました。");
-                }
+                alertError(e)
             }
             setCOMChoice(getNextCOMIndex());
         }
@@ -449,11 +446,7 @@ export default function BattleMain(){
         } catch (e) {
             setIsInRound(false);
             console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
+            alertError(e)
         }
 
         if (isCOM) {
@@ -463,11 +456,7 @@ export default function BattleMain(){
                 await commitChoice(1-myPlayerId, levelPoint, COMChoice, _COMblindingFactor, addressIndex);
             } catch (e) {
                 console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
-                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                } else {
-                    alert("不明なエラーが発生しました。");
-                }
+                alertError(e)
             }
         }
 
@@ -485,11 +474,7 @@ export default function BattleMain(){
             await revealPlayerSeed(myPlayerId, myPlayerSeed);
         } catch (e) {
             console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
+            alertError(e)
         }
         setMyRandomSlotState(await getRandomSlotState(myPlayerId));
 
@@ -510,11 +495,7 @@ export default function BattleMain(){
             await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
         } catch (e) {
             console.log({error: e});
-            if (e.message.substr(0, 18) === "transaction failed") {
-                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-            } else {
-                alert("不明なエラーが発生しました。");
-            }
+            alertError(e)
         }
 
         if (isCOM) {
@@ -523,22 +504,14 @@ export default function BattleMain(){
                     await revealPlayerSeed(1-myPlayerId, COMPlayerSeed, addressIndex);
                 } catch (e) {
                     console.log({error: e});
-                    if (e.message.substr(0, 18) === "transaction failed") {
-                        alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                    } else {
-                        alert("不明なエラーが発生しました。");
-                    }
+                    alertError(e)
                 }
             }
             try {
                 await revealChoice(1-myPlayerId, levelPoint, COMChoice, COMBlindingFactor, addressIndex);
             } catch (e) {
                 console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
-                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
-                } else {
-                    alert("不明なエラーが発生しました。");
-                }
+                alertError(e)
             }
             setCOMChoice(getNextCOMIndex());
         }
@@ -722,25 +695,25 @@ export default function BattleMain(){
         </Grid>
 
         {!isChanging && myRandomSlotState === 0 &&
-            <Button className='stack-top' variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
+            <Button  variant="contained" style={ handleButtonStyle() } size="large" color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
                 バトルを開始する
             </Button>
         }
 
         {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && myRandomSlotState >= 1 &&
-            <Button className='stack-top' variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
+            <Button variant="contained" style={ handleButtonStyle() } size="large" color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
                 勝負するキャラクターを確定する
             </Button>
         }
 
         {!battleCompleted && !isChanging && !isChecking && myState === 1 && choice === 4 && myRandomSlotState === 1 &&
-            <Button className='stack-top' variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
+            <Button variant="contained" style={ handleButtonStyle() } size="large" color="info" aria-label="add" onClick={() => handleSeedReveal()}>
                 ランダムスロットを公開する
             </Button>
         }
 
         {!battleCompleted && !isChanging && !isChecking && myState === 1 && (choice !== 4 || (choice === 4 && myRandomSlotState === 2)) &&
-            <Button className='stack-top' variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
+            <Button variant="contained" style={ handleButtonStyle() } size="large" color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
                 バトル結果を見る
             </Button>
         }
