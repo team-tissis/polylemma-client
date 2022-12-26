@@ -4,8 +4,19 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import MuiAppBar from '@mui/material/AppBar';
 import HeaderDrawer from 'components/applications/drawer';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts';
+import { connectWallet } from 'fetch_sol/utils.js';
 
 export default function Header({currentCoin, setCurrentCoin}) {
+    const dispatch = useDispatch();
+    const walletAddress = useSelector(selectCurrentWalletAddress);
+
+    async function handleConnectWallet () {
+        const address = await connectWallet();
+        dispatch(setCurrentWalletAddress(address));
+    }
+
     return (<>
         <Box sx={{ display: 'flex'}} style={{height: 60, backgroundColor: 'grey'}}>
             <MuiAppBar position="fixed">
@@ -13,6 +24,17 @@ export default function Header({currentCoin, setCurrentCoin}) {
                     <Typography variant="h6" noWrap sx={{ flexGrow: 1 }} component="div">
                         Polylemma
                     </Typography>
+                    {walletAddress ?
+                    <>
+                        <div>{"今のアドレス: " + walletAddress.substr(0, 5) + "..." + walletAddress.substr(-4)}</div>
+                        <Button variant="outlined" color="inherit" onClick={() => handleConnectWallet() } style={{marginLeft: 20}}>
+                            別のアカウントを接続
+                        </Button>
+                    </>
+                    : <Button variant="outlined" color="inherit" onClick={() => handleConnectWallet() } style={{marginLeft: 20}}>
+                        MetaMaskと連携
+                    </Button>
+                    }
                     <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
                         所持コイン: {`${currentCoin} PLM`}
                     </Button>
