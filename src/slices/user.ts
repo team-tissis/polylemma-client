@@ -1,22 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../store.ts';
+import { RootState } from 'Store';
 
 interface IWalletAddress {
-  address: null | String;
+    address: null | String;
 }
 const initialState: IWalletAddress = { address: null };
 
 const currentWalletAddressSlice = createSlice({
-  name: 'currentWalletAddress',
-  initialState,
-  reducers: {
-    setCurrentWalletAddress(state, action: PayloadAction<IWalletAddress>) {
-      state = action.payload;
+    name: 'currentWalletAddress',
+    initialState,
+    reducers: {
+        setCurrentWalletAddress(state, action: PayloadAction<String>) {
+            state.address = action.payload;
+        },
+        walletAddressRemove: (state) => {
+            state.address = null;
+        },
     },
-    walletAddressRemove: (state) => {
-      state.address = null;
-    },
-  },
 });
 
 export const selectCurrentWalletAddress = (state: RootState): null | String => state.walletAddress.address;

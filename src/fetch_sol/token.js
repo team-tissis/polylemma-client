@@ -1,5 +1,26 @@
 import { bytes32ToString, getContract } from "./utils.js";
 import { approve } from "./coin.js";
+import { getCurrentBondLevel, getTypeName } from "./data.js";
+
+async function updateLevel (tokenId, addressIndex) {
+    const { contractAddress, contract } = getContract("PLMToken", addressIndex);
+    const coinForLevelUp = getNecessaryExp(tokenId);
+    await approve(contractAddress, coinForLevelUp, addressIndex);
+    const message = await contract.updateLevel(tokenId);
+    console.log({ updateLevel: message });
+
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'LevelUped' && Number(event.args.tokenId) === tokenId);
+    if (event !== undefined) {
+        const [ tokenId, newLevel ] = event.args;
+        console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
+        return newLevel;
+    }
+}
+
+////////////////////////
+///      GETTERS     ///
+////////////////////////
 
 async function totalSupply (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
@@ -13,19 +34,12 @@ async function getAllTokenOwned (addressIndex) {
     const myAddress = await signer.getAddress();
     const message = await contract.getAllTokenOwned(myAddress);
     console.log({ getAllTokenOwned: message });
-    return message;
+    return message.map(myToken => myToken.toNumber());
 }
 
 async function getNumberOfOwnedTokens (addressIndex) {
     const myTokens = await getAllTokenOwned(addressIndex);
     return myTokens.length;
-}
-
-async function calcCurrentBondLevel (char, addressIndex) {
-    const { contract } = getContract("PLMToken", addressIndex);
-    const message = await contract.calcCurrentBondLevel(char['level'], char['fromBlock']);
-    console.log({ calcCurrentBondLevel: message });
-    return message;
 }
 
 async function getAllCharacterInfo (addressIndex) {
@@ -35,35 +49,17 @@ async function getAllCharacterInfo (addressIndex) {
     for (let i = 0; i < message.length; i++) {
         allCharacterInfo.push({
             id: i + 1,
-            name: bytes32ToString(message[i]['name']),
-            imgURI: await getImgURI(message[i]['imgId'], addressIndex),
-            characterType: message[i]['characterType'],
-            level: message[i]['level'],
-            bondLevel: await calcCurrentBondLevel(message[i]),
-            rarity: message[i]['rarity'],
-            attributeIds: message[i]['attributeIds'],
-            isRandomSlot: false
+            name: bytes32ToString(message[i].name),
+            imgURI: await getImgURI(message[i].imgId, addressIndex),
+            characterType: await getTypeName(message[i].characterTypeId, addressIndex),
+            level: message[i].level,
+            bondLevel: await getCurrentBondLevel(message[i]),
+            rarity: message[i].rarity,
+            attributeIds: message[i].attributeIds
         });
     }
     console.log({ allCharacterInfo: allCharacterInfo });
     return allCharacterInfo;
-}
-
-async function updateLevel (tokenId, addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMToken", addressIndex);
-    const coinForLevelUp = getNecessaryExp(tokenId);
-    await approve(contractAddress, coinForLevelUp, addressIndex);
-    const message = await contract.updateLevel(tokenId);
-    console.log({ updateLevel: message });
-
-    // const myAddress = await signer.getAddress();
-    // const rc = await message.wait();
-    // const event = rc.events.find(event => event.event === 'levelUped' && event.args.user == myAddress);
-    // if (event != undefined) {
-    //     const [ characterInfos , user ] = event.args;
-    //     console.log(`${tokenId}'s level becomes ${characterInfos[tokenId].level}.`);
-    //     return { characterInfos: characterInfos };
-    // }
 }
 
 async function getNecessaryExp (tokenId, addressIndex) {
@@ -88,24 +84,24 @@ async function getImgURI (imgId, addressIndex) {
 }
 
 async function getOwnedCharacterWithIDList (addressIndex) {
-    const myTokenIds = (await getAllTokenOwned(addressIndex)).map(myToken => myToken.toNumber());
+    const myTokenIds = await getAllTokenOwned(addressIndex);
     const ownedCharacters = []
     for (let i = 0; i < myTokenIds.length; i++) {
         const characterInfo = await getCurrentCharacterInfo(myTokenIds[i], addressIndex);
         ownedCharacters.push({
             id: myTokenIds[i],
-            name: bytes32ToString(characterInfo['name']),
-            imgURI: await getImgURI(characterInfo['imgId'], addressIndex),
-            characterType: characterInfo['characterType'],
-            level: characterInfo['level'],
-            bondLevel: await calcCurrentBondLevel(characterInfo),
-            rarity: characterInfo['rarity'],
-            attributeIds: characterInfo['attributeIds']
+            name: bytes32ToString(characterInfo.name),
+            imgURI: await getImgURI(characterInfo.imgId, addressIndex),
+            characterType: await getTypeName(characterInfo.characterTypeId, addressIndex),
+            level: characterInfo.level,
+            bondLevel: await getCurrentBondLevel(characterInfo),
+            rarity: characterInfo.rarity,
+            attributeIds: characterInfo.attributeIds
         });
     }
     console.log({ ownedCharacters: ownedCharacters });
     return ownedCharacters;
 }
 
-export { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens, updateLevel, getNecessaryExp,
+export { updateLevel, totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens, getNecessaryExp,
          getCurrentCharacterInfo, getImgURI, getOwnedCharacterWithIDList };

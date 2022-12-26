@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "jsx": "react"
+    },
+    "resolve": {
+        "extensions": [
+            "ts",
+            "js"
+        ]
+    },
+    "include": ["src"]
+}

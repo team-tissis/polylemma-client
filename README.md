@@ -82,7 +82,7 @@ $ npm install --save typescript
 ![スクリーンショット 2022-11-06 22 45 54](https://user-images.githubusercontent.com/42636663/200174397-6ef073c4-a43f-4d16-8f2b-258c30b17b21.png)
 
 
-# OpenSea（testnet） で取引
+# OpenSea （testnet） で取引
 
 - 自分のウォレットアドレスで検索すると以下のように画像が表示される
     - https://testnets.opensea.io/assets/mumbai/0xcf8d3345dd90b218b9f428562fe5985dc4acdd56/1

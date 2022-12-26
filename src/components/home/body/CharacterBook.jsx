@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import './card.css';
 import 'react-tabs/style/react-tabs.css';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens } from '../../fetch_sol/token.js';
-import characterInfo from "./character_info.json";
+import 'css/card.css';
+import { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens } from 'fetch_sol/token.js';
+import characterInfo from "assets/character_info.json";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -16,34 +16,41 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function NFTCard({character, myCharacters}){
-    const thisCharacterAttribute = character.attributeIds[0];
-    const charaType = characterInfo.characterType[character.characterType];
-    const isOwned = myCharacters.includes(character.id);
+
+function CharacterCard({character, myOwnedCharacters}){
+    const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
+    const characterType = characterInfo.characterType[character.characterType];
+    const isOwned = myOwnedCharacters.includes(character.id);
     const addedClassName = isOwned ? "" : " card_not_mine";
 
     return(<>
-        <div className="card_parent" style={{backgroundColor: characterInfo.attributes[thisCharacterAttribute]["backgroundColor"]}} >
+        <div className="card_parent" style={{backgroundColor: characterAttribute["backgroundColor"]}} >
             <div className="card_name">
                 { character.name }
             </div>
+
             <div className="box" style={{padding: 10}}>
                 レベル: { character.level }<br/>
-                { isOwned ?  "絆レベル: " + character.bondLevel : "" }
+                絆レベル: { character.bondLevel }
             </div>
+
             <div className="character_type_box"
-                style={{backgroundColor: charaType['backgroundColor'], borderColor: charaType['borderColor']}}>
-                { charaType['jaName'] }
+                style={{backgroundColor: characterType['backgroundColor'], borderColor: characterType['borderColor']}}>
+                { characterType['jaName'] }
             </div>
+
             <div className="img_box">
                 <img className={'img_div'+addedClassName} src={ character.imgURI } style={{width: '90%', height: 'auto'}} alt="sample"/>
             </div>
+
             <div className="attribute_box">
-                レア度 {character.rarity} / { characterInfo.attributes[thisCharacterAttribute]["title"] }
+                レア度 {character.rarity}<br/>
+                { characterAttribute["title"] }
             </div>
+
             <div className="detail_box">
                 <div style={{margin: 10}}>
-                    { characterInfo.attributes[thisCharacterAttribute]["description"] }
+                    { characterAttribute["description"] }
                 </div>
             </div>
         </div>
@@ -53,7 +60,7 @@ function NFTCard({character, myCharacters}){
 
 export default function CharacterBook() {
     const [allCharacters, setAllCharacters] = useState([]);
-    const [myCharacters, setMyCharacters] = useState([]);
+    const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
 
     const [numTotalToken, setNumTotalToken] = useState();
     const [numMyToken, setNumMyToken] = useState();
@@ -65,7 +72,7 @@ export default function CharacterBook() {
 
     useEffect(() => {(async function() {
         setAllCharacters(await getAllCharacterInfo());
-        setMyCharacters((await getAllTokenOwned()).map(myToken => myToken.toNumber()));
+        setMyOwnedCharacters(await getAllTokenOwned());
     })();}, []);
 
     return(<>
@@ -82,7 +89,7 @@ export default function CharacterBook() {
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
                 <>{allCharacters.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <NFTCard character={character} myCharacters={myCharacters} key={index}/>
+                        <CharacterCard character={character} myOwnedCharacters={myOwnedCharacters} key={index}/>
                     </Grid>
                 ))}</>
             </Grid>

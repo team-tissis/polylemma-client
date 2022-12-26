@@ -5,15 +5,15 @@
             "borderColor": "#8B0000",
             "backgroundColor": "#FF4F50"
         },
-        "Water": {
-            "jaName": "水",
-            "borderColor": "#00008B",
-            "backgroundColor": "#1E90FF"
-        },
         "Grass": {
             "jaName": "草",
             "borderColor": "#006400",
             "backgroundColor": "#00FF7F"
+        },
+        "Water": {
+            "jaName": "水",
+            "borderColor": "#00008B",
+            "backgroundColor": "#1E90FF"
         },
         "": {
             "jaName": "属性なし",

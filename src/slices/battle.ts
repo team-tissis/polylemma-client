@@ -1,59 +1,56 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../store.ts';
+import { RootState } from 'Store';
 
-// 自分のバトルのステータスを保存する
-// 何番目をchoiceしたか？
-// どこまでしたか？
-
-// commitChoice => revealChoice => 
-// choiceが4の場合はRSを選択したということ
-interface IBattleStatus {
-  choice: number;
-  opponentCommit: boolean;
-  myCommit: boolean;
-  mySeedRevealed: boolean;
-  listenToRoundRes: string;
+interface IBattleInfo {
+    myPlayerId: null | number;
+    myPlayerSeed: null | string;
+    myChoice: null | number;
+    myLevelPoint: null | number;
+    isChoiceRevealed: boolean;
+    myBlindingFactor: null | string;
+    isBlindingFactorUsed: boolean;
 }
 
-// const statusList: string[] = ['beforeCommitChoice', 'beforeRevealChoice'];
-const initialState: IBattleStatus = { choice: 0, opponentCommit: false, myCommit: false, 
-                                      mySeedRevealed: false, listenToRoundRes: 'can_choice'};
-const currentBattleSlice = createSlice({
-  name: 'currentBattle',
-  initialState,
-  reducers: {
-    setCurrentBattle(state, action: PayloadAction<IBattleStatus>) {
-      // state.choice: number;
-      // state.opponentCommit: boolean;
-      // state.myCommit: boolean;
-      // state.mySeedRevealed: boolean;
-      // state.listenToRoundRes: string;
-
-      state = action.payload;
+const initialState: IBattleInfo = { myPlayerId: null, myPlayerSeed: null, myChoice: null, myLevelPoint: null, isChoiceRevealed: true, myBlindingFactor: null, isBlindingFactorUsed: true };
+const battleInfoSlice = createSlice({
+    name: 'battleInfo',
+    initialState,
+    reducers: {
+        setMyPlayerId(state, action: PayloadAction<number>) {
+            state.myPlayerId = action.payload;
+        },
+        setMyPlayerSeed(state, action: PayloadAction<string>) {
+            state.myPlayerSeed = action.payload;
+        },
+        setMyChoice(state, action: PayloadAction<number>) {
+            state.myChoice = action.payload;
+            state.isChoiceRevealed = false;
+        },
+        setMyLevelPoint(state, action: PayloadAction<number>) {
+            state.myLevelPoint = action.payload;
+        },
+        setChoiceUsed(state) {
+            state.isChoiceRevealed = true;
+        },
+        setMyBlindingFactor(state, action: PayloadAction<string>) {
+            state.myBlindingFactor = action.payload;
+            state.isBlindingFactorUsed = false;
+        },
+        setBlindingFactorUsed(state) {
+            state.isBlindingFactorUsed = true;
+        },
+        initializeBattle(state)  {
+            state.myPlayerId = null;
+            state.myPlayerSeed = null;
+            state.myChoice = null;
+            state.isChoiceRevealed = true;
+            state.myBlindingFactor = null;
+            state.isBlindingFactorUsed = true;
+        },
     },
-    setReduxChoice(state, action: PayloadAction<number>) {
-      state = {...state, choice: action.payload}
-    },
-    setReduxOpponentCommit(state, action: PayloadAction<boolean>) {
-      state = {...state, opponentCommit: action.payload}
-    },
-    setReduxMyCommit(state, action: PayloadAction<boolean>) {
-      state = {...state, myCommit: action.payload}
-    },
-    setReduxMySeedRevealed(state, action: PayloadAction<boolean>) {
-      state = {...state, myCommit: action.payload}
-    },
-    setReduxListenToRoundRes(state, action: PayloadAction<string>) {
-      state = {...state, listenToRoundRes: action.payload}
-    },
-    resetBattleStatus(state)  {
-      state = initialState;
-    },
-  },
 });
 
-
-export const selectBattleStatus = (state: RootState): IBattleStatus => state.currentBattle;
-export const { setCurrentBattle, resetBattleStatus, setReduxChoice, setReduxOpponentCommit, 
-      setReduxMyCommit, setReduxMySeedRevealed, setReduxListenToRoundRes } = currentBattleSlice.actions;
-export default currentBattleSlice.reducer;
+export const selectBattleInfo = (state: RootState): IBattleInfo => state.battleInfo;
+export const { setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
+               setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } = battleInfoSlice.actions;
+export default battleInfoSlice.reducer;

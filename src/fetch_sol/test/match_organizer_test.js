@@ -1,39 +1,57 @@
 import { getContract } from '../../fetch_sol/utils.js';
-import { extendSubscPeriod } from '../../fetch_sol/dealer.js';
-import { faucet } from '../../fetch_sol/coin.js';
+import { extendSubscPeriod, getPLMCoin } from '../../fetch_sol/dealer.js';
 import { gacha } from '../../fetch_sol/gacha.js';
-import { proposeBattle, isInProposal, isNonProposal, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { proposeBattle, isProposed, isNotInvolved, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+
+function randomName () {
+    const str = Math.random().toString(32);
+    return str.substring(str.length - 3);
+}
+
+async function prepareForBattle () {
+    await getPLMCoin(220, 400);
+    await extendSubscPeriod();
+
+    const fixedSlots = [];
+    for (let i = 0; i < 4; i++) {
+        fixedSlots.push((await gacha(randomName()))['id']);
+    }
+    return fixedSlots;
+}
 
 async function createCharacters (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        // await charge(addressIndex);
-        await faucet(100, addressIndex);
+        await getPLMCoin(220, 400, addressIndex);
+        await extendSubscPeriod(addressIndex);
 
         const fixedSlotsOfChallenger = [];
         for (let i = 0; i < 4; i++) {
-            fixedSlotsOfChallenger.push((await gacha('hoge' + i.toString(), addressIndex))['id']);
+            fixedSlotsOfChallenger.push((await gacha(randomName(), addressIndex))['id']);
         }
         fixedSlotsOfChallengers[addressIndex] = fixedSlotsOfChallenger;
     }
 }
 
 async function makeProposers (fixedSlotsOfChallengers) {
+    if (fixedSlotsOfChallengers.length !== 4) {
+        await createCharacters(fixedSlotsOfChallengers);
+    }
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        if (isNonProposal(addressIndex)) {
-            await proposeBattle(fixedSlotsOfChallengers[addressIndex], addressIndex);
+        if (isNotInvolved(addressIndex)) {
+            await proposeBattle({min: 4, max: 1020}, fixedSlotsOfChallengers[addressIndex], addressIndex);
         } else {
-            console.log(addressIndex.toString() + " is in proposal or battle.")
+            console.log(addressIndex.toString() + " is proposed or in battle.");
         }
     }
 }
 
 async function cancelProposals () {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        if (isInProposal(addressIndex)) {
+        if (isProposed(addressIndex)) {
             console.log('cancel...')
             await cancelProposal(addressIndex);
         } else {
-            console.log(addressIndex.toString() + " is not in proposal.")
+            console.log(addressIndex.toString() + " is not involved.");
         }
     }
 }
@@ -41,14 +59,13 @@ async function cancelProposals () {
 async function requestChallengeToMe () {
     let addressIndex = 2;
     for (let i = 0; i < 2; i++) {
-        // await charge(addressIndex);
-        await faucet(100, addressIndex);
+        await getPLMCoin(220, 400, addressIndex);
         await extendSubscPeriod(addressIndex);
     }
 
     const fixedSlotsOfChallenger = [];
     for (let i = 0; i < 4; i++) {
-        fixedSlotsOfChallenger.push((await gacha('hoge' + i.toString(), addressIndex))['id']);
+        fixedSlotsOfChallenger.push((await gacha(randomName(), addressIndex))['id']);
     }
 
     const { signer } = getContract("PLMMatchOrganizer", 1);
@@ -56,4 +73,4 @@ async function requestChallengeToMe () {
     await requestChallenge(myAddress, fixedSlotsOfChallenger, addressIndex);
 }
 
-export { createCharacters, makeProposers, cancelProposals, requestChallengeToMe };
+export { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe };

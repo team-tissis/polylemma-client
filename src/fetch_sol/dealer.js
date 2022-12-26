@@ -1,9 +1,18 @@
-import { getContract } from "./utils.js";
-import { approve } from "./coin.js";
+import { getEnv, getContract } from "./utils.js";
+import { approve, faucet } from "./coin.js";
 
 ///////////////////////////////
 /// FUNCTIONS ABOUT STAMINA ///
 ///////////////////////////////
+
+async function restoreFullStamina (addressIndex) {
+    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
+    const myAddress = await signer.getAddress();
+    const restoreStaminaFee = await getRestoreStaminaFee(addressIndex);
+    await approve(contractAddress, restoreStaminaFee);
+    const message = await contract.restoreFullStamina(myAddress);
+    console.log({ restoreFullStamina: message });
+}
 
 async function getCurrentStamina (addressIndex) {
     const { signer, contract } = getContract("PLMDealer", addressIndex);
@@ -34,32 +43,25 @@ async function getRestoreStaminaFee (addressIndex) {
     return Number(message);
 }
 
-async function restoreFullStamina (addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
-    const myAddress = await signer.getAddress();
-    const restoreStaminaFee = await getRestoreStaminaFee(addressIndex);
-    await approve(contractAddress, restoreStaminaFee);
-    const message = await contract.restoreFullStamina(myAddress);
-    console.log({ restoreFullStamina: message });
-}
-
-// フロントで対戦が実行できるか確認する用の関数
-async function checkStamina (addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
-    const myAddress = await signer.getAddress();
-    const currentStamina = await getCurrentStamina(addressIndex);
-    const staminaFee = await getStaminaPerBattle(addressIndex);
-    console.log(`currentStamina is [${currentStamina}] staminaFee is [${staminaFee}]`);
-    if(currentStamina < staminaFee){
-        return false;
-    } else {
-        return true;
-    }
-}
-
 ////////////////////////////////////
 /// FUNCTIONS ABOUT SUBSCRIPTION ///
 ////////////////////////////////////
+
+async function subscIsExpired (addressIndex) {
+    const { signer, contract } = getContract("PLMDealer", addressIndex);
+    const myAddress = await signer.getAddress();
+    const message = await contract.subscIsExpired(myAddress);
+    console.log({ getSubscIsExpired: message });
+    return message;
+}
+
+async function extendSubscPeriod (addressIndex) {
+    const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
+    const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(addressIndex);
+    await approve(contractAddress, subscFeePerUnitPeriod, addressIndex);
+    const message = await contract.extendSubscPeriod();
+    console.log({ extendSubscPeriod: message });
+}
 
 async function getSubscExpiredBlock (addressIndex) {
     const { signer, contract } = getContract("PLMDealer", addressIndex);
@@ -77,14 +79,6 @@ async function getSubscRemainingBlockNum (addressIndex) {
     return message.toString();
 }
 
-async function subscIsExpired (addressIndex) {
-    const { signer, contract } = getContract("PLMDealer", addressIndex);
-    const myAddress = await signer.getAddress();
-    const message = await contract.subscIsExpired(myAddress);
-    console.log({ getSubscIsExpired: message });
-    return message.toString();
-}
-
 async function getSubscFeePerUnitPeriod (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
     const message = await contract.getSubscFeePerUnitPeriod();
@@ -99,24 +93,24 @@ async function getSubscUnitPeriodBlockNum (addressIndex) {
     return message.toString();
 }
 
-async function extendSubscPeriod (addressIndex) {
-    const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
-    const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(addressIndex);
-    await approve(contractAddress, subscFeePerUnitPeriod, addressIndex);
-    const message = await contract.extendSubscPeriod();
-    console.log({ extendSubscPeriod: message });
-}
-
 //////////////////////////////////
 /// FUNCTIONS ABOUT CHARGEMENT ///
 //////////////////////////////////
 
-// async function charge (addressIndex) {
-//     const { contract } = getContract("PLMDealer", addressIndex);
-//     const sendMATICAmount = "1" + "0".repeat(20);
-//     const message = await contract.charge({ value: sendMATICAmount });
-//     console.log({ charge: message });
-// }
+async function charge (amount, addressIndex) {
+    const { signer, contract } = getContract("PLMDealer", addressIndex);
+    const sendMATICAmount = amount.toString() + "0".repeat(18);
+    const message = await contract.charge({ value: sendMATICAmount });
+    console.log({ charge: message });
+
+    const myAddress = await signer.getAddress();
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'AccountCharged' && event.args.charger === myAddress);
+    if (event !== undefined) {
+        const [ charger, chargeAmount, poolingAmount ] = event.args;
+        return Number(chargeAmount.sub(poolingAmount));
+    }
+}
 
 // async function accountCharged (setAddedCoin, addressIndex) {
 //     const { signer, contract } = getContract("PLMDealer", addressIndex);
@@ -128,7 +122,14 @@ async function extendSubscPeriod (addressIndex) {
 //     });
 // }
 
-export { getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee, restoreFullStamina, checkStamina,
-         getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod };
-        //  getSubscExpiredBlock, getSubscRemainingBlockNum, subscIsExpired, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum, extendSubscPeriod,
-        //  charge, accountCharged };
+async function getPLMCoin (plm, matic, addressIndex) {
+    if (getEnv() === 'local') {
+        return await charge(matic, addressIndex);
+    } else if (getEnv() === 'mumbai') {
+        return await faucet(plm, addressIndex);
+    }
+}
+
+export { restoreFullStamina, getCurrentStamina, getStaminaMax, getStaminaPerBattle, getRestoreStaminaFee,
+         subscIsExpired, extendSubscPeriod, getSubscExpiredBlock, getSubscRemainingBlockNum, getSubscFeePerUnitPeriod, getSubscUnitPeriodBlockNum,
+         getPLMCoin };
