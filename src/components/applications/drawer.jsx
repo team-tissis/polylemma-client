@@ -168,7 +168,6 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
         <Box
             sx={{ width: 400 }}
             role="presentation"
-            // onClick={toggleDrawer(false)}
             onKeyDown={toggleDrawer(false)}
         >
             <List style={{margin: 8}}>
