@@ -238,6 +238,9 @@ export default function BattleMain(){
     const [battleCompleted, setBattleCompleted] = useState(false);
     const [battleResult, setBattleResult] = useState();
 
+    const [isCancelling, setIsCancelling] = useState(false);
+    const [isCancelled, setIsCancelled] = useState(false);
+
     async function checkIsCOM() {
         for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
             try {
@@ -357,19 +360,48 @@ export default function BattleMain(){
     useEffect(() => {
         eventPlayerSeedRevealed();
         eventBattleCompleted(setBattleCompleted);
-        eventExceedingLevelPointCheatDetected();
-        eventReusingUsedSlotCheatDetected();
-        eventLatePlayerSeedCommitDetected();
-        eventLateChoiceCommitDetected();
-        eventLateChoiceRevealDetected();
-        eventBattleCanceled();
+
+        // reasons for cancellation
+        for (let playerId = 0; playerId <= 1; playerId++) {
+            eventExceedingLevelPointCheatDetected(playerId, setIsCancelling);
+            eventReusingUsedSlotCheatDetected(playerId, setIsCancelling);
+            eventLatePlayerSeedCommitDetected(playerId, setIsCancelling);
+            eventLateChoiceCommitDetected(playerId, setIsCancelling);
+            eventLateChoiceRevealDetected(playerId, setIsCancelling);
+        }
+
+        eventBattleCanceled(setIsCancelled);
     }, []);
+
+
+    useEffect(() => {
+        if (isCancelling && isCancelled) {
+            alert(`Battle has been canceled.`);
+            dispatch(initializeBattle());
+            navigate('../');
+        }
+    }, [isCancelling, isCancelled]);
 
 
     async function handleForceInitBattle () {
         dispatch(initializeBattle());
         await forceInitBattle();
         navigate('../');
+    }
+
+    async function handleReportLateReveal () {
+        try {
+            await reportLateReveal(battleInfo.myPlayerId);
+        } catch (e) {
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
+                alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else if (e.reason.substr(0, 19) === "execution reverted:") {
+                alert(e.reason.substr(20));
+            } else {
+                alert("不明なエラーが発生しました。");
+            }
+        }
     }
 
 
@@ -580,7 +612,7 @@ export default function BattleMain(){
                     setOpponentRandomSlotState(_opponentRandomSlotState);
                 }
             } else {
-                console.log(`States: (myState, opponentState) = (${await getPlayerState(myPlayerId)}, ${await getPlayerState(1-myPlayerId)}), (${_myState}, ${_opponentState}).`);
+                console.log(`States: (myState, opponentState) = (${_myState}, ${_opponentState}).`);
             }
 
             setIsChecking(false);
@@ -631,6 +663,9 @@ export default function BattleMain(){
     return(<>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
+    </Button>
+    <Button variant="contained" size="large" color="secondary" onClick={() => handleReportLateReveal() }>
+        相手がキャラ公開をしてくれない
     </Button>
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
     <div>COMと対戦: {isCOM ? "YES" : "NO"}</div>

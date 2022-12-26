@@ -284,19 +284,23 @@ function eventChoiceRevealed (currentRound, opponentPlayerId, setIsWaiting) {
 function eventRoundCompleted (currentRound, setCompletedNumRounds) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.RoundCompleted(currentRound, null, null, null, null, null);
+    let isUsed = false;
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerDamage, loserDamage) => {
-        setCompletedNumRounds((round) => Math.max(round, numRounds+1));
-        if (isDraw) {
-            console.log(`Round ${numRounds+1}: Draw (${winnerDamage}).`);
-        } else {
-            console.log(`Round ${numRounds+1}: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
+        if (!isUsed) {
+            isUsed = true;
+            setCompletedNumRounds((round) => Math.max(round, numRounds+1));
+            if (isDraw) {
+                console.log(`Round ${numRounds+1}: Draw (${winnerDamage}).`);
+            } else {
+                console.log(`Round ${numRounds+1}: Winner ${winner} ${winnerDamage} vs Loser ${loser} ${loserDamage}.`);
+            }
         }
     });
 }
 
 function eventBattleCompleted (setBattleCompleted) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.BattleCompleted(null, null, null, null, null, null);
+    const filter = contract.filters.BattleCompleted();
     let isUsed = false;
     contract.on(filter, (numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
         if (!isUsed) {
@@ -311,57 +315,86 @@ function eventBattleCompleted (setBattleCompleted) {
     });
 }
 
-function eventExceedingLevelPointCheatDetected () {
+function eventExceedingLevelPointCheatDetected (playerId, isCancelling) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.ExceedingLevelPointCheatDetected();
+    const filter = contract.filters.ExceedingLevelPointCheatDetected(playerId, null, null);
+    let isUsed = false;
     contract.on(filter, (cheater, remainingLevelPoint, cheaterLevelPoint) => {
-        console.log(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
-        alert(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
+        if (!isUsed) {
+            isUsed = true;
+            console.log(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
+            alert(`Player${cheater} committed ${cheaterLevelPoint} level points, but ${remainingLevelPoint} points remain.`);
+            isCancelling(true);
+        }
     });
 }
 
-function eventReusingUsedSlotCheatDetected () {
+function eventReusingUsedSlotCheatDetected (playerId, isCancelling) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.ReusingUsedSlotCheatDetected();
+    const filter = contract.filters.ReusingUsedSlotCheatDetected(playerId, null);
+    let isUsed = false;
     contract.on(filter, (cheater, targetSlot) => {
-        console.log(`Player${cheater} reused slot ${targetSlot}.`);
-        alert(`Player${cheater} reused slot ${targetSlot}.`);
+        if (!isUsed) {
+            isUsed = true;
+            console.log(`Player${cheater} reused slot ${targetSlot}.`);
+            alert(`Player${cheater} reused slot ${targetSlot}.`);
+            isCancelling(true);
+        }
     });
 }
 
-function eventLatePlayerSeedCommitDetected () {
+function eventLatePlayerSeedCommitDetected (playerId, isCancelling) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.LatePlayerSeedCommitDetected();
+    const filter = contract.filters.LatePlayerSeedCommitDetected(playerId);
+    let isUsed = false;
     contract.on(filter, (delayer) => {
-        console.log(`Player${delayer}'s seed commit was too late.`);
-        alert(`Player${delayer}'s seed commit was too late.`);
+        if (!isUsed) {
+            isUsed = true;
+            console.log(`Player${delayer}'s seed commit was too late.`);
+            alert(`Player${delayer}'s seed commit was too late.`);
+            isCancelling(true);
+        }
     });
 }
 
-function eventLateChoiceCommitDetected () {
+function eventLateChoiceCommitDetected (playerId, isCancelling) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.LateChoiceCommitDetected();
+    const filter = contract.filters.LateChoiceCommitDetected(null, playerId);
+    let isUsed = false;
     contract.on(filter, (numRounds, delayer) => {
-        console.log(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
-        alert(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
+        if (!isUsed) {
+            isUsed = true;
+            console.log(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
+            alert(`Round ${numRounds}: Player${delayer}'s choice commit was too late.`);
+            isCancelling(true);
+        }
     });
 }
 
-function eventLateChoiceRevealDetected () {
+function eventLateChoiceRevealDetected (playerId, isCancelling) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.LateChoiceRevealDetected();
+    const filter = contract.filters.LateChoiceRevealDetected(null, playerId);
+    let isUsed = false;
     contract.on(filter, (numRounds, delayer) => {
-        console.log(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
-        alert(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
+        if (!isUsed) {
+            isUsed = true;
+            console.log(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
+            alert(`Round ${numRounds}: Player${delayer}'s choice reveal was too late.`);
+            isCancelling(true);
+        }
     });
 }
 
-function eventBattleCanceled () {
+function eventBattleCanceled (isCancelled) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.BattleCanceled();
+    let isUsed = false;
     contract.on(filter, () => {
-        console.log(`Battle has been canceled.`);
-        alert(`Battle has been canceled.`);
+        if (!isUsed) {
+            isUsed = true;
+            console.log(`Battle has been canceled.`);
+            isCancelled(true);
+        }
     });
 }
 
