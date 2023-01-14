@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
+// import contractFunctions from "../json/contract_address_list.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
@@ -63,9 +64,14 @@ function getSigner (addressIndex) {
         const signer = provider.getSigner(signerIndex);
         return signer;
     } else if (getEnv() === 'mumbai') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-        const signer = provider.getSigner();
-        return signer;
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+            const signer = provider.getSigner();
+            return signer;
+        } catch (e) {
+            console.log({error: e});
+            alert("Chrome に MetaMask をインストールしてください。");
+        }
     }
 }
 
