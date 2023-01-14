@@ -143,6 +143,7 @@ export default function Gacha({currentCoin, setCurrentCoin}){
                 autoHideDuration: 1500,
                 variant: 'error',
             });
+            setOpen(false);
         } else {
             try {
                 const newGotToken = await gacha(characterName);
