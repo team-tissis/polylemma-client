@@ -105,8 +105,8 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
                 variant: 'success',
             });
         } catch (e) {
-                console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
             } else {
                 alert("不明なエラーが発生しました。");
