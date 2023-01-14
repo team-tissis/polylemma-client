@@ -42,11 +42,8 @@ function getContractAddress (contractName) {
         const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
         return contractAddress;
     } else if (getEnv() === 'mumbai') {
-        if (contractName === "PLMCoin") return "0xA0dcb1F996CB1335D4356C944C7168EE75a94953";
-        else if (contractName === "PLMToken") return "0xCF8D3345dd90B218b9F428562fe5985dC4AcDd56";
-        else if (contractName === "PLMDealer") return "0x38CE8D774a9fcb04Fa9AfeE5B0d0B82B7824857f";
-        else if (contractName === "PLMMatchOrganizer") return "0xD60a1442Fd07b45f8161515A3E8f392DdcCD1661";
-        else if (contractName === "PLMBattleField") return "0xa8F64D2Cd2F0597B586BFcfc940a49C9f2ea1247";
+        const contractAddress = contractFunctions.contracts.find((v) => v.contractName === contractName).contractAddress;
+        return contractAddress;
     }
 }
 
