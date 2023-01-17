@@ -39,13 +39,8 @@ function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
-    if (getEnv() === 'local') {
-        const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
-        return contractAddress;
-    } else if (getEnv() === 'mumbai') {
-        const contractAddress = contractFunctions.contracts.find((v) => v.contractName === contractName).contractAddress;
-        return contractAddress;
-    }
+    const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
+    return contractAddress;
 }
 
 function getAbi (contractName) {
