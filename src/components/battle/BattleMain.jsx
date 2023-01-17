@@ -21,7 +21,7 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
          forceInitBattle,
-         eventBattleStarted, eventMyPlayerSeedCommitted, eventOpponentPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
+         eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
          eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,
          eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
@@ -222,7 +222,6 @@ export default function BattleMain(){
     const [myLevel, setMyLevel] = useState();
     const [opponentLevel, setOpponentLevel] = useState();
 
-    const [isLoadingMyRandomSlot, setIsLoadingMyRandomSlot] = useState(false);
     const [isChanging, setIsChanging] = useState(false);
     const [isWaiting, setIsWaiting] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
@@ -348,11 +347,8 @@ export default function BattleMain(){
         }, 0));
 
         // イベント情報の取得
-        if (_myRandomSlotState === 0) {
-            eventMyPlayerSeedCommitted(myPlayerId, setIsLoadingMyRandomSlot);
-        }
         if (_opponentRandomSlotState === 0) {
-            eventOpponentPlayerSeedCommitted(1-myPlayerId, setIsWaiting);
+            eventPlayerSeedCommitted(1-myPlayerId, setIsWaiting);
         }
         for (let r = currentRound; r < maxRounds; r++) {
             eventChoiceCommitted(r, 1-myPlayerId, setIsWaiting);
@@ -434,6 +430,11 @@ export default function BattleMain(){
 
         try {
             await commitPlayerSeed(myPlayerId, myPlayerSeed);
+            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
+            setMyCharacters((characters) => {
+                characters.push(myRandomSlot);
+                return characters;
+            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -458,23 +459,10 @@ export default function BattleMain(){
             }
             setCOMChoice(getNextCOMIndex());
         }
+
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
+        setIsChanging(false);
     }
-
-
-    // シードをコミットした後の処理
-    useEffect(() => {(async function() {
-        if (isLoadingMyRandomSlot) {
-            const myPlayerId = battleInfo.myPlayerId;
-            const myRandomSlot = await getMyRandomSlot(myPlayerId, battleInfo.myPlayerSeed);
-            setMyCharacters((characters) => {
-                characters.push(myRandomSlot);
-                return characters;
-            });
-            setIsLoadingMyRandomSlot(false);
-            setMyRandomSlotState(await getRandomSlotState(myPlayerId));
-            setIsChanging(false);
-        }
-    })();}, [isLoadingMyRandomSlot]);
 
 
     async function handleChoiceCommit() {
@@ -536,8 +524,8 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
 
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
     }
 

@@ -59,25 +59,16 @@ async function subscIsExpired (addressIndex) {
 }
 
 async function extendSubscPeriod (addressIndex) {
-    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
+    const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
     const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(addressIndex);
-    if (await approve(contractAddress, subscFeePerUnitPeriod, addressIndex)) {
-        const message = await contract.extendSubscPeriod();
-        console.log({ extendSubscPeriod: message });
+    await approve(contractAddress, subscFeePerUnitPeriod, addressIndex);
+    const message = await contract.extendSubscPeriod();
+    console.log({ extendSubscPeriod: message });
 
-        const myAddress = await signer.getAddress();
-        const rc = await message.wait();
-        const event = rc.events.find(event => event.event === 'SubscExtended' && event.args.account === myAddress);
-        if (event !== undefined) {
-            const { extendedBlock } = event.args;
-            return extendedBlock;
-        } else {
-            alert("処理が失敗しました。");
-            return -1;
-        }
-    } else {
-        return -1;
-    }
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'SubscExtended');
+    const { extendedBlock } = event.args;
+    return extendedBlock;
 }
 
 async function getSubscExpiredBlock (addressIndex) {
@@ -115,21 +106,15 @@ async function getSubscUnitPeriodBlockNum (addressIndex) {
 //////////////////////////////////
 
 async function charge (amount, addressIndex) {
-    const { signer, contract } = getContract("PLMDealer", addressIndex);
+    const { contract } = getContract("PLMDealer", addressIndex);
     const sendMATICAmount = amount.toString() + "0".repeat(18);
     const message = await contract.charge({ value: sendMATICAmount });
     console.log({ charge: message });
 
-    const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'AccountCharged' && event.args.charger === myAddress);
-    if (event !== undefined) {
-        const { chargeAmount, poolingAmount } = event.args;
-        return Number(chargeAmount.sub(poolingAmount));
-    } else {
-        alert("処理が失敗しました。");
-        return -1;
-    }
+    const event = rc.events.find(event => event.event === 'AccountCharged');
+    const { chargeAmount, poolingAmount } = event.args;
+    return Number(chargeAmount.sub(poolingAmount));
 }
 
 async function getPLMCoin (plm, matic, addressIndex) {

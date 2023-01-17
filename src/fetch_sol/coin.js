@@ -9,35 +9,18 @@ async function balanceOf (addressIndex) {
 }
 
 async function approve (contractAddress, approvedCoin, addressIndex) {
-    const { signer, contract } = getContract("PLMCoin", addressIndex);
+    const { contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.approve(contractAddress, approvedCoin);
     console.log({ approve: message });
-
-    const myAddress = await signer.getAddress();
-    const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'Approval' && event.args.owner === myAddress);
-    if (event !== undefined) {
-        return true;
-    } else {
-        alert("処理が失敗しました。");
-        return false;
-    }
+    await message.wait();
 }
 
 async function faucet(amount, addressIndex) {
-    const { signer, contract } = getContract("PLMCoin", addressIndex);
+    const { contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.faucet(amount);
     console.log({ faucet: message });
-
-    const myAddress = await signer.getAddress();
-    const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'Transfer' && event.args.to === myAddress);
-    if (event !== undefined) {
-        return amount;
-    } else {
-        alert("処理が失敗しました。");
-        return -1;
-    }
+    await message.wait();
+    return amount;
 }
 
 export { balanceOf, approve, faucet };

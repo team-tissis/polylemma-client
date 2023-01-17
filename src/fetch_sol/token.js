@@ -5,23 +5,15 @@ import { getCurrentBondLevel, getTypeName } from "./data.js";
 async function updateLevel (tokenId, addressIndex) {
     const { contractAddress, contract } = getContract("PLMToken", addressIndex);
     const coinForLevelUp = getNecessaryExp(tokenId);
-    if (await approve(contractAddress, coinForLevelUp, addressIndex) ){
-        const message = await contract.updateLevel(tokenId);
-        console.log({ updateLevel: message });
+    await approve(contractAddress, coinForLevelUp, addressIndex);
+    const message = await contract.updateLevel(tokenId);
+    console.log({ updateLevel: message });
 
-        const rc = await message.wait();
-        const event = rc.events.find(event => event.event === 'LevelUped' && Number(event.args.tokenId) === tokenId);
-        if (event !== undefined) {
-            const { tokenId, newLevel } = event.args;
-            console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
-            return newLevel;
-        } else {
-            alert("処理が失敗しました。");
-            return -1;
-        }
-    } else {
-        return -1;
-    }
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'LevelUped');
+    const { tokenId, newLevel } = event.args;
+    console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
+    return newLevel;
 }
 
 ////////////////////////
