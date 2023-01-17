@@ -18,7 +18,7 @@ async function gacha (name, addressIndex) {
         const rc = await message.wait();
         const event = rc.events.find(event => event.event === 'CharacterReceivedByUser' && event.args.account === myAddress);
         if (event !== undefined) {
-            const [ account, tokenId, characterInfo ] = event.args;
+            const { tokenId, characterInfo } = event.args;
             const res = {
                 id: Number(tokenId),
                 name: bytes32ToString(characterInfo.name),

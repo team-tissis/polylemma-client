@@ -107,20 +107,13 @@ async function charge (amount, addressIndex) {
     const rc = await message.wait();
     const event = rc.events.find(event => event.event === 'AccountCharged' && event.args.charger === myAddress);
     if (event !== undefined) {
-        const [ charger, chargeAmount, poolingAmount ] = event.args;
+        const { chargeAmount, poolingAmount } = event.args;
         return Number(chargeAmount.sub(poolingAmount));
+    } else {
+        alert("処理が失敗しました。");
+        return -1;
     }
 }
-
-// async function accountCharged (setAddedCoin, addressIndex) {
-//     const { signer, contract } = getContract("PLMDealer", addressIndex);
-//     const myAddress = await signer.getAddress();
-//     const filter = contract.filters.AccountCharged(myAddress, null, null);
-//     contract.on(filter, (charger, chargeAmount, poolingAmount) => {
-//         console.log(`${charger} got ${chargeAmount - poolingAmount}.`);
-//         setAddedCoin(chargeAmount - poolingAmount);
-//     });
-// }
 
 async function getPLMCoin (plm, matic, addressIndex) {
     if (getEnv() === 'local') {
