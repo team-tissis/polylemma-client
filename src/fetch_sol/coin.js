@@ -9,9 +9,19 @@ async function balanceOf (addressIndex) {
 }
 
 async function approve (contractAddress, approvedCoin, addressIndex) {
-    const { contract } = getContract("PLMCoin", addressIndex);
+    const { signer, contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.approve(contractAddress, approvedCoin);
     console.log({ approve: message });
+
+    const myAddress = await signer.getAddress();
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'Approval' && event.args.owner === myAddress);
+    if (event !== undefined) {
+        return true;
+    } else {
+        alert("処理が失敗しました。");
+        return false;
+    }
 }
 
 async function faucet(amount, addressIndex) {
