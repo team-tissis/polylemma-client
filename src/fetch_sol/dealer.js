@@ -9,9 +9,12 @@ async function restoreFullStamina (addressIndex) {
     const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
     const myAddress = await signer.getAddress();
     const restoreStaminaFee = await getRestoreStaminaFee(addressIndex);
-    await approve(contractAddress, restoreStaminaFee);
-    const message = await contract.restoreFullStamina(myAddress);
-    console.log({ restoreFullStamina: message });
+    if (await approve(contractAddress, restoreStaminaFee)) {
+        const message = await contract.restoreFullStamina(myAddress);
+        console.log({ restoreFullStamina: message });
+    } else {
+        return -1;
+    }
 }
 
 async function getCurrentStamina (addressIndex) {
@@ -58,9 +61,12 @@ async function subscIsExpired (addressIndex) {
 async function extendSubscPeriod (addressIndex) {
     const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
     const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(addressIndex);
-    await approve(contractAddress, subscFeePerUnitPeriod, addressIndex);
-    const message = await contract.extendSubscPeriod();
-    console.log({ extendSubscPeriod: message });
+    if (await approve(contractAddress, subscFeePerUnitPeriod, addressIndex)) {
+        const message = await contract.extendSubscPeriod();
+        console.log({ extendSubscPeriod: message });
+    } else {
+        return -1;
+    }
 }
 
 async function getSubscExpiredBlock (addressIndex) {
