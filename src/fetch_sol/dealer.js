@@ -59,11 +59,22 @@ async function subscIsExpired (addressIndex) {
 }
 
 async function extendSubscPeriod (addressIndex) {
-    const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
+    const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
     const subscFeePerUnitPeriod = await getSubscFeePerUnitPeriod(addressIndex);
     if (await approve(contractAddress, subscFeePerUnitPeriod, addressIndex)) {
         const message = await contract.extendSubscPeriod();
         console.log({ extendSubscPeriod: message });
+
+        const myAddress = await signer.getAddress();
+        const rc = await message.wait();
+        const event = rc.events.find(event => event.event === 'SubscExtended' && event.args.account === myAddress);
+        if (event !== undefined) {
+            const { extendedBlock } = event.args;
+            return extendedBlock;
+        } else {
+            alert("処理が失敗しました。");
+            return -1;
+        }
     } else {
         return -1;
     }

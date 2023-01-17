@@ -25,10 +25,19 @@ async function approve (contractAddress, approvedCoin, addressIndex) {
 }
 
 async function faucet(amount, addressIndex) {
-    const { contract } = getContract("PLMCoin", addressIndex);
+    const { signer, contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.faucet(amount);
     console.log({ faucet: message });
-    return amount;
+
+    const myAddress = await signer.getAddress();
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'Transfer' && event.args.to === myAddress);
+    if (event !== undefined) {
+        return amount;
+    } else {
+        alert("処理が失敗しました。");
+        return -1;
+    }
 }
 
 export { balanceOf, approve, faucet };
