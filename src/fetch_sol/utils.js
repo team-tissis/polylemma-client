@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-// import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
-import contractFunctions from "../json/contract_address_list.json";
+import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
+// import contractFunctions from "../json/contract_address_list.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
@@ -9,8 +9,8 @@ import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganiz
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
 function getEnv() {
-    // return 'local';
-    return 'mumbai';
+    return 'local';
+    // return 'mumbai';
 }
 
 function stringToBytes32 (str) {
