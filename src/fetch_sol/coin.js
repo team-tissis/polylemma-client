@@ -12,12 +12,14 @@ async function approve (contractAddress, approvedCoin, addressIndex) {
     const { contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.approve(contractAddress, approvedCoin);
     console.log({ approve: message });
+    await message.wait();
 }
 
 async function faucet(amount, addressIndex) {
     const { contract } = getContract("PLMCoin", addressIndex);
     const message = await contract.faucet(amount);
     console.log({ faucet: message });
+    await message.wait();
     return amount;
 }
 

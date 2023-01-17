@@ -12,12 +12,14 @@ async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const commitString = getSeedString(myAddress, playerSeed);
     const message = await contract.commitPlayerSeed(playerId, commitString);
     console.log({ commitPlayerSeed: message });
+    await message.wait();
 }
 
 async function revealPlayerSeed (playerId, playerSeed, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.revealPlayerSeed(playerId, playerSeed);
     console.log({ revealPlayerSeed: message });
+    await message.wait();
 }
 
 async function commitChoice (playerId, levelPoint, choice, blindingFactor, addressIndex) {
@@ -26,18 +28,21 @@ async function commitChoice (playerId, levelPoint, choice, blindingFactor, addre
     const commitString = getCommitString(myAddress, levelPoint, choice, blindingFactor);
     const message = await contract.commitChoice(playerId, commitString);
     console.log({ commitChoice: message });
+    await message.wait();
 }
 
 async function revealChoice (playerId, levelPoint, choice, blindingFactor, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.revealChoice(playerId, levelPoint, choice, blindingFactor);
     console.log({ revealChoice: message });
+    await message.wait();
 }
 
 async function reportLateReveal (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.reportLateReveal(playerId);
     console.log({ reportLateReveal: message });
+    await message.wait();
 }
 
 ////////////////////////
@@ -218,7 +223,7 @@ async function forceInitBattle (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
     const message = await contract.forceInitBattle();
     console.log({ forceInitBattle: message });
-    return message;
+    await message.wait();
 }
 
 ///////////////////////////////////////

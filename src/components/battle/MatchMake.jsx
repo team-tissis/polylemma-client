@@ -36,17 +36,31 @@ const Item = styled(Paper)(({ theme }) => ({
 function BattleAccount({proposalAccount}){
     const myCharacters = useSelector(selectMyCharacter);
     const [open, setOpen] = useState(false);
+    const [isStarting, setIsStarting] = useState(false);
 
-    async function handleClickStartBattle () {
+    async function handleClickStartBattle (setIsStarting) {
+        setIsStarting(true);
         if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
             // スタミナがあるか確認
             alert("スタミナが足りません。チャージしてください。");
+            setIsStarting(false);
         } else if ((await subscIsExpired()) === true) {
             // サブスクの確認
             alert("サブスクリプションの期間が終了しました。更新して再度バトルに臨んでください。");
+            setIsStarting(false);
         } else {
-            const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
-            await requestChallenge(proposalAccount.home, fixedSlotsOfChallenger);
+            try {
+                const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
+                await requestChallenge(proposalAccount.home, fixedSlotsOfChallenger);
+            } catch (e) {
+                setIsStarting(false);
+                console.log({error: e});
+                if (e.message.substr(0, 18) === "transaction failed") {
+                    alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+                } else {
+                    alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
+                }
+            }
         }
     };
 
@@ -74,15 +88,15 @@ function BattleAccount({proposalAccount}){
                 対戦を行う
             </DialogTitle>
             <DialogContent>
-                <DialogContentText id="alert-dialog-description">
+                <DialogContentText id="alert-dialog-description" component="div">
                     以下のアカウントと対戦しますか？
                     <Typography variant="body1" color="text.primary">アドレス: {proposalAccount.home}</Typography>
                     <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setOpen(false)}  variant="contained">やめる</Button>
-                <Button onClick={() => handleClickStartBattle()}  variant="contained" color="primary">
+                <Button onClick={() => setOpen(false)} disabled={isStarting} variant="contained">やめる</Button>
+                <Button onClick={() => handleClickStartBattle(setIsStarting)} disabled={isStarting} variant="contained" color="primary">
                     対戦する
                 </Button>
             </DialogActions>

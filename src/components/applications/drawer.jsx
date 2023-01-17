@@ -98,15 +98,17 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
     const handleClickCharge = async (plm, matic) => {
         try {
             const addedCoin = await getPLMCoin(plm, matic);
-            setCurrentCoin(await balanceOf());
-            const message = addedCoin + " コインを獲得しました!";
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'success',
-            });
+            if (addedCoin !== -1) {
+                const message = addedCoin + " コインを獲得しました！";
+                enqueueSnackbar(message, {
+                    autoHideDuration: 1500,
+                    variant: 'success',
+                });
+                setCurrentCoin(await balanceOf());
+            }
         } catch (e) {
-                console.log({error: e});
-                if (e.message.substr(0, 18) === "transaction failed") {
+            console.log({error: e});
+            if (e.message.substr(0, 18) === "transaction failed") {
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
             } else {
                 alert("不明なエラーが発生しました。");
@@ -119,11 +121,18 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
             alert("サブスク期間を延長するのにコインが足りません。");
         } else {
             try {
-                await extendSubscPeriod();
-                setCurrentCoin(await balanceOf());
-                setSubscExpired(await subscIsExpired());
-                setSubscExpiredBlock(await getSubscExpiredBlock());
-                setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+                const extendedBlock = await extendSubscPeriod();
+                if (extendedBlock !== -1) {
+                    const message = extendedBlock + " ブロックまでサブスク期間が延長されました！";
+                    enqueueSnackbar(message, {
+                        autoHideDuration: 1500,
+                        variant: 'success',
+                    });
+                    setCurrentCoin(await balanceOf());
+                    setSubscExpired(await subscIsExpired());
+                    setSubscExpiredBlock(await getSubscExpiredBlock());
+                    setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+                }
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -168,7 +177,6 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
         <Box
             sx={{ width: 400 }}
             role="presentation"
-            // onClick={toggleDrawer(false)}
             onKeyDown={toggleDrawer(false)}
         >
             <List style={{margin: 8}}>

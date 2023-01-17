@@ -278,33 +278,32 @@ export default function Battle() {
 
     return(<>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
+            <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
+                {isChanging ?
+                <>{myOwnedCharacters.map((character, index) => (
+                    <Grid item xs={3} sm={3} md={3} key={index}>
+                        <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                    </Grid>
+                ))}</>
+                :
+                <>{myBattleCharacters.map((character, index) => (
+                    <Grid item xs={3} sm={3} md={3} key={index}>
+                        <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                    </Grid>
+                ))}</>
+                }
+            </Grid>
 
-        <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
             {isChanging ?
-            <>{myOwnedCharacters.map((character, index) => (
-                <Grid item xs={3} sm={3} md={3} key={index}>
-                    <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
-                </Grid>
-            ))}</>
+            <Button variant="contained" size="large" color="secondary"
+                style={ editButtonStyle() } onClick={() => handleUpdate()}>
+                変更を保存する
+            </Button>
             :
-            <>{myBattleCharacters.map((character, index) => (
-                <Grid item xs={3} sm={3} md={3} key={index}>
-                    <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
-                </Grid>
-            ))}</>
+            <Button variant="contained" size="large" style={{marginTop: 10}} onClick={() => setIsChanging(true)}>
+                変更
+            </Button>
             }
-        </Grid>
-        {isChanging ?
-        <Button variant="contained" size="large" color="secondary"
-            style={ editButtonStyle() } onClick={() => handleUpdate()}>
-            変更を保存する
-        </Button>
-        :
-        <Button variant="contained" size="large" style={{marginTop: 10}} onClick={() => setIsChanging(true)}>
-            変更
-        </Button>
-        }
-
         </Box>
 
         <Dialog
@@ -329,7 +328,7 @@ export default function Battle() {
                     />
                 </div>
 
-                <DialogContentText id="alert-dialog-description">
+                <DialogContentText id="alert-dialog-description" component="div">
                     他プレイヤーが対戦を申し込んでくると、自動でバトル画面に遷移します。<br/>
                     このままお待ちください
                 </DialogContentText>

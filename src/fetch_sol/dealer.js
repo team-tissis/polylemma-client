@@ -9,9 +9,12 @@ async function restoreFullStamina (addressIndex) {
     const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
     const myAddress = await signer.getAddress();
     const restoreStaminaFee = await getRestoreStaminaFee(addressIndex);
-    await approve(contractAddress, restoreStaminaFee);
-    const message = await contract.restoreFullStamina(myAddress);
-    console.log({ restoreFullStamina: message });
+    if (await approve(contractAddress, restoreStaminaFee)) {
+        const message = await contract.restoreFullStamina(myAddress);
+        console.log({ restoreFullStamina: message });
+    } else {
+        return -1;
+    }
 }
 
 async function getCurrentStamina (addressIndex) {
@@ -61,6 +64,11 @@ async function extendSubscPeriod (addressIndex) {
     await approve(contractAddress, subscFeePerUnitPeriod, addressIndex);
     const message = await contract.extendSubscPeriod();
     console.log({ extendSubscPeriod: message });
+
+    const rc = await message.wait();
+    const event = rc.events.find(event => event.event === 'SubscExtended');
+    const { extendedBlock } = event.args;
+    return extendedBlock;
 }
 
 async function getSubscExpiredBlock (addressIndex) {
@@ -98,29 +106,16 @@ async function getSubscUnitPeriodBlockNum (addressIndex) {
 //////////////////////////////////
 
 async function charge (amount, addressIndex) {
-    const { signer, contract } = getContract("PLMDealer", addressIndex);
+    const { contract } = getContract("PLMDealer", addressIndex);
     const sendMATICAmount = amount.toString() + "0".repeat(18);
     const message = await contract.charge({ value: sendMATICAmount });
     console.log({ charge: message });
 
-    const myAddress = await signer.getAddress();
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'AccountCharged' && event.args.charger === myAddress);
-    if (event !== undefined) {
-        const [ charger, chargeAmount, poolingAmount ] = event.args;
-        return Number(chargeAmount.sub(poolingAmount));
-    }
+    const event = rc.events.find(event => event.event === 'AccountCharged');
+    const { chargeAmount, poolingAmount } = event.args;
+    return Number(chargeAmount.sub(poolingAmount));
 }
-
-// async function accountCharged (setAddedCoin, addressIndex) {
-//     const { signer, contract } = getContract("PLMDealer", addressIndex);
-//     const myAddress = await signer.getAddress();
-//     const filter = contract.filters.AccountCharged(myAddress, null, null);
-//     contract.on(filter, (charger, chargeAmount, poolingAmount) => {
-//         console.log(`${charger} got ${chargeAmount - poolingAmount}.`);
-//         setAddedCoin(chargeAmount - poolingAmount);
-//     });
-// }
 
 async function getPLMCoin (plm, matic, addressIndex) {
     if (getEnv() === 'local') {

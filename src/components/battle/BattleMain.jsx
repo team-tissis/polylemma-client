@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
 import { selectBattleInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
          setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
-import { getRandomBytes32 } from 'fetch_sol/utils.js';
+import { getEnv, getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
@@ -242,6 +242,7 @@ export default function BattleMain(){
     const [isCancelled, setIsCancelled] = useState(false);
 
     async function checkIsCOM() {
+        if (getEnv() === 'mumbai') return false;
         for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
             try {
                 const opponentPlayerId = await getPlayerIdFromAddr(_addressIndex);
@@ -442,7 +443,6 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
 
         if (isCOM) {
             const _COMPlayerSeed = getRandomBytes32();
@@ -460,6 +460,7 @@ export default function BattleMain(){
             setCOMChoice(getNextCOMIndex());
         }
 
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
     }
 
@@ -523,8 +524,8 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
 
+        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
     }
 

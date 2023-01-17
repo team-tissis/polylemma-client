@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
-import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
+// import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
+import contractFunctions from "../json/contract_address_list.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
@@ -8,8 +9,8 @@ import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganiz
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 
 function getEnv() {
-    return 'local';
-    // return 'mumbai';
+    // return 'local';
+    return 'mumbai';
 }
 
 function stringToBytes32 (str) {
@@ -38,16 +39,8 @@ function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
-    if (getEnv() === 'local') {
-        const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
-        return contractAddress;
-    } else if (getEnv() === 'mumbai') {
-        if (contractName === "PLMCoin") return "0xA0dcb1F996CB1335D4356C944C7168EE75a94953";
-        else if (contractName === "PLMToken") return "0xCF8D3345dd90B218b9F428562fe5985dC4AcDd56";
-        else if (contractName === "PLMDealer") return "0x38CE8D774a9fcb04Fa9AfeE5B0d0B82B7824857f";
-        else if (contractName === "PLMMatchOrganizer") return "0xD60a1442Fd07b45f8161515A3E8f392DdcCD1661";
-        else if (contractName === "PLMBattleField") return "0xa8F64D2Cd2F0597B586BFcfc940a49C9f2ea1247";
-    }
+    const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
+    return contractAddress;
 }
 
 function getAbi (contractName) {
@@ -66,9 +59,14 @@ function getSigner (addressIndex) {
         const signer = provider.getSigner(signerIndex);
         return signer;
     } else if (getEnv() === 'mumbai') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-        const signer = provider.getSigner();
-        return signer;
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+            const signer = provider.getSigner();
+            return signer;
+        } catch (e) {
+            console.log({error: e});
+            alert("Chrome に MetaMask をインストールしてください。");
+        }
     }
 }
 

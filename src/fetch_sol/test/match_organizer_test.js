@@ -1,7 +1,7 @@
-import { getContract } from '../../fetch_sol/utils.js';
-import { extendSubscPeriod, getPLMCoin } from '../../fetch_sol/dealer.js';
-import { gacha } from '../../fetch_sol/gacha.js';
-import { proposeBattle, isProposed, isNotInvolved, requestChallenge, cancelProposal } from '../../fetch_sol/match_organizer.js';
+import { getContract } from '../utils.js';
+import { extendSubscPeriod, getPLMCoin } from '../dealer.js';
+import { gacha } from '../gacha.js';
+import { proposeBattle, isProposed, isNotInvolved, requestChallenge, cancelProposal } from '../match_organizer.js';
 
 function randomName () {
     const str = Math.random().toString(32);

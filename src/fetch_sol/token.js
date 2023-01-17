@@ -10,12 +10,10 @@ async function updateLevel (tokenId, addressIndex) {
     console.log({ updateLevel: message });
 
     const rc = await message.wait();
-    const event = rc.events.find(event => event.event === 'LevelUped' && Number(event.args.tokenId) === tokenId);
-    if (event !== undefined) {
-        const [ tokenId, newLevel ] = event.args;
-        console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
-        return newLevel;
-    }
+    const event = rc.events.find(event => event.event === 'LevelUped');
+    const { newLevel } = event.args;
+    console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
+    return newLevel;
 }
 
 ////////////////////////
