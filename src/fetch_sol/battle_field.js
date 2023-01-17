@@ -234,7 +234,20 @@ function eventBattleStarted (myAddress, setMatched, isHome) {
     });
 }
 
-function eventPlayerSeedCommitted (opponentPlayerId, setIsWaiting) {
+function eventMyPlayerSeedCommitted (myPlayerId, setIsLoadingMyRandomSlot) {
+    const { contract } = getContract("PLMBattleField");
+    const filter = contract.filters.PlayerSeedCommitted(myPlayerId);
+    let isUsed = false;
+    contract.on(filter, (playerId) => {
+        if (!isUsed) {
+            isUsed = true;
+            setIsLoadingMyRandomSlot(true);
+            console.log(`Player${playerId} has committed.`);
+        }
+    });
+}
+
+function eventOpponentPlayerSeedCommitted (opponentPlayerId, setIsWaiting) {
     const { contract } = getContract("PLMBattleField");
     const filter = contract.filters.PlayerSeedCommitted(opponentPlayerId);
     let isUsed = false;
@@ -402,7 +415,7 @@ export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
          forceInitBattle,
-         eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
+         eventBattleStarted, eventMyPlayerSeedCommitted, eventOpponentPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
          eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,
          eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
