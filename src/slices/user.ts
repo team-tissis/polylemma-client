@@ -13,12 +13,12 @@ const currentWalletAddressSlice = createSlice({
         setCurrentWalletAddress(state, action: PayloadAction<String>) {
             state.address = action.payload;
         },
-        walletAddressRemove: (state) => {
+        removeWalletAddress: (state) => {
             state.address = null;
         },
     },
 });
 
 export const selectCurrentWalletAddress = (state: RootState): null | String => state.walletAddress.address;
-export const { setCurrentWalletAddress, walletAddressRemove } = currentWalletAddressSlice.actions;
+export const { setCurrentWalletAddress, removeWalletAddress } = currentWalletAddressSlice.actions;
 export default currentWalletAddressSlice.reducer;
