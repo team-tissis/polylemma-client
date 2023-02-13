@@ -696,21 +696,25 @@ export default function BattleMain(){
                     <UrgeWithPleasureComponent/>
                 </div>
             </div> */}
-            <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
-                <Grid container spacing={3}>
-                    <Grid item xs={6} md={6}></Grid>
-                    <Grid item xs={6} md={6}>攻撃力</Grid>
-                    <Grid item xs={3} md={3}>ラウンド</Grid>
-                    <Grid item xs={3} md={3}>勝敗</Grid>
-                    <Grid item xs={3} md={3}>自分</Grid>
-                    <Grid item xs={3} md={3}>相手</Grid>
+            <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
+                <Grid container>
+                    <Grid container>
+                        <Grid item xs={6} md={6}></Grid>
+                        <Grid item xs={6} md={6}>攻撃力</Grid>
+                    </Grid>
+                    <Grid container>
+                        <Grid item xs={3} md={3}>ラウンド</Grid>
+                        <Grid item xs={3} md={3}>勝敗</Grid>
+                        <Grid item xs={3} md={3}>自分</Grid>
+                        <Grid item xs={3} md={3}>相手</Grid>
+                    </Grid>
                     {roundResults.map((roundResult, index) => (
-                        index < round && <>
+                        index < round && <Grid container key={index}>
                             <Grid item xs={3} md={3}>{index + 1}</Grid>
                             <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
                             <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
                             <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
-                        </>
+                        </Grid>
                     ))}
                 </Grid>
             </Card>
