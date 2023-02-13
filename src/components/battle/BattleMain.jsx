@@ -43,7 +43,8 @@ function handleButtonStyle() {
         right: '38%',
         width: '24%',
         fontSize: 17,
-        fontWeight: 600
+        fontWeight: 600,
+        zIndex: 999
     }
 }
 
