@@ -27,6 +27,9 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
          eventBattleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
+import Modal from '@mui/material/Modal';
+import InfoIcon from '@mui/icons-material/Info';
+import IconButton from '@mui/material/IconButton';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -178,19 +181,6 @@ function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLe
     </Container>
     </>)
 }
-
-const UrgeWithPleasureComponent = () => (
-    <CountdownCircleTimer
-        isPlaying
-        duration={30}
-        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-        colorsTime={[7, 5, 2, 0]}
-        strokeWidth={20}
-    >
-        {({ remainingTime }) => <div style={{fontSize: 50, fontWeight: 700}}>{ remainingTime }</div>}
-    </CountdownCircleTimer>
-)
-
 export default function BattleMain(){
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -661,8 +651,68 @@ export default function BattleMain(){
         }
     })();}, [battleCompleted, isInRound]);
 
+    function InfoPanel(){
+        return <>
+            <h2>バトル方法</h2><hr/>
 
+            <h2>手順<hr style={{margin: 0, padding: 0}}/></h2>
+            <p>「バトルを開始する」ボタンを押すとバトルが開始する</p>
+            <p>「勝負するキャラクターを確定する」ボタンを押すと各ラウンドで使用するキャラが確定する（それ以降は変更不可）</p>
+            <p>ランダムスロットを選択した場合、「ランダムスロットを公開する」ボタンを押すとランダムスロットが使用可能になる</p>
+            <p>「バトル結果を見る」ボタンを押すとバトルの実行結果が勝敗表に反映される</p>
+
+            <h2>勝敗の決定<hr style={{margin: 0, padding: 0}}/></h2>
+            <p>攻撃力が大きい方が勝負に勝利できます。</p>
+            <p>レベル: 基本的にはレベルによってキャラの攻撃力が決まります。</p>
+            <p>絆レベル: 獲得したキャラの保有期間が長ければ長いほど、絆レベルは上昇していきます。（上限は自分のレベル数の二倍）</p>
+            <p>絆レベルが高いほど攻撃力が増加します。（ただし、必ず攻撃力が上がるわけではありません。）</p>
+            <p>属性: 炎 / 草 / 水の3種類があり、じゃんけんのような相性があります。</p>
+            <p>特性: 表示されている効果が発動され、攻撃力が上昇したりします。</p>
+            <p>その他: ランダムスロットを使うことができ、レベルポイントも追加できます。</p>
+
+            <h2>ランダムスロット<hr style={{margin: 0, padding: 0}}/></h2>
+            <p>レベル: 使っているキャラのレベルの平均値が設定されます。</p>
+            <p>絆レベル: ありません。</p>
+
+            <h2>レベルポイント<hr style={{margin: 0, padding: 0}}/></h2>
+            <p>5 ラウンドで、合計で使っているキャラのレベルの最大値まで与えることができます。</p>
+            <p>一つのラウンドで全てのレベルポイントを使うことも可能です。</p>
+            <p>レベルポイントはレベルと同じように攻撃力に加算されます。</p>
+        </>
+    }
+    const [ infoPanelOpen, setInfoPanelOpen]  = useState(false);
+    const handleInfoPanelOpen = () => setInfoPanelOpen(true);
+    const handleInfoPanelClose = () => setInfoPanelOpen(false);
+    const modalStyle = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '70%',
+        height: '80%',
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+        overflow: 'auto'
+    };
     return(<>
+    {/* 手順説明モーダル */}
+    <Modal
+        open={infoPanelOpen}
+        onClose={handleInfoPanelClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+    >
+        <Box sx={modalStyle}>
+            <InfoPanel style={{width: '80%'}}/>
+        </Box>
+    </Modal>
+
+    <iconButton aria-label="show-info" onClick={handleInfoPanelOpen} style={{position: 'fixed', bottom: 30, right: 16, zIndex: 99}}>
+        <InfoIcon style={{fontSize: 70}}/>
+    </iconButton>    
+
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
     </Button>
@@ -672,9 +722,9 @@ export default function BattleMain(){
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
     <div>COMと対戦: {isCOM ? "YES" : "NO"}</div>
     <div>ラウンド {round+1}</div>
-    <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
-        <Grid item xs={10} md={7}>
-            {myRandomSlotState >= 1 &&
+    
+    <Container style={{margin: 30}}>
+    {myRandomSlotState >= 1 &&
             <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
                 [dev]左から数えて {COMChoice} 番目のトークンが選択されました。
                 <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} level={opponentLevel}
@@ -688,79 +738,7 @@ export default function BattleMain(){
                          remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint}
                          isChoiceFrozen={isChoiceFrozen} choice={choice} setChoice={setChoice} />
             </Container>
-            }
-        </Grid>
-        <Grid item xs={10} md={2}>
-            {/* <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
-            <div style={{textAlign: 'center'}}>
-                <div style={{display: 'inlineBlock'}}>
-                    <UrgeWithPleasureComponent/>
-                </div>
-            </div> */}
-            <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
-                <Grid container>
-                    <Grid container>
-                        <Grid item xs={6} md={6}></Grid>
-                        <Grid item xs={6} md={6}>攻撃力</Grid>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={3} md={3}>ラウンド</Grid>
-                        <Grid item xs={3} md={3}>勝敗</Grid>
-                        <Grid item xs={3} md={3}>自分</Grid>
-                        <Grid item xs={3} md={3}>相手</Grid>
-                    </Grid>
-                    {roundResults.map((roundResult, index) => (
-                        index < round && <Grid container key={index}>
-                            <Grid item xs={3} md={3}>{index + 1}</Grid>
-                            <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
-                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
-                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Card>
-            {battleResult &&
-            <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
-                <Grid container spacing={3}>
-                    <Grid item xs={4} md={4}>勝敗</Grid>
-                    <Grid item xs={4} md={4}>自分</Grid>
-                    <Grid item xs={4} md={4}>相手</Grid>
-
-                    <Grid item xs={4} md={4}>{battleResult.isDraw ? <>△</> : (battleInfo.myPlayerId === battleResult.winner) ? <>○</> : <>×</>}</Grid>
-                    <Grid item xs={4} md={4}>{(battleInfo.myPlayerId === battleResult.winner) ? battleResult.winnerCount : battleResult.loserCount}</Grid>
-                    <Grid item xs={4} md={4}>{(battleInfo.myPlayerId === battleResult.winner) ? battleResult.loserCount : battleResult.winnerCount}</Grid>
-                </Grid>
-            </Card>
-            }
-
-            <Grid item xs={10} md={10}>
-                <h2>バトル方法</h2><hr/>
-
-                <h2>手順<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>「バトルを開始する」ボタンを押すとバトルが開始する</p>
-                <p>「勝負するキャラクターを確定する」ボタンを押すと各ラウンドで使用するキャラが確定する（それ以降は変更不可）</p>
-                <p>ランダムスロットを選択した場合、「ランダムスロットを公開する」ボタンを押すとランダムスロットが使用可能になる</p>
-                <p>「バトル結果を見る」ボタンを押すとバトルの実行結果が勝敗表に反映される</p>
-
-                <h2>勝敗の決定<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>攻撃力が大きい方が勝負に勝利できます。</p>
-                <p>レベル: 基本的にはレベルによってキャラの攻撃力が決まります。</p>
-                <p>絆レベル: 獲得したキャラの保有期間が長ければ長いほど、絆レベルは上昇していきます。（上限は自分のレベル数の二倍）</p>
-                <p>絆レベルが高いほど攻撃力が増加します。（ただし、必ず攻撃力が上がるわけではありません。）</p>
-                <p>属性: 炎 / 草 / 水の3種類があり、じゃんけんのような相性があります。</p>
-                <p>特性: 表示されている効果が発動され、攻撃力が上昇したりします。</p>
-                <p>その他: ランダムスロットを使うことができ、レベルポイントも追加できます。</p>
-
-                <h2>ランダムスロット<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>レベル: 使っているキャラのレベルの平均値が設定されます。</p>
-                <p>絆レベル: ありません。</p>
-
-                <h2>レベルポイント<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>5 ラウンドで、合計で使っているキャラのレベルの最大値まで与えることができます。</p>
-                <p>一つのラウンドで全てのレベルポイントを使うことも可能です。</p>
-                <p>レベルポイントはレベルと同じように攻撃力に加算されます。</p>
-            </Grid>
-        </Grid>
+        }
 
         {!isChanging && myRandomSlotState === 0 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
@@ -785,6 +763,43 @@ export default function BattleMain(){
                 バトル結果を見る
             </Button>
         }
-    </Grid>
+    </Container>
     </>)
 }
+
+
+{/* <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
+    <Grid container>
+        <Grid container>
+            <Grid item xs={6} md={6}></Grid>
+            <Grid item xs={6} md={6}>攻撃力</Grid>
+        </Grid>
+        <Grid container>
+            <Grid item xs={3} md={3}>ラウンド</Grid>
+            <Grid item xs={3} md={3}>勝敗</Grid>
+            <Grid item xs={3} md={3}>自分</Grid>
+            <Grid item xs={3} md={3}>相手</Grid>
+        </Grid>
+        {roundResults.map((roundResult, index) => (
+            index < round && <Grid container key={index}>
+                <Grid item xs={3} md={3}>{index + 1}</Grid>
+                <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
+                <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
+                <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
+            </Grid>
+        ))}
+    </Grid>
+</Card>
+{battleResult &&
+<Card variant="outlined" style={{marginRight: 20, padding: 10}}>
+    <Grid container spacing={3}>
+        <Grid item xs={4} md={4}>勝敗</Grid>
+        <Grid item xs={4} md={4}>自分</Grid>
+        <Grid item xs={4} md={4}>相手</Grid>
+
+        <Grid item xs={4} md={4}>{battleResult.isDraw ? <>△</> : (battleInfo.myPlayerId === battleResult.winner) ? <>○</> : <>×</>}</Grid>
+        <Grid item xs={4} md={4}>{(battleInfo.myPlayerId === battleResult.winner) ? battleResult.winnerCount : battleResult.loserCount}</Grid>
+        <Grid item xs={4} md={4}>{(battleInfo.myPlayerId === battleResult.winner) ? battleResult.loserCount : battleResult.winnerCount}</Grid>
+    </Grid>
+</Card>
+} */}

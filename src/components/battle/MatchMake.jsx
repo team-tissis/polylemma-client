@@ -38,6 +38,7 @@ function BattleAccount({proposalAccount}){
     const [open, setOpen] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
 
+    console.log({対戦要求アカウント: proposalAccount})
     async function handleClickStartBattle (setIsStarting) {
         setIsStarting(true);
         if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
