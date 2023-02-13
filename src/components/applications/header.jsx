@@ -7,6 +7,7 @@ import HeaderDrawer from 'components/applications/drawer';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, walletAddressRemove } from '../../slices/user.ts';
 import { connectWallet } from 'fetch_sol/utils.js';
+import Chip from '@mui/material/Chip';
 
 export default function Header({currentCoin, setCurrentCoin}) {
     const dispatch = useDispatch();
@@ -35,9 +36,7 @@ export default function Header({currentCoin, setCurrentCoin}) {
                         MetaMaskと連携
                     </Button>
                     }
-                    <Button variant="outlined" color="inherit" style={{marginLeft: 20}}>
-                        所持コイン: {`${currentCoin} PLM`}
-                    </Button>
+                    <Chip label={`所持コイン: ${currentCoin} PLM`} variant="outlined"  style={{marginLeft: 20, color: 'white', fontSize: 16}}/>
                     <HeaderDrawer currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
                 </Toolbar>
             </MuiAppBar>
