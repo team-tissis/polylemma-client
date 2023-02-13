@@ -65,7 +65,6 @@ function getSigner (addressIndex) {
             return signer;
         } catch (e) {
             console.log({error: e});
-            alert("Chrome に MetaMask をインストールしてください。");
         }
     }
 }
