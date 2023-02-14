@@ -1,5 +1,5 @@
 import { approve } from "./coin.js";
-import { stringToBytes32, bytes32ToString, getContract } from "./utils.js";
+import { stringToBytes32, bytes32ToString, getContract, poll } from "./utils.js";
 import { getImgURI } from "./token.js";
 import { getTypeName } from "./data.js";
 
@@ -11,7 +11,7 @@ async function gacha (name, addressIndex) {
     const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
     const coinForGacha = await getGachaFee();
     await approve(contractAddress, coinForGacha, addressIndex);
-    const message = await contract.gacha(stringToBytes32(name));
+    const message = await poll(() => {return contract.gacha(stringToBytes32(name));});
     console.log({ gacha: message });
 
     const rc = await message.wait();
@@ -35,7 +35,7 @@ async function gacha (name, addressIndex) {
 
 async function getGachaFee (addressIndex) {
     const { contract } = getContract("PLMDealer", addressIndex);
-    const message = await contract.getGachaFee();
+    const message = await poll(() => {return contract.getGachaFee();});
     console.log({ getGachaFee: message });
     return Number(message);
 }

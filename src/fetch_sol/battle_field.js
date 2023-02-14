@@ -1,4 +1,4 @@
-import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract } from "./utils.js";
+import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract, poll } from "./utils.js";
 import { getImgURI } from "./token.js";
 import { getTypeName } from "./data.js";
 
@@ -10,14 +10,14 @@ async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMBattleField", addressIndex);
     const myAddress = await signer.getAddress();
     const commitString = getSeedString(myAddress, playerSeed);
-    const message = await contract.commitPlayerSeed(playerId, commitString);
+    const message = await poll(() => {return contract.commitPlayerSeed(playerId, commitString);});
     console.log({ commitPlayerSeed: message });
     await message.wait();
 }
 
 async function revealPlayerSeed (playerId, playerSeed, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.revealPlayerSeed(playerId, playerSeed);
+    const message = await poll(() => {return contract.revealPlayerSeed(playerId, playerSeed);});
     console.log({ revealPlayerSeed: message });
     await message.wait();
 }
@@ -26,21 +26,21 @@ async function commitChoice (playerId, levelPoint, choice, blindingFactor, addre
     const { signer, contract } = getContract("PLMBattleField", addressIndex);
     const myAddress = await signer.getAddress();
     const commitString = getCommitString(myAddress, levelPoint, choice, blindingFactor);
-    const message = await contract.commitChoice(playerId, commitString);
+    const message = await poll(() => {return contract.commitChoice(playerId, commitString);});
     console.log({ commitChoice: message });
     await message.wait();
 }
 
 async function revealChoice (playerId, levelPoint, choice, blindingFactor, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.revealChoice(playerId, levelPoint, choice, blindingFactor);
+    const message = await poll(() => {return contract.revealChoice(playerId, levelPoint, choice, blindingFactor);});
     console.log({ revealChoice: message });
     await message.wait();
 }
 
 async function reportLateReveal (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.reportLateReveal(playerId);
+    const message = await poll(() => {return contract.reportLateReveal(playerId);});
     console.log({ reportLateReveal: message });
     await message.wait();
 }
@@ -51,49 +51,49 @@ async function reportLateReveal (playerId, addressIndex) {
 
 async function getBattleState (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getBattleState();
+    const message = await poll(() => {return contract.getBattleState();});
     console.log({ getBattleState: message });
     return message;
 }
 
 async function getPlayerState (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getPlayerState(playerId);
+    const message = await poll(() => {return contract.getPlayerState(playerId);});
     console.log({ getPlayerState: message });
     return message;
 }
 
 async function getRemainingLevelPoint (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRemainingLevelPoint(playerId);
+    const message = await poll(() => {return contract.getRemainingLevelPoint(playerId);});
     console.log({ getRemainingLevelPoint: message });
     return Number(message);
 }
 
 async function getNonce (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getNonce(playerId);
+    const message = await poll(() => {return contract.getNonce(playerId);});
     console.log({ getNonce: message });
     return message;
 }
 
 async function getBondLevelAtBattleStart (char, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getBondLevelAtBattleStart(char['level'], char['fromBlock']);
+    const message = await poll(() => {return contract.getBondLevelAtBattleStart(char['level'], char['fromBlock']);});
     console.log({ getBondLevelAtBattleStart: message });
     return message;
 }
 
 async function getTotalSupplyAtFromBlock (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getTotalSupplyAtFromBlock(playerId);
+    const message = await poll(() => {return contract.getTotalSupplyAtFromBlock(playerId);});
     console.log({ getTotalSupplyAtFromBlock: message });
     return message;
 }
 
 async function getFixedSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getFixedSlotCharInfo(playerId);
+    const message = await poll(() => {return contract.getFixedSlotCharInfo(playerId);});
     console.log({ getFixedSlotCharInfo: message });
     const response = [];
     for (let i = 0; i < message.length; i++) {
@@ -115,7 +115,7 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
 // 自分のランダムスロットの内容を取得する関数
 async function getVirtualRandomSlotCharInfo (playerId, tokenId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getVirtualRandomSlotCharInfo(playerId, tokenId);
+    const message = await poll(() => {return contract.getVirtualRandomSlotCharInfo(playerId, tokenId);});
     console.log({ getVirtualRandomSlotCharInfo: message });
     return message;
 }
@@ -142,7 +142,7 @@ async function getMyRandomSlot (playerId, playerSeed, addressIndex) {
 // Reveal 後に相手のランダムスロットの内容を取得する関数
 async function getRandomSlotCharInfo (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRandomSlotCharInfo(playerId);
+    const message = await poll(() => {return contract.getRandomSlotCharInfo(playerId);});
     console.log({ getRandomSlotCharInfo: message });
 
     return {
@@ -160,7 +160,7 @@ async function getRandomSlotCharInfo (playerId, addressIndex) {
 
 async function getCharsUsedRounds (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getCharsUsedRounds(playerId);
+    const message = await poll(() => {return contract.getCharsUsedRounds(playerId);});
     console.log({ getCharsUsedRounds: message });
     return message;
 }
@@ -168,49 +168,49 @@ async function getCharsUsedRounds (playerId, addressIndex) {
 async function getPlayerIdFromAddr (addressIndex) {
     const { signer, contract } = getContract("PLMBattleField", addressIndex);
     const myAddress = await signer.getAddress();
-    const message = await contract.getPlayerIdFromAddr(myAddress);
+    const message = await poll(() => {return contract.getPlayerIdFromAddr(myAddress);});
     console.log({ getPlayerIdFromAddr: message });
     return message;
 }
 
 async function getCurrentRound (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getCurrentRound();
+    const message = await poll(() => {return contract.getCurrentRound();});
     console.log({ getCurrentRound: message });
     return message;
 }
 
 async function getMaxLevelPoint (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getMaxLevelPoint(playerId);
+    const message = await poll(() => {return contract.getMaxLevelPoint(playerId);});
     console.log({ getMaxLevelPoint: message });
     return message;
 }
 
 async function getRoundResults (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRoundResults();
+    const message = await poll(() => {return contract.getRoundResults();});
     console.log({ getRoundResults: message });
     return message;
 }
 
 async function getBattleResult (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getBattleResult();
+    const message = await poll(() => {return contract.getBattleResult();});
     console.log({ getBattleResult: message });
     return message;
 }
 
 async function getRandomSlotState (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRandomSlotState(playerId);
+    const message = await poll(() => {return contract.getRandomSlotState(playerId);});
     console.log({ getRandomSlotState: message });
     return message;
 }
 
 async function getRandomSlotLevel (playerId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.getRandomSlotLevel(playerId);
+    const message = await poll(() => {return contract.getRandomSlotLevel(playerId);});
     console.log({ getRandomSlotLevel: message });
     return message;
 }
@@ -221,7 +221,7 @@ async function getRandomSlotLevel (playerId, addressIndex) {
 
 async function forceInitBattle (addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const message = await contract.forceInitBattle();
+    const message = await poll(() => {return contract.forceInitBattle();});
     console.log({ forceInitBattle: message });
     await message.wait();
 }
@@ -232,7 +232,7 @@ async function forceInitBattle (addressIndex) {
 
 function eventBattleStarted (myAddress, setMatched, isHome) {
     const { contract } = getContract("PLMBattleField");
-    const filter = contract.filters.BattleStarted(isHome ? myAddress : null, isHome ? null : myAddress) ;
+    const filter = contract.filters.BattleStarted(isHome ? myAddress : null, isHome ? null : myAddress);
     contract.on(filter, (aliceAddr, bobAddr) => {
         setMatched(true);
         console.log(`Battle Between ${aliceAddr} and ${bobAddr} has started.`);
