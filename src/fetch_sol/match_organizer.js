@@ -1,4 +1,4 @@
-import { getContract } from "./utils.js";
+import { getContract, poll } from "./utils.js";
 
 /////////////////////////////////
 /// MATCH ORGANIZER FUNCTIONS ///
@@ -6,18 +6,18 @@ import { getContract } from "./utils.js";
 
 async function proposeBattle (requestRange, fixedSlotsOfProposer, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.proposeBattle(
+    const message = await poll(() => {return contract.proposeBattle(
         requestRange.min,
         requestRange.max,
         fixedSlotsOfProposer
-    );
+    );});
     console.log({ proposeBattle: message });
 }
 
 async function isProposed (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
-    const message = await contract.isProposed(myAddress);
+    const message = await poll(() => {return contract.isProposed(myAddress);});
     console.log({ isProposed: message });
     return message;
 }
@@ -25,7 +25,7 @@ async function isProposed (addressIndex) {
 async function isInBattle (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
-    const message = await contract.isInBattle(myAddress);
+    const message = await poll(() => {return contract.isInBattle(myAddress);});
     console.log({ isInBattle: message });
     return message;
 }
@@ -33,20 +33,20 @@ async function isInBattle (addressIndex) {
 async function isNotInvolved (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
-    const message = await contract.isNotInvolved(myAddress);
+    const message = await poll(() => {return contract.isNotInvolved(myAddress);});
     console.log({ isNotInvolved: message });
     return message;
 }
 
 async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger, addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);
+    const message = await poll(() => {return contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);});
     console.log({ requestChallenge: message });
 }
 
 async function cancelProposal (addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.cancelProposal();
+    const message = await poll(() => {return contract.cancelProposal();});
     console.log({ cancelProposal: message });
 }
 
@@ -56,7 +56,7 @@ async function cancelProposal (addressIndex) {
 
 async function getProposalList (addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
-    const message = await contract.getProposalList();
+    const message = await poll(() => {return contract.getProposalList();});
     console.log({ getProposalList: message });
     return message;
 }
@@ -64,7 +64,7 @@ async function getProposalList (addressIndex) {
 async function getMatchState (addressIndex) {
     const { signer, contract } = getContract("PLMMatchOrganizer", addressIndex);
     const myAddress = await signer.getAddress();
-    const message = await contract.getMatchState(myAddress);
+    const message = await poll(() => {return contract.getMatchState(myAddress);});
     console.log({ getMatchState: message });
     return message.toString();
 }
