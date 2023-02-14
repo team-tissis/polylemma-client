@@ -7,6 +7,7 @@ import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import dataArtifact from "../abi/PLMData.sol/PLMData.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
+import { ExponentialBackoff } from './backoff.ts';
 
 function getEnv() {
     return 'local';
@@ -87,4 +88,24 @@ async function connectWallet () {
     return null;
 }
 
-export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet };
+async function poll(func) {
+    const maxAttempts = 5;
+    const backoff = new ExponentialBackoff(maxAttempts);
+    let ans;
+    try {
+        for (let i = 0; i < maxAttempts + 1; i++) {
+            try {
+                ans = await func();
+                return ans;
+            } catch (e) {
+                console.log(`${i}: ${func}`);
+                await backoff.backoff();
+            }
+        }
+    } catch (e) {
+        console.log(`Exceeded maximum number of attempts: ${func}.`);
+    }
+    return ans;
+}
+
+export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };
