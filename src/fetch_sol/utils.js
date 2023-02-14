@@ -98,12 +98,17 @@ async function poll(func) {
                 ans = await func();
                 return ans;
             } catch (e) {
+                if (e.message.indexOf("Your app has exceeded its compute units per second capacity.") === -1) {
+                    console.log({error: e});
+                    throw e;
+                }
                 console.log(`${i}: ${func}`);
                 await backoff.backoff();
             }
         }
     } catch (e) {
         console.log(`Exceeded maximum number of attempts: ${func}.`);
+        throw e;
     }
     return ans;
 }
