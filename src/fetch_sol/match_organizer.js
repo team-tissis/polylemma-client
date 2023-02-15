@@ -12,6 +12,7 @@ async function proposeBattle (requestRange, fixedSlotsOfProposer, addressIndex) 
         fixedSlotsOfProposer
     );});
     console.log({ proposeBattle: message });
+    await message.wait();
 }
 
 async function isProposed (addressIndex) {
@@ -42,12 +43,14 @@ async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger, addres
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await poll(() => {return contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);});
     console.log({ requestChallenge: message });
+    await message.wait();
 }
 
 async function cancelProposal (addressIndex) {
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const message = await poll(() => {return contract.cancelProposal();});
     console.log({ cancelProposal: message });
+    await message.wait();
 }
 
 /////////////////////////
