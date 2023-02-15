@@ -431,11 +431,6 @@ export default function BattleMain(){
 
         try {
             await commitPlayerSeed(myPlayerId, myPlayerSeed);
-            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
-            setMyCharacters((characters) => {
-                characters.push(myRandomSlot);
-                return characters;
-            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -443,6 +438,17 @@ export default function BattleMain(){
             } else {
                 alert("不明なエラーが発生しました。");
             }
+        }
+
+        try {
+            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
+            setMyCharacters((characters) => {
+                characters.push(myRandomSlot);
+                return characters;
+            });
+        } catch (e) {
+            console.log({error: e});
+            alert("リロードして再度ゲームを開始してください。");
         }
 
         if (isCOM) {
@@ -624,7 +630,7 @@ export default function BattleMain(){
 
     // ラウンド終了後の処理
     useEffect(() => {(async function() {
-        if (completedNumRounds > 0) {
+        if (completedNumRounds > 0 && myCharsUsedRounds !== undefined) {
             const _roundResults = await getRoundResults();
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
