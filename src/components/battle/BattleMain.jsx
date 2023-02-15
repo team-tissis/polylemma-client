@@ -43,7 +43,8 @@ function handleButtonStyle() {
         right: '38%',
         width: '24%',
         fontSize: 17,
-        fontWeight: 600
+        fontWeight: 600,
+        zIndex: 999
     }
 }
 
@@ -430,11 +431,6 @@ export default function BattleMain(){
 
         try {
             await commitPlayerSeed(myPlayerId, myPlayerSeed);
-            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
-            setMyCharacters((characters) => {
-                characters.push(myRandomSlot);
-                return characters;
-            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -442,6 +438,17 @@ export default function BattleMain(){
             } else {
                 alert("不明なエラーが発生しました。");
             }
+        }
+
+        try {
+            const myRandomSlot = await getMyRandomSlot(myPlayerId, myPlayerSeed);
+            setMyCharacters((characters) => {
+                characters.push(myRandomSlot);
+                return characters;
+            });
+        } catch (e) {
+            console.log({error: e});
+            alert("リロードして再度ゲームを開始してください。");
         }
 
         if (isCOM) {
@@ -623,7 +630,7 @@ export default function BattleMain(){
 
     // ラウンド終了後の処理
     useEffect(() => {(async function() {
-        if (completedNumRounds > 0) {
+        if (completedNumRounds > 0 && myCharsUsedRounds !== undefined) {
             const _roundResults = await getRoundResults();
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
@@ -696,21 +703,25 @@ export default function BattleMain(){
                     <UrgeWithPleasureComponent/>
                 </div>
             </div> */}
-            <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
-                <Grid container spacing={3}>
-                    <Grid item xs={6} md={6}></Grid>
-                    <Grid item xs={6} md={6}>攻撃力</Grid>
-                    <Grid item xs={3} md={3}>ラウンド</Grid>
-                    <Grid item xs={3} md={3}>勝敗</Grid>
-                    <Grid item xs={3} md={3}>自分</Grid>
-                    <Grid item xs={3} md={3}>相手</Grid>
+            <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
+                <Grid container>
+                    <Grid container>
+                        <Grid item xs={6} md={6}></Grid>
+                        <Grid item xs={6} md={6}>攻撃力</Grid>
+                    </Grid>
+                    <Grid container>
+                        <Grid item xs={3} md={3}>ラウンド</Grid>
+                        <Grid item xs={3} md={3}>勝敗</Grid>
+                        <Grid item xs={3} md={3}>自分</Grid>
+                        <Grid item xs={3} md={3}>相手</Grid>
+                    </Grid>
                     {roundResults.map((roundResult, index) => (
-                        index < round && <>
+                        index < round && <Grid container key={index}>
                             <Grid item xs={3} md={3}>{index + 1}</Grid>
                             <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
                             <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
                             <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
-                        </>
+                        </Grid>
                     ))}
                 </Grid>
             </Card>

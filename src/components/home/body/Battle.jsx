@@ -373,6 +373,7 @@ export default function Battle() {
                 sx={{
                     display: 'flex',
                     alignItems: 'center',
+                    marginBottom: 30,
                     '& > :not(style)': { m: 1 },
                 }}
             >
@@ -398,6 +399,7 @@ export default function Battle() {
                 />
                 の範囲で対戦部屋を作成
             </Box>
+
 
             <Button variant="contained" size="large" style={createRoomButtonStyle()} onClick={() => createRoom()} disabled={isChanging}>
                 対戦の部屋を作る
