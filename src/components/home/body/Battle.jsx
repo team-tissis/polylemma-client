@@ -16,6 +16,7 @@ import TextField from '@mui/material/TextField';
 import 'css/card.css';
 import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
 import { initializeBattle } from 'slices/battle.ts';
+
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
@@ -26,6 +27,7 @@ import { prepareForBattle, createCharacters, makeProposers, cancelProposals, req
 
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
+import Loading from 'components/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -146,7 +148,7 @@ export default function Battle() {
     const [matched, setMatched] = useState(false);
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
-
+    const [loading, setLoading] = useState(false);
     useEffect(() => {(async function() {
         // 対戦情報ステータスを初期化する
         dispatch(initializeBattle());
@@ -229,6 +231,7 @@ export default function Battle() {
 
 
     async function declineProposal(){
+        setLoading(true)
         try {
             await cancelProposal();
             setDialogOpen(false);
@@ -240,6 +243,7 @@ export default function Battle() {
                 alert("不明なエラーが発生しました。バトル状態をリセットしてみてください。");
             }
         }
+        setLoading(false)
     }
 
 
@@ -269,7 +273,9 @@ export default function Battle() {
 
     // 開発テスト用: 自分に対戦を申し込む
     async function devHandleProposeToMe () {
+        setLoading(true)
         await requestChallengeToMe();
+        setLoading(false)
     }
 
     async function handleForceInitBattle () {
@@ -310,7 +316,7 @@ export default function Battle() {
             open={dialogOpen}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-        >
+        >   
             <DialogTitle id="alert-dialog-title" style={{ textAlign: 'center'}}>
                 対戦相手を探しています。
             </DialogTitle>
@@ -334,10 +340,10 @@ export default function Battle() {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant="outlined" color="secondary" onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+                <Button variant="outlined" color="secondary" disabled={loading} onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
                     [dev] 自分に対戦を申し込ませる
                 </Button>
-                <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
+                <Button  variant="contained" size="large" style={{width: '100%'}} disabled={loading} onClick={() => declineProposal()}>
                     対戦申告を取り下げる
                 </Button>
             </DialogActions>
