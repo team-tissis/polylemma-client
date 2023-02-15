@@ -15,6 +15,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
 import { selectBattleInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
          setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
+import { useSnackbar } from 'notistack';
 import { getEnv, getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
@@ -192,6 +193,7 @@ const UrgeWithPleasureComponent = () => (
 )
 
 export default function BattleMain(){
+    const { enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -388,12 +390,22 @@ export default function BattleMain(){
     async function handleForceInitBattle () {
         dispatch(initializeBattle());
         await forceInitBattle();
+        const message = "バトル状態を初期化しました。";
+        enqueueSnackbar(message, {
+            autoHideDuration: 1500,
+            variant: 'success',
+        });
         navigate('../');
     }
 
     async function handleReportLateReveal () {
         try {
             await reportLateReveal(battleInfo.myPlayerId);
+            const message = "報告しました。";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -431,6 +443,11 @@ export default function BattleMain(){
 
         try {
             await commitPlayerSeed(myPlayerId, myPlayerSeed);
+            const message = "バトルが開始されました！";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -486,6 +503,11 @@ export default function BattleMain(){
 
         try {
             await commitChoice(myPlayerId, levelPoint, choice, blindingFactor);
+            const message = "キャラが確定されました！";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
         } catch (e) {
             setIsInRound(false);
             console.log({error: e});
@@ -523,6 +545,11 @@ export default function BattleMain(){
 
         try {
             await revealPlayerSeed(myPlayerId, myPlayerSeed);
+            const message = "ランダムスロットを公開しました！";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -548,6 +575,11 @@ export default function BattleMain(){
 
         try {
             await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
+            const message = "対戦に出したキャラを公開しました！";
+            enqueueSnackbar(message, {
+                autoHideDuration: 1500,
+                variant: 'success',
+            });
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {

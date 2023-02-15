@@ -9,12 +9,10 @@ async function restoreFullStamina (addressIndex) {
     const { contractAddress, signer, contract } = getContract("PLMDealer", addressIndex);
     const myAddress = await signer.getAddress();
     const restoreStaminaFee = await getRestoreStaminaFee(addressIndex);
-    if (await approve(contractAddress, restoreStaminaFee)) {
-        const message = await poll(() => {return contract.restoreFullStamina(myAddress);});
-        console.log({ restoreFullStamina: message });
-    } else {
-        return -1;
-    }
+    await approve(contractAddress, restoreStaminaFee)
+    const message = await poll(() => {return contract.restoreFullStamina(myAddress);});
+    console.log({ restoreFullStamina: message });
+    await message.wait();
 }
 
 async function getCurrentStamina (addressIndex) {
