@@ -81,9 +81,8 @@ function getContract (contractName, addressIndex) {
 async function connectWallet () {
     if (getEnv() === 'mumbai') {
         const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-        await provider.send('eth_requestAccounts', []);
-        const signer = provider.getSigner();
-        return await signer.getAddress();
+        const message = await provider.send('eth_requestAccounts', []);
+        return message[0];
     }
     return null;
 }

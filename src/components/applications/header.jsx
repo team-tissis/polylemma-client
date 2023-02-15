@@ -26,7 +26,7 @@ export default function Header({currentCoin, setCurrentCoin}) {
             try {
                 const address = await connectWallet();
                 if (walletAddress !== address) {
-                    alert(`アカウントが ${getWalletAddressToShow(address)} に変更されました。`)
+                    alert(`アカウントが ${getWalletAddressToShow(address)} に変更されました。`);
                     dispatch(setCurrentWalletAddress(address));
                     window.location.reload();
                 } else {
@@ -47,7 +47,7 @@ export default function Header({currentCoin, setCurrentCoin}) {
             try {
                 const address = await connectWallet();
                 if (walletAddress !== address) {
-                    alert(`アカウントが ${getWalletAddressToShow(address)} に設定されました。`)
+                    alert(`アカウントが ${getWalletAddressToShow(address)} に設定されました。`);
                     dispatch(setCurrentWalletAddress(address));
                     window.location.reload();
                 }
@@ -55,6 +55,7 @@ export default function Header({currentCoin, setCurrentCoin}) {
                 dispatch(removeWalletAddress());
                 console.log({error: e});
             }
+            window.ethereum.on("accountsChanged", () => handleConnectWallet());
         }
     })()},[]);
 
