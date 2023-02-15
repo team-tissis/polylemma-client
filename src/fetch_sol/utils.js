@@ -107,7 +107,9 @@ async function poll(func) {
             }
         }
     } catch (e) {
-        console.log(`Exceeded maximum number of attempts: ${func}.`);
+        if (e.message.indexOf("Your app has exceeded its compute units per second capacity.") === -1) {
+            console.log(`Exceeded maximum number of attempts: ${func}.`);
+        }
         throw e;
     }
     return ans;
