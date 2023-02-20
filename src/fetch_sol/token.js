@@ -6,10 +6,10 @@ async function updateLevel (tokenId, addressIndex) {
     const { contractAddress, contract } = getContract("PLMToken", addressIndex);
     const coinForLevelUp = getNecessaryExp(tokenId);
     await approve(contractAddress, coinForLevelUp, addressIndex);
-    const message = await poll(() => {return contract.updateLevel(tokenId);});
-    console.log({ updateLevel: message });
+    const response = await poll(() => {return contract.updateLevel(tokenId);});
+    console.log({ updateLevel: response });
 
-    const rc = await message.wait();
+    const rc = await response.wait();
     const event = rc.events.find(event => event.event === 'LevelUped');
     const { newLevel } = event.args;
     console.log(`Token ${tokenId}'s level becomes ${newLevel}.`);
@@ -22,17 +22,17 @@ async function updateLevel (tokenId, addressIndex) {
 
 async function totalSupply (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
-    const message = await poll(() => {return contract.totalSupply();});
-    console.log({ totalSupply: message });
-    return Number(message);
+    const response = await poll(() => {return contract.totalSupply();});
+    console.log({ totalSupply: response });
+    return Number(response);
 }
 
 async function getAllTokenOwned (addressIndex) {
     const { signer, contract } = getContract("PLMToken", addressIndex);
     const myAddress = await signer.getAddress();
-    const message = await poll(() => {return contract.getAllTokenOwned(myAddress);});
-    console.log({ getAllTokenOwned: message });
-    return message.map(myToken => myToken.toNumber());
+    const response = await poll(() => {return contract.getAllTokenOwned(myAddress);});
+    console.log({ getAllTokenOwned: response });
+    return response.map(myToken => myToken.toNumber());
 }
 
 async function getNumberOfOwnedTokens (addressIndex) {
@@ -42,18 +42,18 @@ async function getNumberOfOwnedTokens (addressIndex) {
 
 async function getAllCharacterInfo (addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
-    const message = await poll(() => {return contract.getAllCharacterInfo();});
+    const response = await poll(() => {return contract.getAllCharacterInfo();});
     const allCharacterInfo = [];
-    for (let i = 0; i < message.length; i++) {
+    for (let i = 0; i < response.length; i++) {
         allCharacterInfo.push({
             id: i + 1,
-            name: bytes32ToString(message[i].name),
-            imgURI: await getImgURI(message[i].imgId, addressIndex),
-            characterType: await getTypeName(message[i].characterTypeId, addressIndex),
-            level: message[i].level,
-            bondLevel: await getCurrentBondLevel(message[i]),
-            rarity: message[i].rarity,
-            attributeIds: message[i].attributeIds
+            name: bytes32ToString(response[i].name),
+            imgURI: await getImgURI(response[i].imgId, addressIndex),
+            characterType: await getTypeName(response[i].characterTypeId, addressIndex),
+            level: response[i].level,
+            bondLevel: await getCurrentBondLevel(response[i]),
+            rarity: response[i].rarity,
+            attributeIds: response[i].attributeIds
         });
     }
     console.log({ allCharacterInfo: allCharacterInfo });
@@ -62,23 +62,23 @@ async function getAllCharacterInfo (addressIndex) {
 
 async function getNecessaryExp (tokenId, addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
-    const message = await poll(() => {return contract.getNecessaryExp(tokenId);});
-    console.log({ getNecessaryExp: message });
-    return Number(message);
+    const response = await poll(() => {return contract.getNecessaryExp(tokenId);});
+    console.log({ getNecessaryExp: response });
+    return Number(response);
 }
 
 async function getCurrentCharacterInfo (tokenId, addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
-    const message = await poll(() => {return contract.getCurrentCharacterInfo(tokenId);});
-    // console.log({ getCurrentCharacterInfo: message });
-    return message;
+    const response = await poll(() => {return contract.getCurrentCharacterInfo(tokenId);});
+    // console.log({ getCurrentCharacterInfo: response });
+    return response;
 }
 
 async function getImgURI (imgId, addressIndex) {
     const { contract } = getContract("PLMToken", addressIndex);
-    const message = await poll(() => {return contract.getImgURI(imgId);});
-    // console.log({ getImgURI: message });
-    return message;
+    const response = await poll(() => {return contract.getImgURI(imgId);});
+    // console.log({ getImgURI: response });
+    return response;
 }
 
 async function getOwnedCharacterWithIDList (addressIndex) {

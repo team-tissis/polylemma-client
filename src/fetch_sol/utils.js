@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
-// import contractFunctions from "../json/contract_address_list.json";
+// import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
+import contractFunctions from "../json/contract_address_list.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
@@ -10,8 +10,8 @@ import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 import { ExponentialBackoff } from './backoff.ts';
 
 function getEnv() {
-    return 'local';
-    // return 'mumbai';
+    // return 'local';
+    return 'mumbai';
 }
 
 function stringToBytes32 (str) {
@@ -81,8 +81,8 @@ function getContract (contractName, addressIndex) {
 async function connectWallet () {
     if (getEnv() === 'mumbai') {
         const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-        const message = await provider.send('eth_requestAccounts', []);
-        return message[0];
+        const response = await provider.send('eth_requestAccounts', []);
+        return response[0];
     }
     return null;
 }
