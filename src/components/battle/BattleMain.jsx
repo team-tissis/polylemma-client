@@ -380,7 +380,7 @@ export default function BattleMain(){
 
     useEffect(() => {
         if (isCancelling && isCancelled) {
-            alert(`Battle has been canceled.`);
+            alert(`バトルがキャンセルされました。`);
             dispatch(initializeBattle());
             navigate('../');
         }
@@ -666,10 +666,12 @@ export default function BattleMain(){
             const _roundResults = await getRoundResults();
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
-            if (_roundResult.isDraw) {
-                alert(`Round ${completedNumRounds}: Draw (${_roundResult.winnerDamage}).`);
-            } else {
-                alert(`Round ${completedNumRounds}: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
+            if (myState === 0) {
+                if (_roundResult.isDraw) {
+                    alert(`Round ${completedNumRounds}: Draw (${_roundResult.winnerDamage}).`);
+                } else {
+                    alert(`Round ${completedNumRounds}: Winner ${_roundResult.winner} ${_roundResult.winnerDamage} vs Loser ${_roundResult.loser} ${_roundResult.loserDamage}.`);
+                }
             }
 
             let nextIndex;
