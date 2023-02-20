@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import MuiAppBar from '@mui/material/AppBar';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentWalletAddress, setCurrentWalletAddress, removeWalletAddress } from '../../slices/user.ts';
-import { connectWallet } from 'fetch_sol/utils.js';
+import { getEnv, connectWallet } from 'fetch_sol/utils.js';
 
 export default function SimpleHeader() {
     const dispatch = useDispatch();
@@ -17,43 +17,47 @@ export default function SimpleHeader() {
     }
 
     async function handleConnectWallet () {
-        if (window.ethereum === undefined) {
-            dispatch(removeWalletAddress());
-            alert("Chrome に MetaMask をインストールしてください。");
-        } else {
-            try {
-                const address = await connectWallet();
-                if (walletAddress !== address) {
-                    alert(`アカウントが ${getWalletAddressToShow(address)} に変更されました。`);
-                    dispatch(setCurrentWalletAddress(address));
-                    window.location.reload();
-                } else {
-                    alert("アカウントが変更されていません。");
-                }
-            } catch (e) {
+        if (getEnv() === 'mumbai') {
+            if (window.ethereum === undefined) {
                 dispatch(removeWalletAddress());
-                console.log({error: e});
+                alert("Chrome に MetaMask をインストールしてください。");
+            } else {
+                try {
+                    const address = await connectWallet();
+                    if (walletAddress !== address) {
+                        alert(`アカウントが ${getWalletAddressToShow(address)} に変更されました。`);
+                        dispatch(setCurrentWalletAddress(address));
+                        window.location.reload();
+                    } else {
+                        alert("アカウントが変更されていません。");
+                    }
+                } catch (e) {
+                    dispatch(removeWalletAddress());
+                    console.log({error: e});
+                }
             }
         }
     }
 
     useEffect(() => {(async function() {
-        if (window.ethereum === undefined) {
-            dispatch(removeWalletAddress());
-            alert("Chrome に MetaMask をインストールしてください。");
-        } else {
-            try {
-                const address = await connectWallet();
-                if (walletAddress !== address) {
-                    alert(`アカウントが ${getWalletAddressToShow(address)} に設定されました。`);
-                    dispatch(setCurrentWalletAddress(address));
-                    window.location.reload();
-                }
-            } catch (e) {
+        if (getEnv() === 'mumbai') {
+            if (window.ethereum === undefined) {
                 dispatch(removeWalletAddress());
-                console.log({error: e});
+                alert("Chrome に MetaMask をインストールしてください。");
+            } else {
+                try {
+                    const address = await connectWallet();
+                    if (walletAddress !== address) {
+                        alert(`アカウントが ${getWalletAddressToShow(address)} に設定されました。`);
+                        dispatch(setCurrentWalletAddress(address));
+                        window.location.reload();
+                    }
+                } catch (e) {
+                    dispatch(removeWalletAddress());
+                    console.log({error: e});
+                }
+                window.ethereum.on("accountsChanged", () => handleConnectWallet());
             }
-            window.ethereum.on("accountsChanged", () => handleConnectWallet());
         }
     })()},[]);
 
