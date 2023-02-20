@@ -666,7 +666,8 @@ export default function BattleMain(){
             const _roundResults = await getRoundResults();
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
-            if (myState === 0) {
+            const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
+            if (await getPlayerState(myPlayerId) === 0) {
                 if (_roundResult.isDraw) {
                     alert(`Round ${completedNumRounds}: Draw (${_roundResult.winnerDamage}).`);
                 } else {
