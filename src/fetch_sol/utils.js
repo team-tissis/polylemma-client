@@ -7,6 +7,7 @@ import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import dataArtifact from "../abi/PLMData.sol/PLMData.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
+import { ExponentialBackoff } from './backoff.ts';
 
 function getEnv() {
     return 'local';
@@ -65,7 +66,6 @@ function getSigner (addressIndex) {
             return signer;
         } catch (e) {
             console.log({error: e});
-            alert("Chrome に MetaMask をインストールしてください。");
         }
     }
 }
@@ -81,11 +81,37 @@ function getContract (contractName, addressIndex) {
 async function connectWallet () {
     if (getEnv() === 'mumbai') {
         const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
-        await provider.send('eth_requestAccounts', []);
-        const signer = provider.getSigner();
-        return await signer.getAddress();
+        const response = await provider.send('eth_requestAccounts', []);
+        return response[0];
     }
     return null;
 }
 
-export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet };
+async function poll(func) {
+    const maxAttempts = 5;
+    const backoff = new ExponentialBackoff(maxAttempts);
+    let ans;
+    try {
+        for (let i = 0; i < maxAttempts + 1; i++) {
+            try {
+                ans = await func();
+                return ans;
+            } catch (e) {
+                if (e.message.indexOf("Your app has exceeded its compute units per second capacity.") === -1) {
+                    console.log({error: e});
+                    throw e;
+                }
+                console.log(`${i}: ${func}`);
+                await backoff.backoff();
+            }
+        }
+    } catch (e) {
+        if (e.message.indexOf("Your app has exceeded its compute units per second capacity.") === -1) {
+            console.log(`Exceeded maximum number of attempts: ${func}.`);
+        }
+        throw e;
+    }
+    return ans;
+}
+
+export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };
