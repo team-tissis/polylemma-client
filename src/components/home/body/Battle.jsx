@@ -16,6 +16,7 @@ import TextField from '@mui/material/TextField';
 import 'css/card.css';
 import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
 import { initializeBattle } from 'slices/battle.ts';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
@@ -27,7 +28,7 @@ import { prepareForBattle, createCharacters, makeProposers, cancelProposals, req
 
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
-import Loading from 'components/loading';
+import LoadingDOM from 'components/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -340,11 +341,13 @@ export default function Battle() {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant="outlined" color="secondary" disabled={loading} onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
+                <Button className="loading-parent" variant="outlined" color="secondary" disabled={loading} onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
                     [dev] 自分に対戦を申し込ませる
+                    <LoadingDOM loading={loading}/>
                 </Button>
-                <Button  variant="contained" size="large" style={{width: '100%'}} disabled={loading} onClick={() => declineProposal()}>
+                <Button className="loading-parent" variant="contained" size="large" style={{width: '100%'}} disabled={loading} onClick={() => declineProposal()}>
                     対戦申告を取り下げる
+                    <LoadingDOM loading={loading}/>
                 </Button>
             </DialogActions>
         </Dialog>

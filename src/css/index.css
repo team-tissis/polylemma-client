@@ -11,3 +11,15 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
 }
+
+.loading-parent {
+    position: relative;
+    margin: 0 auto;
+}
+
+.loading-btn {
+    position: absolute;
+    left: 45%;
+    bottom: 10%;
+    transform: translate(-90%, -50%);
+}
