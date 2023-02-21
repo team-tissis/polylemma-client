@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
-// import contractFunctions from "../json/contract_address_list.json";
+// import contractFunctions from "../json/contract_address_list_latest.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
