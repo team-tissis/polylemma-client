@@ -9,9 +9,25 @@ import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganiz
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
 import { ExponentialBackoff } from './backoff.ts';
 
+const LOCAL = 'local'
+const MUMBAI = 'mumbai'
 function getEnv() {
-    return 'local';
-    // return 'mumbai';
+    return LOCAL;
+    // return MUMBAI;
+}
+
+async function getCurrentAdress (addressIndex) {
+    if (getEnv() == MUMBAI) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+        await provider.send('eth_requestAccounts', []);
+        const signer = provider.getSigner();
+        return await signer.getAddress();
+    } else {
+        const signerIndex = (addressIndex == null) ? 1 : addressIndex;
+        const provider = new ethers.providers.JsonRpcProvider();
+        const signer = provider.getSigner(signerIndex);
+        return await signer.getAddress();;
+    }
 }
 
 function stringToBytes32 (str) {
@@ -114,4 +130,4 @@ async function poll(func) {
     return ans;
 }
 
-export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };
+export { getCurrentAdress, getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };

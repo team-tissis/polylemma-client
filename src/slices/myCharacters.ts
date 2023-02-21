@@ -30,6 +30,12 @@ const myCharactersSlice = createSlice({
         setBattleCharacters(state, action: PayloadAction<IMyCharactersPerWallet[]>) {
             state.characters = action.payload;
         },
+        setCurrentAddress(state, action: PayloadAction<string>) {
+            const currentAddress = action.payload;
+            const refCharactors = state.characters.filter((characterData, index) => {
+                return characterData.walletAdress == currentAddress
+            });
+        },
         addBattleCharacters(state, action: PayloadAction<IMyCharactersPerWallet>) {
             if (state.characters.length < 4) {
                 state.characters.push(action.payload);
