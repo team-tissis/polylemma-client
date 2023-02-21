@@ -38,11 +38,27 @@ async function revealChoice (playerId, levelPoint, choice, blindingFactor, addre
     await response.wait();
 }
 
-async function reportLateReveal (playerId, addressIndex) {
+async function reportLateOperation (opponentId, addressIndex) {
     const { contract } = getContract("PLMBattleField", addressIndex);
-    const response = await poll(() => {return contract.reportLateReveal(playerId);});
-    console.log({ reportLateReveal: response });
-    await response.wait();
+    const opponentState = await getPlayerState (opponentId, addressIndex);
+    const opponentRandomSlotState = await getRandomSlotState(opponentId, addressIndex);
+    if (opponentRandomSlotState === 0) {
+        const response = await poll(() => {return contract.reportLatePlayerSeedCommit(opponentId);});
+        console.log({ reportLatePlayerSeedCommit: response });
+        await response.wait();
+    } else if (opponentState === 0) {
+        const response = await poll(() => {return contract.reportLateChoiceCommit(opponentId);});
+        console.log({ reportLateChoiceCommit: response });
+        await response.wait();
+    } else if (opponentState === 1) {
+        const response = await poll(() => {return contract.reportLateReveal(opponentId);});
+        console.log({ reportLateReveal: response });
+        await response.wait();
+    } else {
+        alert("レポートするものがありません。");
+        return false;
+    }
+    return true;
 }
 
 ////////////////////////
@@ -403,7 +419,7 @@ function eventBattleCanceled (isCancelled) {
     });
 }
 
-export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
+export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateOperation,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
          forceInitBattle,
