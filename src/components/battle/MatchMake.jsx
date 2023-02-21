@@ -18,7 +18,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { useSelector } from 'react-redux';
 import { selectMyCharacter } from 'slices/myCharacters.ts';
-import { useSnackbar } from 'notistack';
 import { getContract } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer.js';
@@ -35,7 +34,6 @@ const Item = styled(Paper)(({ theme }) => ({
 
 
 function BattleAccount({proposalAccount}){
-    const { enqueueSnackbar } = useSnackbar();
     const myCharacters = useSelector(selectMyCharacter);
     const [open, setOpen] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
@@ -54,11 +52,6 @@ function BattleAccount({proposalAccount}){
             try {
                 const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
                 await requestChallenge(proposalAccount.home, fixedSlotsOfChallenger);
-                const message = "相手とマッチしました！";
-                enqueueSnackbar(message, {
-                    autoHideDuration: 1500,
-                    variant: 'success',
-                });
             } catch (e) {
                 setIsStarting(false);
                 console.log({error: e});

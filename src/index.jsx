@@ -19,7 +19,7 @@ function Page() {
 
     return (<>
         <Provider store={store}>
-        <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'center'}} style={{marginTop: 50}}>
+        <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center'}}>
             <RouterConfig currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
         </SnackbarProvider>
         </Provider>

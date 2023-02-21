@@ -98,12 +98,14 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
     const handleClickCharge = async (plm, matic) => {
         try {
             const addedCoin = await getPLMCoin(plm, matic);
-            const message = addedCoin + " コインを獲得しました！";
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'success',
-            });
-            setCurrentCoin(await balanceOf());
+            if (addedCoin !== -1) {
+                const message = addedCoin + " コインを獲得しました！";
+                enqueueSnackbar(message, {
+                    autoHideDuration: 1500,
+                    variant: 'success',
+                });
+                setCurrentCoin(await balanceOf());
+            }
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -120,15 +122,17 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
         } else {
             try {
                 const extendedBlock = await extendSubscPeriod();
-                const message = extendedBlock + " ブロックまでサブスク期間が延長されました！";
-                enqueueSnackbar(message, {
-                    autoHideDuration: 1500,
-                    variant: 'success',
-                });
-                setCurrentCoin(await balanceOf());
-                setSubscExpired(await subscIsExpired());
-                setSubscExpiredBlock(await getSubscExpiredBlock());
-                setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+                if (extendedBlock !== -1) {
+                    const message = extendedBlock + " ブロックまでサブスク期間が延長されました！";
+                    enqueueSnackbar(message, {
+                        autoHideDuration: 1500,
+                        variant: 'success',
+                    });
+                    setCurrentCoin(await balanceOf());
+                    setSubscExpired(await subscIsExpired());
+                    setSubscExpiredBlock(await getSubscExpiredBlock());
+                    setSubscRemainingBlocks(await getSubscRemainingBlockNum());
+                }
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -143,16 +147,9 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
     const handleClickRestoreStamina = async () => {
         if (await balanceOf() < await getRestoreStaminaFee()) {
             alert("スタミナを回復するのにコインが足りません。");
-        } else if (await getCurrentStamina() === 100) {
-            alert("スタミナは満タンです。")
         } else {
             try {
                 await restoreFullStamina();
-                const message = "スタミナが満タンになりました！";
-                enqueueSnackbar(message, {
-                    autoHideDuration: 1500,
-                    variant: 'success',
-                });
                 setCurrentCoin(await balanceOf());
                 const currentStamina = await getCurrentStamina();
                 const staminaMax = await getStaminaMax();
