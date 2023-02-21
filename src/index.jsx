@@ -7,11 +7,17 @@ import { RouterConfig } from "routes/Routes.jsx";
 import { SnackbarProvider } from 'notistack';
 import { store } from 'store.ts';
 import { balanceOf } from 'fetch_sol/coin.js';
+// import { getSigner }from 'fetch_sol/utils.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function Page() {
     const [currentCoin, setCurrentCoin] = useState(0);
+
+    // useEffect(() => {(async function() {
+    //     const signer = getSigner()
+    //     console.log({アドレス: signer})
+    // })();}, []);
 
     useEffect(() => {(async function() {
         setCurrentCoin(await balanceOf());

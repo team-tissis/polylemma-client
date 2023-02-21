@@ -93,7 +93,11 @@ function CharacterCard({character, setMyBattleCharacters, isChanging}){
                 variant: 'error',
             });
         } else {
-            dispatch(addBattleCharacters(character));
+            // dispatch(addBattleCharacters({
+            //     walletAdress: 
+            //     battleCharacters: character
+            // }));
+            // dispatch(addBattleCharacters(character));
             setMyBattleCharacters(myCharacters.battleCharacters);
         }
     }
