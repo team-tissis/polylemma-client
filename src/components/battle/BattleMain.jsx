@@ -28,6 +28,7 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
          eventBattleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
+import LoadingDOM from 'components/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -200,6 +201,7 @@ export default function BattleMain(){
     const maxRounds = 5;
 
     const battleInfo = useSelector(selectBattleInfo);
+    const [loading, setLoading] = useState(false);
 
     const [choice, setChoice] = useState(0);
     const [levelPoint, setLevelPoint] = useState(0);

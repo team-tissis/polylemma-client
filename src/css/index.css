@@ -19,7 +19,6 @@ code {
 
 .loading-btn {
     position: absolute;
-    left: 45%;
-    bottom: 10%;
+    left: 40%;
     transform: translate(-90%, -50%);
 }
