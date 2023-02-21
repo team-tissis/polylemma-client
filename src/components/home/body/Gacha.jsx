@@ -146,7 +146,8 @@ export default function Gacha({currentCoin, setCurrentCoin}){
             setOpen(false);
         } else {
             try {
-                setNewToken(await gacha(characterName));
+                const newGotToken = await gacha(characterName);
+                setNewToken(newGotToken);
                 setCurrentToken(await getNumberOfOwnedTokens());
                 setCurrentCoin(await balanceOf());
             } catch (e) {

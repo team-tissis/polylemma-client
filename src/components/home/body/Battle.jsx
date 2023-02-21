@@ -170,11 +170,6 @@ export default function Battle() {
     useEffect(() => {(async function() {
         if (matched) {
             // 対戦情報ステータスを初期化する
-            const message = "相手とマッチしました！";
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'success',
-            });
             dispatch(initializeBattle());
             navigate('/battle_main');
         }
@@ -213,11 +208,6 @@ export default function Battle() {
                 console.log({fixedSlotsOfChallenger});
                 // proposeBattle で自分が対戦要求ステータスに変更される
                 await proposeBattle(rangeValue, fixedSlotsOfChallenger);
-                const message = "対戦の部屋を作りました。";
-                enqueueSnackbar(message, {
-                    autoHideDuration: 1500,
-                    variant: 'success',
-                });
             } catch (e) {
                 setDialogOpen(false);
                 console.log({error: e});
@@ -241,11 +231,6 @@ export default function Battle() {
     async function declineProposal(){
         try {
             await cancelProposal();
-            const message = "対戦希望を取り下げました。";
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'success',
-            });
             setDialogOpen(false);
         } catch (e) {
             console.log({error: e});
