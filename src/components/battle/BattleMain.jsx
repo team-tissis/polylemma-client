@@ -18,7 +18,7 @@ import { selectBattleInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLev
 import { useSnackbar } from 'notistack';
 import { getEnv, getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
-import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateReveal,
+import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateOperation,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
          forceInitBattle,
@@ -380,7 +380,7 @@ export default function BattleMain(){
 
     useEffect(() => {
         if (isCancelling && isCancelled) {
-            alert(`バトルがキャンセルされました。`);
+            alert("バトルがキャンセルされました。");
             dispatch(initializeBattle());
             navigate('../');
         }
@@ -398,14 +398,15 @@ export default function BattleMain(){
         navigate('../');
     }
 
-    async function handleReportLateReveal () {
+    async function handleReportLateOperation () {
         try {
-            await reportLateReveal(battleInfo.myPlayerId);
-            const message = "報告しました。";
-            enqueueSnackbar(message, {
-                autoHideDuration: 1500,
-                variant: 'success',
-            });
+            if (await reportLateOperation(1-battleInfo.myPlayerId)) {
+                const message = "報告しました。";
+                enqueueSnackbar(message, {
+                    autoHideDuration: 1500,
+                    variant: 'success',
+                });
+            }
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -707,8 +708,8 @@ export default function BattleMain(){
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
     </Button>
-    <Button variant="contained" size="large" color="secondary" onClick={() => handleReportLateReveal() }>
-        相手がキャラ公開をしてくれない
+    <Button variant="contained" size="large" color="secondary" onClick={() => handleReportLateOperation() }>
+        相手の操作が遅いことを報告する
     </Button>
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
     <div>COMと対戦: {isCOM ? "YES" : "NO"}</div>
