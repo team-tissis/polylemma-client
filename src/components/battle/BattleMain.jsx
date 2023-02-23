@@ -576,7 +576,7 @@ export default function BattleMain(){
 
         try {
             await revealChoice(myPlayerId, levelPoint, choice, myBlindingFactor);
-            const message = "対戦に出したキャラを公開しました！";
+            const message = "バトルに出したキャラを公開しました！";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'success',
@@ -712,7 +712,7 @@ export default function BattleMain(){
         相手の操作が遅いことを報告する
     </Button>
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
-    <div>COMと対戦: {isCOM ? "YES" : "NO"}</div>
+    <div>COMとバトル: {isCOM ? "YES" : "NO"}</div>
     <div>ラウンド {round+1}</div>
     <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
         <Grid item xs={10} md={7}>

@@ -92,19 +92,18 @@ function BattleAccount({proposalAccount}){
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-                対戦を行う
+                以下のアカウントとバトルしますか？
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description" component="div">
-                    以下のアカウントと対戦しますか？
                     <Typography variant="body1" color="text.primary">アドレス: {proposalAccount.home}</Typography>
                     <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setOpen(false)} disabled={isStarting} variant="contained">やめる</Button>
+                <Button onClick={() => setOpen(false)} disabled={isStarting} variant="contained">キャンセル</Button>
                 <Button onClick={() => handleClickStartBattle(setIsStarting)} disabled={isStarting} variant="contained" color="primary">
-                    対戦する
+                    バトル開始
                 </Button>
             </DialogActions>
         </Dialog>
