@@ -184,13 +184,14 @@ export default function Battle() {
     async function handleUpdate(){
         setIsChanging(false);
 
-        const _myOwnedCharacters = await getOwnedCharacterWithIDList();
-        setMyOwnedCharacters(_myOwnedCharacters);
-        dispatch(updateBattleCharacters(_myOwnedCharacters));
+        // キャラ情報の更新は行わないようにした
+        // const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+        // setMyOwnedCharacters(_myOwnedCharacters);
+        // dispatch(updateBattleCharacters(_myOwnedCharacters));
         setMyBattleCharacters(myCharacters.battleCharacters);
 
-        if(_myOwnedCharacters.length < maxNumBattleCharacters){
-            const message = `バトルするためにはキャラクターを最低でも ${maxNumBattleCharacters} 体保持する必要があります。`;
+        if(myCharacters.battleCharacters.length < maxNumBattleCharacters){
+            const message = `バトルするためにはキャラクターを最低でも ${maxNumBattleCharacters} 体選択する必要があります。`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'info',
@@ -312,11 +313,11 @@ export default function Battle() {
             {isChanging ?
             <Button variant="contained" size="large" color="secondary"
                 style={ editButtonStyle() } onClick={() => handleUpdate()}>
-                変更を保存する
+                変更を保存
             </Button>
             :
             <Button variant="contained" size="large" style={{marginTop: 10}} onClick={() => setIsChanging(true)}>
-                変更
+                バトルに出すキャラを変更
             </Button>
             }
         </Box>
