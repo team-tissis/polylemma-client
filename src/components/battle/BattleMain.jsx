@@ -49,6 +49,16 @@ function handleButtonStyle() {
     }
 }
 
+function battleResultStyle() {
+    return {
+        position: 'fixed',
+        top: 80,
+        right: 10,
+        fontSize: 20,
+        zIndex: 999
+    }
+}
+
 function BattleCard({character, charUsedRounds, isOpponent, isChoiceFrozen, choice, setChoice, opponentRandomSlotState}){
     const isRS = character.isRandomSlot;
     const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
@@ -703,8 +713,36 @@ export default function BattleMain(){
         }
     })();}, [battleCompleted, isInRound]);
 
+    function roundResult(){
+        if (roundResults.length == 0) return <></>
+        var win_count = 0
+        var lose_count = 0
+        var draw_count = 0
+        roundResults.map((roundResult, index) => {
+            if (!roundResult.isDraw){
+                if(battleInfo.myPlayerId === roundResult.winner){
+                    win_count += 1
+                } else {
+                    lose_count += 1
+                }
+            } else {
+                draw_count += 1
+            }
+        })
 
+        return  <Paper elevation={3} style={{padding: 6, backgroundColor: '#EEEEEE'}}>
+                    <Chip label="自分" variant="outlined" style={{marginRight: 8, backgroundColor: '#99FFFF'}}/>
+                        {win_count} - {lose_count}
+                    <Chip label="相手" variant="outlined" style={{marginLeft: 8, backgroundColor: '#FFCCFF'}}/>
+                    <br/>(引き分け: {draw_count})
+                </Paper>
+    }
     return(<>
+    
+    <div variant="contained" size="large" style={ battleResultStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
+    { roundResult() }
+    </div>
+
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
     </Button>
