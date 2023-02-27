@@ -148,7 +148,7 @@ export default function Battle() {
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
-
+    
     useEffect(() => {(async function() {
         // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
