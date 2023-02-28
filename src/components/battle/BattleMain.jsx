@@ -28,6 +28,7 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          eventLatePlayerSeedCommitDetected, eventLateChoiceCommitDetected, eventLateChoiceRevealDetected,
          eventBattleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
+import LoadingDOM from 'components/applications/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -253,6 +254,7 @@ export default function BattleMain(){
 
     const [isCancelling, setIsCancelling] = useState(false);
     const [isCancelled, setIsCancelled] = useState(false);
+    const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     async function checkIsCOM() {
         if (getEnv() === 'mumbai') return false;
@@ -445,8 +447,8 @@ export default function BattleMain(){
 
 
     async function handleSeedCommit () {
+        setLoadingStatus({isLoading: true, message: 'まもなく対戦が開始されます！'})
         setIsChanging(true);
-        setIsChecking(true);
 
         const myPlayerId = battleInfo.myPlayerId;
         const myPlayerSeed = battleInfo.myPlayerSeed == null ? getRandomBytes32() : battleInfo.myPlayerSeed;
@@ -497,10 +499,12 @@ export default function BattleMain(){
 
         setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
+        setLoadingStatus({isLoading: false, message: null})
     }
 
 
     async function handleChoiceCommit() {
+        setLoadingStatus({isLoading: true, message: 'キャラクラーをセットします'})
         setIsChanging(true);
         setIsChecking(true);
         setIsInRound(true);
@@ -543,8 +547,8 @@ export default function BattleMain(){
                 }
             }
         }
-
         setIsChanging(false);
+        setLoadingStatus({isLoading: false, message: null})
     }
 
 
@@ -576,6 +580,7 @@ export default function BattleMain(){
 
 
     async function handleChoiceReveal() {
+        setLoadingStatus({isLoading: true, message: 'バトル結果を問い合わせ中です'})
         setIsChanging(true);
         setIsChecking(true);
 
@@ -627,6 +632,7 @@ export default function BattleMain(){
         }
 
         setIsChanging(false);
+        setLoadingStatus({isLoading: false, message: null})
     }
 
     // 各処理終了時の処理
@@ -738,11 +744,10 @@ export default function BattleMain(){
                 </Paper>
     }
     return(<>
-    
+    <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
     <div variant="contained" size="large" style={ battleResultStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
     { roundResult() }
     </div>
-
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
     </Button>

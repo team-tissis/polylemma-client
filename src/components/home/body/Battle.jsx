@@ -26,6 +26,7 @@ import { prepareForBattle, createCharacters, makeProposers, cancelProposals, req
 
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
+import LoadingDOM from 'components/applications/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -146,7 +147,8 @@ export default function Battle() {
     const [matched, setMatched] = useState(false);
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
-
+    const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
+    
     useEffect(() => {(async function() {
         // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
@@ -261,12 +263,14 @@ export default function Battle() {
 
     // 開発用・後で消す
     async function devPrepareForBattle(){
+        setLoadingStatus({isLoading: true, message: '自分のキャラクターを用意しています'})
         const fixedSlots = await prepareForBattle();
         const _myOwnedCharacters = await getOwnedCharacterWithIDList();
         setMyOwnedCharacters(_myOwnedCharacters);
         const _myBattleCharacters = _myOwnedCharacters.filter(char => fixedSlots.includes(char.id));
         setMyBattleCharacters(_myBattleCharacters);
         dispatch(setBattleCharacters(_myBattleCharacters));
+        setLoadingStatus({isLoading: false, message: null})
     }
 
     const fixedSlotsOfChallengers = [];
@@ -285,7 +289,7 @@ export default function Battle() {
 
     // 開発テスト用: 自分にバトルを申し込む
     async function devHandleProposeToMe () {
-        await requestChallengeToMe();
+        await requestChallengeToMe(setLoadingStatus);
     }
 
     async function handleForceInitBattle () {
@@ -293,6 +297,7 @@ export default function Battle() {
     }
 
     return(<>
+        <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
                 {isChanging ?
