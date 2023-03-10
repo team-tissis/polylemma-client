@@ -148,8 +148,9 @@ export default function Battle() {
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
-    
+
     useEffect(() => {(async function() {
+        setLoadingStatus({isLoading: true});
         // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
 
@@ -166,6 +167,7 @@ export default function Battle() {
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
         eventBattleStarted(myAddress, setMatched, true);
+        setLoadingStatus({isLoading: false});
     })();}, []);
 
 
@@ -263,14 +265,14 @@ export default function Battle() {
 
     // 開発用・後で消す
     async function devPrepareForBattle(){
-        setLoadingStatus({isLoading: true, message: '自分のキャラクターを用意しています'})
+        setLoadingStatus({isLoading: true, message: '自分のキャラクターを用意しています'});
         const fixedSlots = await prepareForBattle();
         const _myOwnedCharacters = await getOwnedCharacterWithIDList();
         setMyOwnedCharacters(_myOwnedCharacters);
         const _myBattleCharacters = _myOwnedCharacters.filter(char => fixedSlots.includes(char.id));
         setMyBattleCharacters(_myBattleCharacters);
         dispatch(setBattleCharacters(_myBattleCharacters));
-        setLoadingStatus({isLoading: false, message: null})
+        setLoadingStatus({isLoading: false, message: null});
     }
 
     const fixedSlotsOfChallengers = [];
