@@ -88,7 +88,7 @@ function CharacterCard({character, setMyBattleCharacters, isChanging}){
             dispatch(removeBattleCharacters(character));
             setMyBattleCharacters(myCharacters.battleCharacters);
         } else if (myCharacters.battleCharacters.length >= maxNumBattleCharacters) {
-            const message = `バトルに出せるキャラクターは ${maxNumBattleCharacters} 体までです`;
+            const message = `バトルに出せるキャラは ${maxNumBattleCharacters} 体までです`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'error',
@@ -150,7 +150,7 @@ export default function Battle() {
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     useEffect(() => {(async function() {
-        setLoadingStatus({isLoading: true});
+        setLoadingStatus({isLoading: true, message: null});
         // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
 
@@ -167,7 +167,7 @@ export default function Battle() {
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
         eventBattleStarted(myAddress, setMatched, true);
-        setLoadingStatus({isLoading: false});
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
 
@@ -195,7 +195,7 @@ export default function Battle() {
         setMyBattleCharacters(myCharacters.battleCharacters);
 
         if(myCharacters.battleCharacters.length < maxNumBattleCharacters){
-            const message = `バトルするためにはキャラクターを最低でも ${maxNumBattleCharacters} 体選択する必要があります。`;
+            const message = `バトルするためにはキャラを最低でも ${maxNumBattleCharacters} 体選択する必要があります。`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'info',
@@ -265,7 +265,7 @@ export default function Battle() {
 
     // 開発用・後で消す
     async function devPrepareForBattle(){
-        setLoadingStatus({isLoading: true, message: '自分のキャラクターを用意しています'});
+        setLoadingStatus({isLoading: true, message: '自分のキャラを用意しています'});
         const fixedSlots = await prepareForBattle();
         const _myOwnedCharacters = await getOwnedCharacterWithIDList();
         setMyOwnedCharacters(_myOwnedCharacters);

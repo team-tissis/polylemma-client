@@ -74,10 +74,10 @@ export default function CharacterBook() {
     })();}, []);
 
     useEffect(() => {(async function() {
-        setLoadingStatus({isLoading: true});
+        setLoadingStatus({isLoading: true, message: null});
         setAllCharacters(await getAllCharacterInfo());
         setMyOwnedCharacters(await getAllTokenOwned());
-        setLoadingStatus({isLoading: false});
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     return(<>

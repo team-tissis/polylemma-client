@@ -119,10 +119,10 @@ export default function Training({currentCoin, setCurrentCoin}){
     const [necessaryExp, setNecessaryExp] = useState();
 
     useEffect(() => {(async function() {
-        setLoadingStatus({isLoading: true});
+        setLoadingStatus({isLoading: true, message: null});
         setCurrentCoin(await balanceOf());
         setMyOwnedCharacters(await getOwnedCharacterWithIDList());
-        setLoadingStatus({isLoading: false});
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     // コインを使用してレベルアップさせる
