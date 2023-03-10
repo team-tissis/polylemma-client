@@ -42,7 +42,7 @@ function BattleAccount({proposalAccount, setLoadingStatus}){
     const [isStarting, setIsStarting] = useState(false);
 
     async function handleClickStartBattle (setIsStarting) {
-        setLoadingStatus({isLoading: true, message: `${proposalAccount.home}}との対戦の準備中です`})
+        setLoadingStatus({isLoading: true, message: `${proposalAccount.home} との対戦の準備中です。`});
         setIsStarting(true);
         if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
             // スタミナがあるか確認
@@ -71,6 +71,7 @@ function BattleAccount({proposalAccount, setLoadingStatus}){
                 }
             }
         }
+        setLoadingStatus({isLoading: false, message: null});
     };
 
     return(<>
@@ -120,11 +121,13 @@ export default function MatchMake() {
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     useEffect(() => {(async function() {
+        setLoadingStatus({isLoading: true, message: null});
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
         eventBattleStarted(myAddress, setMatched, false);
 
         setProposalAccounts(await getProposalList());
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     useEffect(() => {(async function() {
