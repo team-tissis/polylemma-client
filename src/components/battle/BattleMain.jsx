@@ -237,7 +237,7 @@ export default function BattleMain(){
     const [opponentLevel, setOpponentLevel] = useState();
 
     const [isChanging, setIsChanging] = useState(false);
-    const [isWaiting, setIsWaiting] = useState(false);
+    const [isWaiting, setIsWaiting] = useState(true);
     const [isChecking, setIsChecking] = useState(false);
     const [isInRound, setIsInRound] = useState(false);
     const [isChoiceFrozen, setIsChoiceFrozen] = useState(false);
@@ -274,6 +274,7 @@ export default function BattleMain(){
 
 
     useEffect(() => {(async function() {
+        setLoadingStatus({isLoading: true, message: null});
         if (!(await isInBattle())) {
             dispatch(initializeBattle());
             navigate('../');
@@ -370,6 +371,17 @@ export default function BattleMain(){
             eventChoiceRevealed(r, 1-myPlayerId, setIsWaiting);
             eventRoundCompleted(r, setCompletedNumRounds);
         }
+
+        const _opponentState = await getPlayerState(1-myPlayerId);
+        if (_myState > _opponentState || (_myRandomSlotState === 1 && _opponentRandomSlotState === 0)) {
+            // 自分の方が進んでいれば相手を待つ必要がある
+            setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
+        } else if (_myState < _opponentState || (_myRandomSlotState === 0 && _opponentRandomSlotState === 1)) {
+            setIsWaiting(false);
+            setLoadingStatus({isLoading: false, message: null});
+        } else {
+            setLoadingStatus({isLoading: false, message: null});
+        }
     })();}, []);
 
 
@@ -447,8 +459,9 @@ export default function BattleMain(){
 
 
     async function handleSeedCommit () {
-        setLoadingStatus({isLoading: true, message: 'まもなく対戦が開始されます！'})
+        setLoadingStatus({isLoading: true, message: 'まもなく対戦が開始されます！'});
         setIsChanging(true);
+        let succeed = false;
 
         const myPlayerId = battleInfo.myPlayerId;
         const myPlayerSeed = battleInfo.myPlayerSeed == null ? getRandomBytes32() : battleInfo.myPlayerSeed;
@@ -461,6 +474,7 @@ export default function BattleMain(){
                 autoHideDuration: 1500,
                 variant: 'success',
             });
+            succeed = true;
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -479,6 +493,7 @@ export default function BattleMain(){
         } catch (e) {
             console.log({error: e});
             alert("リロードして再度ゲームを開始してください。");
+            succeed = false;
         }
 
         if (isCOM) {
@@ -499,16 +514,22 @@ export default function BattleMain(){
 
         setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
-        setLoadingStatus({isLoading: false, message: null})
+        if (succeed) {
+            setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
+        } else {
+            setIsChecking(false);
+            setLoadingStatus({isLoading: false, message: null});
+        }
     }
 
 
     async function handleChoiceCommit() {
-        setLoadingStatus({isLoading: true, message: 'キャラクラーをセットします'})
+        setLoadingStatus({isLoading: true, message: 'キャラを確定しています。'});
         setIsChanging(true);
         setIsChecking(true);
         setIsInRound(true);
         setIsChoiceFrozen(true);
+        let succeed = false;
 
         const myPlayerId = battleInfo.myPlayerId;
         const blindingFactor = battleInfo.isBlindingFactorUsed ? getRandomBytes32() : battleInfo.myBlindingFactor;
@@ -523,6 +544,7 @@ export default function BattleMain(){
                 autoHideDuration: 1500,
                 variant: 'success',
             });
+            succeed = true;
         } catch (e) {
             setIsInRound(false);
             console.log({error: e});
@@ -547,12 +569,19 @@ export default function BattleMain(){
                 }
             }
         }
+
         setIsChanging(false);
-        setLoadingStatus({isLoading: false, message: null})
+        if (succeed) {
+            setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
+        } else {
+            setIsChecking(false);
+            setLoadingStatus({isLoading: false, message: null});
+        }
     }
 
 
     async function handleSeedReveal() {
+        setLoadingStatus({isLoading: true, message: 'ランダムスロットを公開しています。'});
         setIsChanging(true);
 
         const myPlayerId = battleInfo.myPlayerId;
@@ -576,13 +605,15 @@ export default function BattleMain(){
 
         setMyRandomSlotState(await getRandomSlotState(myPlayerId));
         setIsChanging(false);
+        setLoadingStatus({isLoading: false, message: null});
     }
 
 
     async function handleChoiceReveal() {
-        setLoadingStatus({isLoading: true, message: 'バトル結果を問い合わせ中です'})
+        setLoadingStatus({isLoading: true, message: 'バトルに出したキャラを公開しています。'});
         setIsChanging(true);
         setIsChecking(true);
+        let succeed = false;
 
         const myPlayerId = battleInfo.myPlayerId;
         dispatch(setChoiceUsed());
@@ -596,6 +627,7 @@ export default function BattleMain(){
                 autoHideDuration: 1500,
                 variant: 'success',
             });
+            succeed = true;
         } catch (e) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
@@ -632,7 +664,12 @@ export default function BattleMain(){
         }
 
         setIsChanging(false);
-        setLoadingStatus({isLoading: false, message: null})
+        if (succeed) {
+            setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
+        } else {
+            setIsChecking(false);
+            setLoadingStatus({isLoading: false, message: null});
+        }
     }
 
     // 各処理終了時の処理
@@ -641,38 +678,22 @@ export default function BattleMain(){
         const _myState = await getPlayerState(myPlayerId);
         const _opponentState = await getPlayerState(1-myPlayerId);
         setMyState(_myState);
+        console.log(`!${isChanging} && !${isWaiting}`);
+        console.log({loadingStatus});
         if (!isChanging && !isWaiting) {
             const _myRandomSlotState = await getRandomSlotState(myPlayerId);
             const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
-            if (_myState >= _opponentState && !(_myRandomSlotState === 0 && _opponentRandomSlotState === 1)) {
-                // 自分の方が遅れている状況じゃなければ相手を待つ必要がある
+            console.log(`${_myState} <= ${_opponentState} && !(${_myRandomSlotState} && ${_opponentRandomSlotState}`);
+            if (_myState === _opponentState && !(_myRandomSlotState + _opponentRandomSlotState === 1)) {
+                // 両方のステータスが同じになったらチェック終了で次に進める
+                setIsChecking(false);
+                if (loadingStatus.message === '相手の操作が完了するのを待っています。') {
+                    setLoadingStatus({isLoading: false, message: null});
+                }
+            } else if (_myState > _opponentState || (_myRandomSlotState === 1 && _opponentRandomSlotState === 0)) {
+                // 自分の方が進んでいれば相手を待つ必要がある
                 setIsWaiting(true);
             }
-            if ((_myState === 0 && _opponentState === 0) || (_myState === 2 && _opponentState === 2)) {
-                const currentRound = await getCurrentRound();
-                setRound(currentRound);
-
-                if (currentRound > 0) {
-                    setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
-                    setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
-                    setLevelPoint(0);
-
-                    setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
-                    setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
-                    if (_opponentRandomSlotState === 2) {
-                        const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
-                        setOpponentCharacters((character) => {
-                            character[4] = opponentRandomSlot;
-                            return character;
-                        });
-                    }
-                    setOpponentRandomSlotState(_opponentRandomSlotState);
-                }
-            } else {
-                console.log(`States: (myState, opponentState) = (${_myState}, ${_opponentState}).`);
-            }
-
-            setIsChecking(false);
         }
     })();}, [isChanging, isWaiting]);
 
@@ -680,10 +701,36 @@ export default function BattleMain(){
     // ラウンド終了後の処理
     useEffect(() => {(async function() {
         if (completedNumRounds > 0 && myCharsUsedRounds !== undefined) {
+            // 相手の次の動作を待つ
+            setIsWaiting(true);
+
+            const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
+            const currentRound = await getCurrentRound();
+            setRound(currentRound);
+
+            if (currentRound > 0) {
+                setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
+                setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
+                setLevelPoint(0);
+
+                setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
+                setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
+
+                const _opponentRandomSlotState = await getRandomSlotState(1-battleInfo.myPlayerId);
+                if (_opponentRandomSlotState === 2) {
+                    const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
+                    setOpponentCharacters((character) => {
+                        character[4] = opponentRandomSlot;
+                        return character;
+                    });
+                }
+
+                setOpponentRandomSlotState(_opponentRandomSlotState);
+            }
+
             const _roundResults = await getRoundResults();
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
-            const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
             if (await getPlayerState(myPlayerId) === 0) {
                 if (_roundResult.isDraw) {
                     alert(`Round ${completedNumRounds}: Draw (${_roundResult.winnerDamage}).`);
@@ -720,7 +767,7 @@ export default function BattleMain(){
     })();}, [battleCompleted, isInRound]);
 
     function roundResult(){
-        if (roundResults.length == 0) return <></>
+        if (roundResults.length === 0) return <></>
         var win_count = 0
         var lose_count = 0
         var draw_count = 0
@@ -745,8 +792,8 @@ export default function BattleMain(){
     }
     return(<>
     <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
-    <div variant="contained" size="large" style={ battleResultStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
-    { roundResult() }
+    <div variant="contained" size="large" style={ battleResultStyle() } color="primary" aria-label="add">
+        { roundResult() }
     </div>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
         バトルの状態をリセットする
@@ -823,7 +870,7 @@ export default function BattleMain(){
 
                 <h2>手順<hr style={{margin: 0, padding: 0}}/></h2>
                 <p>「バトルを開始する」ボタンを押すとバトルが開始する</p>
-                <p>「勝負するキャラクターを確定する」ボタンを押すと各ラウンドで使用するキャラが確定する（それ以降は変更不可）</p>
+                <p>「勝負するキャラを確定する」ボタンを押すと各ラウンドで使用するキャラが確定する（それ以降は変更不可）</p>
                 <p>ランダムスロットを選択した場合、「ランダムスロットを公開する」ボタンを押すとランダムスロットが使用可能になる</p>
                 <p>「バトル結果を見る」ボタンを押すとバトルの実行結果が勝敗表に反映される</p>
 
@@ -855,7 +902,7 @@ export default function BattleMain(){
 
         {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && myRandomSlotState >= 1 &&
             <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
-                勝負するキャラクターを確定する
+                勝負するキャラを確定する
             </Button>
         }
 
