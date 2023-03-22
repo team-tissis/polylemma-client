@@ -678,12 +678,9 @@ export default function BattleMain(){
         const _myState = await getPlayerState(myPlayerId);
         const _opponentState = await getPlayerState(1-myPlayerId);
         setMyState(_myState);
-        console.log(`!${isChanging} && !${isWaiting}`);
-        console.log({loadingStatus});
         if (!isChanging && !isWaiting) {
             const _myRandomSlotState = await getRandomSlotState(myPlayerId);
             const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
-            console.log(`${_myState} <= ${_opponentState} && !(${_myRandomSlotState} && ${_opponentRandomSlotState}`);
             if (_myState === _opponentState && !(_myRandomSlotState + _opponentRandomSlotState === 1)) {
                 // 両方のステータスが同じになったらチェック終了で次に進める
                 setIsChecking(false);
