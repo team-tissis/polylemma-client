@@ -15,7 +15,7 @@ import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Chip from '@mui/material/Chip';
-
+import LoadingDOM from 'components/applications/loading';
 
 function CharacterCard({character, selectedTokenId, setSelectedTokenId, setOpen, setSelectedCharacter, setCurrentLevel, setNecessaryExp}) {
     const characterAttribute = characterInfo.attributes[character.attributeIds[0]];
@@ -109,6 +109,7 @@ function DialogCharacterCard({character}) {
 
 export default function Training({currentCoin, setCurrentCoin}){
     const { enqueueSnackbar } = useSnackbar();
+    const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
     const [open, setOpen] = useState(false);
     const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
 
@@ -118,8 +119,10 @@ export default function Training({currentCoin, setCurrentCoin}){
     const [necessaryExp, setNecessaryExp] = useState();
 
     useEffect(() => {(async function() {
+        setLoadingStatus({isLoading: true, message: null});
         setCurrentCoin(await balanceOf());
         setMyOwnedCharacters(await getOwnedCharacterWithIDList());
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     // コインを使用してレベルアップさせる
@@ -161,6 +164,7 @@ export default function Training({currentCoin, setCurrentCoin}){
     ];
 
     return(<>
+        <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
         <h1>キャラ一覧</h1>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>

@@ -56,7 +56,8 @@ async function cancelProposals () {
     }
 }
 
-async function requestChallengeToMe () {
+async function requestChallengeToMe (setLoadingStatus) {
+    setLoadingStatus({isLoading: true, message: 'コンピュータを自分に対戦させています'})
     let addressIndex = 2;
     for (let i = 0; i < 2; i++) {
         await getPLMCoin(220, 400, addressIndex);
@@ -71,6 +72,7 @@ async function requestChallengeToMe () {
     const { signer } = getContract("PLMMatchOrganizer", 1);
     const myAddress = await signer.getAddress();
     await requestChallenge(myAddress, fixedSlotsOfChallenger, addressIndex);
+    setLoadingStatus({isLoading: false, message: null})
 }
 
 export { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe };

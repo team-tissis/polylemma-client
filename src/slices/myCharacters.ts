@@ -1,3 +1,4 @@
+import { SatelliteAlt } from '@mui/icons-material';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'Store';
 
@@ -25,8 +26,44 @@ const myCharactersSlice = createSlice({
             state.battleCharacters = action.payload;
         },
         addBattleCharacters(state, action: PayloadAction<IMyCharacter>) {
-            if (state.battleCharacters.length < 4) {
+            const len = state.battleCharacters.length;
+            const current_id = action.payload.id;
+            if (len === 0) {
                 state.battleCharacters.push(action.payload);
+            } else if (len === 1) {
+                if (current_id > state.battleCharacters[0].id) {
+                    state.battleCharacters.push(action.payload);
+                } else {
+                    state.battleCharacters.push(state.battleCharacters[0]);
+                    state.battleCharacters[0] = action.payload;
+                }
+            } else if (len === 2) {
+                if (current_id > state.battleCharacters[1].id) {
+                    state.battleCharacters.push(action.payload);
+                } else if (current_id > state.battleCharacters[0].id) {
+                    state.battleCharacters.push(state.battleCharacters[1]);
+                    state.battleCharacters[1] = action.payload;
+                } else {
+                    state.battleCharacters.push(state.battleCharacters[1]);
+                    state.battleCharacters[1] = state.battleCharacters[0];
+                    state.battleCharacters[0] = action.payload;
+                }
+            } else if (len === 3) {
+                if (current_id > state.battleCharacters[2].id) {
+                    state.battleCharacters.push(action.payload);
+                } else if (current_id > state.battleCharacters[1].id) {
+                    state.battleCharacters.push(state.battleCharacters[2]);
+                    state.battleCharacters[2] = action.payload;
+                } else if (current_id > state.battleCharacters[0].id) {
+                    state.battleCharacters.push(state.battleCharacters[2]);
+                    state.battleCharacters[2] = state.battleCharacters[1];
+                    state.battleCharacters[1] = action.payload;
+                } else {
+                    state.battleCharacters.push(state.battleCharacters[2]);
+                    state.battleCharacters[2] = state.battleCharacters[1];
+                    state.battleCharacters[1] = state.battleCharacters[0];
+                    state.battleCharacters[0] = action.payload;
+                }
             }
         },
         removeBattleCharacters(state, action: PayloadAction<IMyCharacter>) {

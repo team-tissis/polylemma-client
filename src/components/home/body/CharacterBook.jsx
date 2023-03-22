@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid';
 import 'css/card.css';
 import { totalSupply, getAllTokenOwned, getAllCharacterInfo, getNumberOfOwnedTokens } from 'fetch_sol/token.js';
 import characterInfo from "assets/character_info.json";
+import LoadingDOM from 'components/applications/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -59,11 +60,13 @@ function CharacterCard({character, myOwnedCharacters}){
 
 
 export default function CharacterBook() {
-    const [allCharacters, setAllCharacters] = useState([]);
-    const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
+    const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     const [numTotalToken, setNumTotalToken] = useState();
     const [numMyToken, setNumMyToken] = useState();
+
+    const [allCharacters, setAllCharacters] = useState([]);
+    const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
 
     useEffect(() => {(async function() {
         setNumTotalToken(await totalSupply());
@@ -71,11 +74,14 @@ export default function CharacterBook() {
     })();}, []);
 
     useEffect(() => {(async function() {
+        setLoadingStatus({isLoading: true, message: null});
         setAllCharacters(await getAllCharacterInfo());
         setMyOwnedCharacters(await getAllTokenOwned());
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     return(<>
+        <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
         <div>
             持ってるキャラは濃く、持っていないキャラは薄く表示されます。
         </div>

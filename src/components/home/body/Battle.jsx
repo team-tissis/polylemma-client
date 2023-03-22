@@ -26,6 +26,7 @@ import { prepareForBattle, createCharacters, makeProposers, cancelProposals, req
 
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
+import LoadingDOM from 'components/applications/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -87,7 +88,7 @@ function CharacterCard({character, setMyBattleCharacters, isChanging}){
             dispatch(removeBattleCharacters(character));
             setMyBattleCharacters(myCharacters.battleCharacters);
         } else if (myCharacters.battleCharacters.length >= maxNumBattleCharacters) {
-            const message = `対戦に選べるキャラクターは ${maxNumBattleCharacters} 体までです`;
+            const message = `バトルに出せるキャラは ${maxNumBattleCharacters} 体までです`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'error',
@@ -146,9 +147,11 @@ export default function Battle() {
     const [matched, setMatched] = useState(false);
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     useEffect(() => {(async function() {
-        // 対戦情報ステータスを初期化する
+        setLoadingStatus({isLoading: true, message: null});
+        // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
 
         // バトルキャラの情報を更新する
@@ -157,19 +160,20 @@ export default function Battle() {
         dispatch(updateBattleCharacters(_myOwnedCharacters));
         setMyBattleCharacters(myCharacters.battleCharacters);
 
-        // 現在対戦申し込み中の場合は、ダイアログを表示
+        // 現在バトル申し込み中の場合は、ダイアログを表示
         setDialogOpen(await isProposed());
 
         // 自分が propose した時のバトル開始を検知
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
         eventBattleStarted(myAddress, setMatched, true);
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
 
     useEffect(() => {(async function() {
         if (matched) {
-            // 対戦情報ステータスを初期化する
+            // バトル情報ステータスを初期化する
             const message = "相手とマッチしました！";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
@@ -184,13 +188,14 @@ export default function Battle() {
     async function handleUpdate(){
         setIsChanging(false);
 
-        const _myOwnedCharacters = await getOwnedCharacterWithIDList();
-        setMyOwnedCharacters(_myOwnedCharacters);
-        dispatch(updateBattleCharacters(_myOwnedCharacters));
+        // キャラ情報の更新は行わないようにした
+        // const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+        // setMyOwnedCharacters(_myOwnedCharacters);
+        // dispatch(updateBattleCharacters(_myOwnedCharacters));
         setMyBattleCharacters(myCharacters.battleCharacters);
 
-        if(_myOwnedCharacters.length < maxNumBattleCharacters){
-            const message = `対戦するためにはキャラクターを最低でも ${maxNumBattleCharacters} 体保持する必要があります。`;
+        if(myCharacters.battleCharacters.length < maxNumBattleCharacters){
+            const message = `バトルするためにはキャラを最低でも ${maxNumBattleCharacters} 体選択する必要があります。`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'info',
@@ -211,9 +216,9 @@ export default function Battle() {
             try {
                 const fixedSlotsOfChallenger = myCharacters.battleCharacters.map(character => character.id);
                 console.log({fixedSlotsOfChallenger});
-                // proposeBattle で自分が対戦要求ステータスに変更される
+                // proposeBattle で自分がバトル要求ステータスに変更される
                 await proposeBattle(rangeValue, fixedSlotsOfChallenger);
-                const message = "対戦の部屋を作りました。";
+                const message = "バトル部屋を作りました。";
                 enqueueSnackbar(message, {
                     autoHideDuration: 1500,
                     variant: 'success',
@@ -232,7 +237,7 @@ export default function Battle() {
 
 
     function searchRooms() {
-        // 対戦情報ステータスを初期化する
+        // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
         navigate('/match_make');
     }
@@ -241,7 +246,7 @@ export default function Battle() {
     async function declineProposal(){
         try {
             await cancelProposal();
-            const message = "対戦希望を取り下げました。";
+            const message = "バトル部屋を削除しました。";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'success',
@@ -260,12 +265,14 @@ export default function Battle() {
 
     // 開発用・後で消す
     async function devPrepareForBattle(){
+        setLoadingStatus({isLoading: true, message: '自分のキャラを用意しています'});
         const fixedSlots = await prepareForBattle();
         const _myOwnedCharacters = await getOwnedCharacterWithIDList();
         setMyOwnedCharacters(_myOwnedCharacters);
         const _myBattleCharacters = _myOwnedCharacters.filter(char => fixedSlots.includes(char.id));
         setMyBattleCharacters(_myBattleCharacters);
         dispatch(setBattleCharacters(_myBattleCharacters));
+        setLoadingStatus({isLoading: false, message: null});
     }
 
     const fixedSlotsOfChallengers = [];
@@ -282,9 +289,9 @@ export default function Battle() {
         await cancelProposals();
     }
 
-    // 開発テスト用: 自分に対戦を申し込む
+    // 開発テスト用: 自分にバトルを申し込む
     async function devHandleProposeToMe () {
-        await requestChallengeToMe();
+        await requestChallengeToMe(setLoadingStatus);
     }
 
     async function handleForceInitBattle () {
@@ -292,6 +299,7 @@ export default function Battle() {
     }
 
     return(<>
+        <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 6, sm: 12, md: 12 }}>
                 {isChanging ?
@@ -312,11 +320,11 @@ export default function Battle() {
             {isChanging ?
             <Button variant="contained" size="large" color="secondary"
                 style={ editButtonStyle() } onClick={() => handleUpdate()}>
-                変更を保存する
+                変更を保存
             </Button>
             :
             <Button variant="contained" size="large" style={{marginTop: 10}} onClick={() => setIsChanging(true)}>
-                変更
+                バトルに出すキャラを変更
             </Button>
             }
         </Box>
@@ -327,7 +335,7 @@ export default function Battle() {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title" style={{ textAlign: 'center'}}>
-                対戦相手を探しています。
+                バトル相手を探しています。
             </DialogTitle>
             <DialogContent>
                 <div style={{width: '100%', textAlign: 'center'}}>
@@ -344,16 +352,16 @@ export default function Battle() {
                 </div>
 
                 <DialogContentText id="alert-dialog-description" component="div">
-                    他プレイヤーが対戦を申し込んでくると、自動でバトル画面に遷移します。<br/>
+                    他プレイヤーがバトルを申し込んでくると、自動で画面が遷移します。<br/>
                     このままお待ちください
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button variant="outlined" color="secondary" onClick={() => devHandleProposeToMe()} style={{marginLeft: 20, backgroundColor: 'white'}}>
-                    [dev] 自分に対戦を申し込ませる
+                    [dev] 自分にバトルを申し込ませる
                 </Button>
                 <Button  variant="contained" size="large" style={{width: '100%'}} onClick={() => declineProposal()}>
-                    対戦申告を取り下げる
+                    バトル部屋を削除する
                 </Button>
             </DialogActions>
         </Dialog>
@@ -375,7 +383,7 @@ export default function Battle() {
 
         <Button variant="contained" size="large"
             onClick={() => devHandleProposal()} disabled={isChanging}>
-            [dev] ユーザー2~4の3名を対戦可能状態にする
+            [dev] ユーザー2~4の3名をバトル可能状態にする
         </Button>
 
         <Button variant="outlined" color="secondary" onClick={() => devHandleDeclinePros()} style={{marginLeft: 20, backgroundColor: 'white'}}>
@@ -392,12 +400,12 @@ export default function Battle() {
                     '& > :not(style)': { m: 1 },
                 }}
             >
-                <div>対戦相手の希望レベル上限下限<br/>(4 ~ 1020)まで指定可能</div>
+                <div>バトル相手の合計レベルの上限下限<br/>（4 ~ 1020 まで指定可能）</div>
                 <TextField
                     error={false}
                     type = 'number'
                     min="4" max="1020"
-                    helperText={ false ? "対戦相手希望下限レベルを正しく入力してください"  : ""}
+                    helperText={ false ? "バトル相手の合計レベルの下限を正しく入力してください"  : ""}
                     id="demo-helper-text-aligned"
                     defaultValue={rangeValue.min}
                     onChange={(e) => setRangeValue({ ...rangeValue, min: Number(e.target.value)})}
@@ -407,20 +415,20 @@ export default function Battle() {
                     error={false}
                     type = 'number'
                     min="4" max="1020"
-                    helperText= {false ? "対戦相手希望上限レベルを正しく入力してください" : ""}
+                    helperText= {false ? "バトル相手の合計レベルの上限を正しく入力してください" : ""}
                     id="demo-helper-text-aligned-no-helper"
                     defaultValue={rangeValue.max}
                     onChange={(e) => setRangeValue({ ...rangeValue, max: Number(e.target.value)})}
                 />
-                の範囲で対戦部屋を作成
+                の範囲でバトル部屋を作成
             </Box>
 
 
             <Button variant="contained" size="large" style={createRoomButtonStyle()} onClick={() => createRoom()} disabled={isChanging}>
-                対戦の部屋を作る
+                バトル部屋を作る
             </Button>
             <Button variant="contained" size="large" style={searchRoomsButtonStyle()} onClick={() => searchRooms()} disabled={isChanging}>
-                対戦相手を探す
+                バトル相手を探す
             </Button>
         </>
         }

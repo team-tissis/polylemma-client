@@ -24,6 +24,7 @@ import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_so
 import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer.js';
 import { eventBattleStarted } from 'fetch_sol/battle_field.js';
 import PersonIcon from '@mui/icons-material/Person';
+import LoadingDOM from 'components/applications/loading';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -34,13 +35,14 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 
-function BattleAccount({proposalAccount}){
+function BattleAccount({proposalAccount, setLoadingStatus}){
     const { enqueueSnackbar } = useSnackbar();
     const myCharacters = useSelector(selectMyCharacter);
     const [open, setOpen] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
 
     async function handleClickStartBattle (setIsStarting) {
+        setLoadingStatus({isLoading: true, message: `${proposalAccount.home} との対戦の準備中です。`});
         setIsStarting(true);
         if ((await getCurrentStamina()) < (await getStaminaPerBattle())) {
             // スタミナがあるか確認
@@ -69,6 +71,7 @@ function BattleAccount({proposalAccount}){
                 }
             }
         }
+        setLoadingStatus({isLoading: false, message: null});
     };
 
     return(<>
@@ -87,24 +90,23 @@ function BattleAccount({proposalAccount}){
         </Card>
         <Dialog
             open={open}
-            onClose={() => setOpen(false)}
+            // onClose={() => setOpen(false)}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-                対戦を行う
+                以下のアカウントとバトルしますか？
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description" component="div">
-                    以下のアカウントと対戦しますか？
                     <Typography variant="body1" color="text.primary">アドレス: {proposalAccount.home}</Typography>
                     <Typography variant="body1" color="text.primary">レベル: {proposalAccount.totalLevel}</Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setOpen(false)} disabled={isStarting} variant="contained">やめる</Button>
+                <Button onClick={() => setOpen(false)} disabled={isStarting} variant="contained">キャンセル</Button>
                 <Button onClick={() => handleClickStartBattle(setIsStarting)} disabled={isStarting} variant="contained" color="primary">
-                    対戦する
+                    バトル開始
                 </Button>
             </DialogActions>
         </Dialog>
@@ -116,13 +118,16 @@ export default function MatchMake() {
     const navigate = useNavigate();
     const [proposalAccounts, setProposalAccounts] = useState([]);
     const [matched, setMatched] = useState(false);
+    const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     useEffect(() => {(async function() {
+        setLoadingStatus({isLoading: true, message: null});
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
         eventBattleStarted(myAddress, setMatched, false);
 
         setProposalAccounts(await getProposalList());
+        setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     useEffect(() => {(async function() {
@@ -132,11 +137,12 @@ export default function MatchMake() {
     })();}, [matched]);
 
     return(<>
+        <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
         <Box sx={{ flexGrow: 1, margin: 5 }}>
             <Grid container spacing={{ xs: 5, md: 5 }} columns={{ xs: 12, sm: 12, md: 12 }}>
                 <>{proposalAccounts.map((proposalAccount, index) => (
                     <Grid item xs={12} sm={4} md={4} key={index}>
-                        <BattleAccount proposalAccount={proposalAccount}/>
+                        <BattleAccount proposalAccount={proposalAccount} setLoadingStatus={setLoadingStatus}/>
                     </Grid>
                 ))}</>
             </Grid>
