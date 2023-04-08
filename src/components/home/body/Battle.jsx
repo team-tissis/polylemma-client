@@ -17,7 +17,7 @@ import 'css/card.css';
 import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
 import { initializeBattle } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
-import { getContract } from 'fetch_sol/utils.js';
+import { getContract, getMyAddress } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import { proposeBattle, isProposed, isInBattle, isNotInvolved, cancelProposal } from 'fetch_sol/match_organizer.js';
@@ -151,11 +151,16 @@ export default function Battle() {
 
     useEffect(() => {(async function() {
         setLoadingStatus({isLoading: true, message: null});
+
+        const myWalletAddress = await getMyAddress();
+        console.log("自分のコントラクトアドレス", myWalletAddress)
+        
         // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
 
         // バトルキャラの情報を更新する
         const _myOwnedCharacters = await getOwnedCharacterWithIDList();
+
         setMyOwnedCharacters(_myOwnedCharacters);
         dispatch(updateBattleCharacters(_myOwnedCharacters));
         setMyBattleCharacters(myCharacters.battleCharacters);

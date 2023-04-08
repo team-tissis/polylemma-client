@@ -13,11 +13,23 @@ interface IMyCharacter {
     attributeIds: number[];
 }
 
-interface IMyCharacters {
+interface IAddressCharacters {
+    walletAddress: string;
     battleCharacters: IMyCharacter[];
 }
 
-const initialState: IMyCharacters = { battleCharacters: [] };
+interface IMyCharacters {
+    currentAddress: string | null
+    battleCharacters: IMyCharacter[];
+    charactersList: IAddressCharacters[];
+}
+
+const initialState: IMyCharacters = { 
+    currentAddress: null , 
+    battleCharacters: [], 
+    charactersList: []
+};
+
 const myCharactersSlice = createSlice({
     name: 'myCharacters',
     initialState,
