@@ -13,58 +13,89 @@ interface IMyCharacter {
     attributeIds: number[];
 }
 
-interface IMyCharacters {
+interface IAddressCharacter {
+    walletAddress: string;
+    character: IMyCharacter;
+}
+
+interface IAddressCharacterList {
+    walletAddress: string;
     battleCharacters: IMyCharacter[];
 }
 
-const initialState: IMyCharacters = { battleCharacters: [] };
+interface IMyCharacters {
+    currentAddress: string | null
+    battleCharacters: IMyCharacter[];
+    charactersList: IAddressCharacterList[];
+}
+
+const initialState: IMyCharacters = { 
+    currentAddress: null ,  // 現在のアドレス
+    battleCharacters: [],   // 現在のアドレスに紐づいたキャラクター
+    charactersList: []      // 全てのアドレスに紐付いたキャラクターリスト
+};
+
 const myCharactersSlice = createSlice({
     name: 'myCharacters',
     initialState,
     reducers: {
-        setBattleCharacters(state, action: PayloadAction<IMyCharacter[]>) {
-            state.battleCharacters = action.payload;
+        setBattleCharacters(state, action: PayloadAction<IAddressCharacterList>) {
+            state.currentAddress = action.payload.walletAddress
+            state.battleCharacters = action.payload.battleCharacters;
+            state.charactersList.push(action.payload)
         },
-        addBattleCharacters(state, action: PayloadAction<IMyCharacter>) {
-            const len = state.battleCharacters.length;
-            const current_id = action.payload.id;
-            if (len === 0) {
-                state.battleCharacters.push(action.payload);
-            } else if (len === 1) {
-                if (current_id > state.battleCharacters[0].id) {
-                    state.battleCharacters.push(action.payload);
-                } else {
-                    state.battleCharacters.push(state.battleCharacters[0]);
-                    state.battleCharacters[0] = action.payload;
-                }
-            } else if (len === 2) {
-                if (current_id > state.battleCharacters[1].id) {
-                    state.battleCharacters.push(action.payload);
-                } else if (current_id > state.battleCharacters[0].id) {
-                    state.battleCharacters.push(state.battleCharacters[1]);
-                    state.battleCharacters[1] = action.payload;
-                } else {
-                    state.battleCharacters.push(state.battleCharacters[1]);
-                    state.battleCharacters[1] = state.battleCharacters[0];
-                    state.battleCharacters[0] = action.payload;
-                }
-            } else if (len === 3) {
-                if (current_id > state.battleCharacters[2].id) {
-                    state.battleCharacters.push(action.payload);
-                } else if (current_id > state.battleCharacters[1].id) {
-                    state.battleCharacters.push(state.battleCharacters[2]);
-                    state.battleCharacters[2] = action.payload;
-                } else if (current_id > state.battleCharacters[0].id) {
-                    state.battleCharacters.push(state.battleCharacters[2]);
-                    state.battleCharacters[2] = state.battleCharacters[1];
-                    state.battleCharacters[1] = action.payload;
-                } else {
-                    state.battleCharacters.push(state.battleCharacters[2]);
-                    state.battleCharacters[2] = state.battleCharacters[1];
-                    state.battleCharacters[1] = state.battleCharacters[0];
-                    state.battleCharacters[0] = action.payload;
-                }
+        initCharacterList(state, action: PayloadAction<string>){
+            const currentAddress : string = action.payload;
+            var thisAddressCharacters =  state.charactersList.filter(charactersList => charactersList.walletAddress == currentAddress);
+            if (thisAddressCharacters.length > 0) {
+                state.battleCharacters = thisAddressCharacters[0].battleCharacters;
             }
+            state.currentAddress = currentAddress;
+            // update battleCharacters
+            const isExistAddress : boolean = state.charactersList.some(charactersList => charactersList.walletAddress == currentAddress);
+            if (isExistAddress) {
+                const thisAddressCharacters : IMyCharacter[] = state.charactersList.filter(charactersList => charactersList.walletAddress == currentAddress)[0].battleCharacters;
+                state.battleCharacters = thisAddressCharacters;
+            } else {
+                state.battleCharacters = [];
+            }
+        },
+        updateInitCharacter(state, action: PayloadAction<IAddressCharacter>){
+            const currentAddress : string = action.payload.walletAddress;
+            const newCharacter : IMyCharacter = action.payload.character;
+            var updatedCharacters : IMyCharacter[] = state.battleCharacters
+            // check the selected character is in the "state.battleCharacters"
+            const isExist = updatedCharacters.some(char => char.id == newCharacter.id);
+            if (isExist) {
+                // remove character
+                updatedCharacters = updatedCharacters.filter(char => char.id !== newCharacter.id);
+            } else {
+                if (state.battleCharacters.length === 4)  return;
+                // push character, and sort by character_id
+                updatedCharacters.push(newCharacter)
+                updatedCharacters = updatedCharacters.sort((charA, charB) => charA.id - charB.id);
+            }
+            state.battleCharacters = updatedCharacters;
+
+            // update "charactersList"
+            const isExistAddress : boolean = state.charactersList.some(charactersList => charactersList.walletAddress == currentAddress);
+            if (isExistAddress) {
+                const updatedCharactersList = state.charactersList.map(addressCharacters => {
+                    if (addressCharacters.walletAddress === currentAddress) {
+                      return {...addressCharacters, battleCharacters: updatedCharacters};
+                    }
+                    return addressCharacters;
+                });
+                state.charactersList = updatedCharactersList;
+            } else {
+                const characterList : IAddressCharacterList = {
+                    walletAddress: currentAddress,
+                    battleCharacters: updatedCharacters
+                }
+                const prevCharactersList : IAddressCharacterList[] = state.charactersList;
+                prevCharactersList.push(characterList)
+                state.charactersList = prevCharactersList;
+            }            
         },
         removeBattleCharacters(state, action: PayloadAction<IMyCharacter>) {
             state.battleCharacters = state.battleCharacters.filter(character => character.id !== action.payload.id);
@@ -85,11 +116,12 @@ const myCharactersSlice = createSlice({
             state.battleCharacters = state.battleCharacters.filter((character, index) => isUpdated[index]);
         },
         initializeBattleCharacters(state)  {
-            state.battleCharacters = [];
+            state = initialState;
         },
     },
 });
 
 export const selectMyCharacter = (state: RootState): IMyCharacters => state.myCharacters;
-export const { setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } = myCharactersSlice.actions;
+export const { initCharacterList, setBattleCharacters, removeBattleCharacters, 
+    updateInitCharacter, updateBattleCharacters, initializeBattleCharacters } = myCharactersSlice.actions;
 export default myCharactersSlice.reducer;

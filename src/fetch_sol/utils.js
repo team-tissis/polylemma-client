@@ -53,6 +53,24 @@ function getAbi (contractName) {
     else if (contractName === "PLMBattleField") return battleFieldArtifact.abi;
 }
 
+async function getMyAddress (addressIndex) {
+    if (getEnv() === 'local') {
+        const signerIndex = (addressIndex == null) ? 1 : addressIndex;
+        const provider = new ethers.providers.JsonRpcProvider();
+        const signer = provider.getSigner(signerIndex);
+        const myAddress = await signer.getAddress()
+        return myAddress;
+    } else if (getEnv() === 'mumbai') {
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+            const signer = provider.getSigner();
+            const myAddress = await signer.getAddress()
+            return myAddress;
+        } catch (e) {
+            console.log({error: e});
+        }
+    }
+}
 function getSigner (addressIndex) {
     if (getEnv() === 'local') {
         const signerIndex = (addressIndex == null) ? 1 : addressIndex;
@@ -114,4 +132,4 @@ async function poll(func) {
     return ans;
 }
 
-export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };
+export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, getMyAddress, connectWallet, poll };
