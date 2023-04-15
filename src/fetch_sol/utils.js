@@ -76,13 +76,11 @@ function getSigner (addressIndex) {
         const signerIndex = (addressIndex == null) ? 1 : addressIndex;
         const provider = new ethers.providers.JsonRpcProvider();
         const signer = provider.getSigner(signerIndex);
-        console.log("サインナー", signer, "プロバイダー", provider)
         return signer;
     } else if (getEnv() === 'mumbai') {
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
             const signer = provider.getSigner();
-            console.log("サインナー", signer, "プロバイダー", provider)
             return signer;
         } catch (e) {
             console.log({error: e});

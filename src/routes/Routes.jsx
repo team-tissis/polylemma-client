@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from 'components/applications/header.jsx';
 import SimpleHeader from 'components/applications/simpleHeader.jsx';

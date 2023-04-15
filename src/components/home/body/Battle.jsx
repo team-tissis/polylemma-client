@@ -14,7 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import 'css/card.css';
-import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
+import { selectMyCharacter, setBattleCharacters, updateInitCharacter, updateBattleCharacters, initCharacterList } from 'slices/myCharacters.ts';
 import { initializeBattle } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract, getMyAddress } from 'fetch_sol/utils.js';
@@ -23,7 +23,6 @@ import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import { proposeBattle, isProposed, isInBattle, isNotInvolved, cancelProposal } from 'fetch_sol/match_organizer.js';
 import { forceInitBattle, eventBattleStarted } from 'fetch_sol/battle_field.js';
 import { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
-
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
 import LoadingDOM from 'components/applications/loading';
@@ -70,7 +69,7 @@ function editButtonStyle() {
 
 const maxNumBattleCharacters = 4;
 
-function CharacterCard({character, setMyBattleCharacters, isChanging}){
+function CharacterCard({character, setMyBattleCharacters, myAddress, isChanging}){
     const dispatch = useDispatch();
     const { enqueueSnackbar } = useSnackbar();
     const myCharacters = useSelector(selectMyCharacter);
@@ -83,20 +82,17 @@ function CharacterCard({character, setMyBattleCharacters, isChanging}){
     const imgBackgroundColor = (isChanging && isSelected) ? 'black' : 'white';
 
     function handleClickCharacter(){
-        if (!isChanging) { return }
-        if (isSelected) {
-            dispatch(removeBattleCharacters(character));
-            setMyBattleCharacters(myCharacters.battleCharacters);
-        } else if (myCharacters.battleCharacters.length >= maxNumBattleCharacters) {
+        if (!isChanging) return;
+        if (!isSelected && (myCharacters.battleCharacters.length >= maxNumBattleCharacters)) {
             const message = `バトルに出せるキャラは ${maxNumBattleCharacters} 体までです`;
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'error',
             });
-        } else {
-            dispatch(addBattleCharacters(character));
-            setMyBattleCharacters(myCharacters.battleCharacters);
         }
+        // remove or push character
+        dispatch(updateInitCharacter({walletAddress: myAddress, character: character}))
+        setMyBattleCharacters(myCharacters.battleCharacters);
     }
 
     return(<>
@@ -148,12 +144,16 @@ export default function Battle() {
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
+    const [myAddress, setMyAddress] = useState()
 
     useEffect(() => {(async function() {
         setLoadingStatus({isLoading: true, message: null});
 
+        // 自分のコントラクトアドレスをuseStateで管理
         const myWalletAddress = await getMyAddress();
-        console.log("自分のコントラクトアドレス", myWalletAddress)
+        setMyAddress(myWalletAddress)
+
+        dispatch(initCharacterList(myWalletAddress));
         
         // バトル情報ステータスを初期化する
         dispatch(initializeBattle());
@@ -276,7 +276,13 @@ export default function Battle() {
         setMyOwnedCharacters(_myOwnedCharacters);
         const _myBattleCharacters = _myOwnedCharacters.filter(char => fixedSlots.includes(char.id));
         setMyBattleCharacters(_myBattleCharacters);
-        dispatch(setBattleCharacters(_myBattleCharacters));
+        
+        // myAddress
+        const addressCharacters = {
+            walletAddress:  myAddress,
+            battleCharacters: _myOwnedCharacters
+        }
+        dispatch(setBattleCharacters(addressCharacters));
         setLoadingStatus({isLoading: false, message: null});
     }
 
@@ -310,13 +316,13 @@ export default function Battle() {
                 {isChanging ?
                 <>{myOwnedCharacters.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                        <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} myAddress={myAddress} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
                 :
                 <>{myBattleCharacters.map((character, index) => (
                     <Grid item xs={3} sm={3} md={3} key={index}>
-                        <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} isChanging={isChanging}/>
+                        <CharacterCard key={index} character={character} setMyBattleCharacters={setMyBattleCharacters} myAddress={myAddress} isChanging={isChanging}/>
                     </Grid>
                 ))}</>
                 }
