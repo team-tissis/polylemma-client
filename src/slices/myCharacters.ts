@@ -51,6 +51,14 @@ const myCharactersSlice = createSlice({
                 state.battleCharacters = thisAddressCharacters[0].battleCharacters;
             }
             state.currentAddress = currentAddress;
+            // update battleCharacters
+            const isExistAddress : boolean = state.charactersList.some(charactersList => charactersList.walletAddress == currentAddress);
+            if (isExistAddress) {
+                const thisAddressCharacters : IMyCharacter[] = state.charactersList.filter(charactersList => charactersList.walletAddress == currentAddress)[0].battleCharacters;
+                state.battleCharacters = thisAddressCharacters;
+            } else {
+                state.battleCharacters = [];
+            }
         },
         updateInitCharacter(state, action: PayloadAction<IAddressCharacter>){
             const currentAddress : string = action.payload.walletAddress;
@@ -70,13 +78,8 @@ const myCharactersSlice = createSlice({
             state.battleCharacters = updatedCharacters;
 
             // update "charactersList"
-            if (state.charactersList.length == 0) {
-                const characterList : IAddressCharacterList = {
-                    walletAddress: currentAddress,
-                    battleCharacters: updatedCharacters
-                }
-                state.charactersList = [ characterList ];
-            } else {
+            const isExistAddress : boolean = state.charactersList.some(charactersList => charactersList.walletAddress == currentAddress);
+            if (isExistAddress) {
                 const updatedCharactersList = state.charactersList.map(addressCharacters => {
                     if (addressCharacters.walletAddress === currentAddress) {
                       return {...addressCharacters, battleCharacters: updatedCharacters};
@@ -84,6 +87,14 @@ const myCharactersSlice = createSlice({
                     return addressCharacters;
                 });
                 state.charactersList = updatedCharactersList;
+            } else {
+                const characterList : IAddressCharacterList = {
+                    walletAddress: currentAddress,
+                    battleCharacters: updatedCharacters
+                }
+                const prevCharactersList : IAddressCharacterList[] = state.charactersList;
+                prevCharactersList.push(characterList)
+                state.charactersList = prevCharactersList;
             }            
         },
         removeBattleCharacters(state, action: PayloadAction<IMyCharacter>) {
