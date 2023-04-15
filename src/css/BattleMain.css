@@ -1,0 +1,38 @@
+.help_dialog_btn {
+    position: fixed;
+    top: 150px;
+    right: 0%;
+    font-size: 17px;
+    font-weight: 600;
+    z-index: 999;
+    padding: 8px;
+    margin: 8px;
+    border: solid 3px #000000;
+    background-color: white;
+    display: flex;
+    align-items: center;
+}
+
+.battle_result_dialog_btn {
+    position: fixed;
+    top: 200px;
+    right: 0%;
+    font-size: 17px;
+    font-weight: 600;
+    z-index: 999;
+    padding: 8px;
+    margin: 8px;
+    border: solid 3px #000000;
+    background-color: white;
+    display: flex;
+    align-items: center;
+}
+
+
+.battle_result_btn {
+    position: fixed;
+    top: 80px;
+    right: 10px;
+    font-size: 20px;
+    z-index: 999;
+}

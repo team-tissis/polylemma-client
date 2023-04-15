@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'react-tabs/style/react-tabs.css';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -28,7 +28,26 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 
 
 function HomeIndex({currentCoin, setCurrentCoin}) {
+    const currentUrl = window.location.href;
+    const arr = currentUrl.split('/');
+    const lastValue = arr.pop();
     const [alignment, setAlignment] = useState('battle');
+
+    useEffect(() => {
+        switch (lastValue) {
+          case 'training':
+            setAlignment('training')
+            break;
+          case 'gacha':
+            setAlignment('gacha')
+            break;
+          case 'character_book':
+            setAlignment('character_book')
+            break;
+          default:
+            setAlignment('battle')
+        }
+    }, [])
 
     const handleAlignment = (event, newAlignment) => {
         if(!(newAlignment == null)){
