@@ -8,6 +8,11 @@ import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -255,6 +260,8 @@ export default function BattleMain(){
     const [isCancelling, setIsCancelling] = useState(false);
     const [isCancelled, setIsCancelled] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
+
+    const [battleResultDialog, setBattleResultDialog] = useState({result: false, result: null});
 
     async function checkIsCOM() {
         if (getEnv() === 'mumbai') return false;
@@ -757,11 +764,22 @@ export default function BattleMain(){
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Draw (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
+                setBattleResultDialog({open: true, result: "引き分け"})
             } else {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Winner ${_battleResult.winner} (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
+                if (_battleResult.winner == 0){
+                    setBattleResultDialog({open: true, result: "勝利"})
+                } else {
+                    setBattleResultDialog({open: true, result: "敗北"})
+                }
             }
         }
     })();}, [battleCompleted, isInRound]);
+
+    function backToBattleMain(){
+        setBattleResultDialog({open: false, result: ""})
+        window.location.reload()
+    }
 
     function roundResult(){
         if (roundResults.length === 0) return <></>
@@ -779,6 +797,10 @@ export default function BattleMain(){
                 draw_count += 1
             }
         })
+
+        // バトルが終了かどうかを判断する
+
+        Math.abs(win_count - lose_count)
 
         return  <Paper elevation={3} style={{padding: 6, backgroundColor: '#EEEEEE'}}>
                     <Chip label="自分" variant="outlined" style={{marginRight: 8, backgroundColor: '#99FFFF'}}/>
@@ -915,5 +937,46 @@ export default function BattleMain(){
             </Button>
         }
     </Grid>
+
+    <div>
+        <Dialog
+            open={battleResultDialog.open}
+            keepMounted
+            aria-describedby="alert-dialog-slide-description"
+        >
+            <DialogTitle style={{textAlign: 'center'}}>バトル結果 {battleResultDialog.result}</DialogTitle>
+            <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+            <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
+                <Grid container>
+                    <Grid container>
+                        <Grid item xs={6} md={6}></Grid>
+                        <Grid item xs={6} md={6}>攻撃力</Grid>
+                    </Grid>
+                    <Grid container>
+                        <Grid item xs={3} md={3}>ラウンド</Grid>
+                        <Grid item xs={3} md={3}>勝敗</Grid>
+                        <Grid item xs={3} md={3}>自分</Grid>
+                        <Grid item xs={3} md={3}>相手</Grid>
+                    </Grid>
+                    {roundResults.map((roundResult, index) => (
+                        index < round && <Grid container key={index}>
+                            <Grid item xs={3} md={3}>{index + 1}</Grid>
+                            <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
+                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
+                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Card>
+            </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+            <Button onClick={() => backToBattleMain()}>
+                ホーム画面に戻る
+            </Button>
+            </DialogActions>
+        </Dialog>
+    </div>
     </>)
 }
