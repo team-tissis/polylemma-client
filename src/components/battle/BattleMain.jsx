@@ -20,7 +20,7 @@ import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateOperation,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
-         forceInitBattle,
+         forceInitBattle, getLatestBattleFromAddr, 
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
          eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,
@@ -245,7 +245,7 @@ export default function BattleMain(){
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     const [battleResultDialog, setBattleResultDialog] = useState({result: false, result: null});
-
+    const [battleId, setBattleId] = useState();
     async function checkIsCOM() {
         if (getEnv() === 'mumbai') return false;
         for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
@@ -269,6 +269,8 @@ export default function BattleMain(){
             dispatch(initializeBattle());
             navigate('../');
         }
+
+        setBattleId(await getLatestBattleFromAddr())
 
         // playerId を取得
         const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
@@ -303,24 +305,24 @@ export default function BattleMain(){
         const currentRound = await getCurrentRound();
         setRound(currentRound);
 
-        const _roundResults = await getRoundResults();
+        const _roundResults = await getRoundResults(battleId);
         setRoundResults(_roundResults);
         setCompletedNumRounds(currentRound);
 
         // レベルポイントの情報を取得
-        setMyRemainingLevelPoint(await getRemainingLevelPoint(myPlayerId));
-        setMyMaxLevelPoint(await getMaxLevelPoint(myPlayerId));
+        setMyRemainingLevelPoint(await getRemainingLevelPoint(battleId, myPlayerId));
+        setMyMaxLevelPoint(await getMaxLevelPoint(battleId, myPlayerId));
 
         setOpponentRemainingLevelPoint(await getRemainingLevelPoint(1-myPlayerId));
-        setOpponentMaxLevelPoint(await getMaxLevelPoint(1-myPlayerId));
+        setOpponentMaxLevelPoint(await getMaxLevelPoint(battleId, 1-myPlayerId));
 
         // 自分のキャラ情報取得
         const myFixedSlotCharInfo = await getFixedSlotCharInfo(myPlayerId);
-        const _myRandomSlotState = await getRandomSlotState(myPlayerId);
+        const _myRandomSlotState = await getRandomSlotState(battleId, myPlayerId);
         setMyRandomSlotState(_myRandomSlotState);
         if (_myRandomSlotState >= 1) {
             // 自分の seed がコミットし終わっていたら、RS も込みでキャラを設定する
-            const myRandomSlot = await getMyRandomSlot(myPlayerId, battleInfo.myPlayerSeed);
+            const myRandomSlot = await getMyRandomSlot(battleId, myPlayerId, battleInfo.myPlayerSeed);
             setMyCharacters([...myFixedSlotCharInfo, myRandomSlot]);
         } else {
             setMyCharacters(myFixedSlotCharInfo);
@@ -332,34 +334,34 @@ export default function BattleMain(){
 
         // 相手のキャラ情報取得
         const opponentFixedSlotCharInfo = await getFixedSlotCharInfo(1-myPlayerId);
-        const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
+        const _opponentRandomSlotState = await getRandomSlotState(battleId, 1-myPlayerId);
         setOpponentRandomSlotState(_opponentRandomSlotState);
         if (_opponentRandomSlotState === 2) {
             // 相手の seed が reveal されていたら、RS の情報を設定する
-            const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
+            const opponentRandomSlot = await getRandomSlotCharInfo(battleId, 1-myPlayerId);
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
         } else {
             // 相手の seed が reveal されていなかったら、わからない情報は null にして RS の情報を設定する
-            const opponentRSLevel = await getRandomSlotLevel(1-myPlayerId);
+            const opponentRSLevel = await getRandomSlotLevel(battleId, 1-myPlayerId);
             const opponentRandomSlot = {
                 index: 4, name: null, imgURI: null, characterType: null, level: opponentRSLevel,
                 bondLevel: null, rarity: null, attributeIds: [], isRandomSlot: true
             };
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
         }
-        setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
+        setOpponentCharsUsedRounds(await getCharsUsedRounds(battleId, 1-myPlayerId));
         setOpponentLevel(opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.level;
         }, 0));
 
         // イベント情報の取得
         if (_opponentRandomSlotState === 0) {
-            eventPlayerSeedCommitted(1-myPlayerId, setIsWaiting);
+            eventPlayerSeedCommitted(battleId, 1-myPlayerId, setIsWaiting);
         }
         for (let r = currentRound; r < maxRounds; r++) {
-            eventChoiceCommitted(r, 1-myPlayerId, setIsWaiting);
-            eventChoiceRevealed(r, 1-myPlayerId, setIsWaiting);
-            eventRoundCompleted(r, setCompletedNumRounds);
+            eventChoiceCommitted(battleId, r, 1-myPlayerId, setIsWaiting);
+            eventChoiceRevealed(battleId, r, 1-myPlayerId, setIsWaiting);
+            eventRoundCompleted(battleId, r, setCompletedNumRounds);
         }
 
         const _opponentState = await getPlayerState(1-myPlayerId);
@@ -376,16 +378,16 @@ export default function BattleMain(){
 
 
     useEffect(() => {
-        eventPlayerSeedRevealed();
-        eventBattleCompleted(setBattleCompleted);
+        eventPlayerSeedRevealed(battleId, round);
+        eventBattleCompleted(battleId, setBattleCompleted);
 
         // reasons for cancellation
         for (let playerId = 0; playerId <= 1; playerId++) {
-            eventExceedingLevelPointCheatDetected(playerId, setIsCancelling);
-            eventReusingUsedSlotCheatDetected(playerId, setIsCancelling);
-            eventLatePlayerSeedCommitDetected(playerId, setIsCancelling);
-            eventLateChoiceCommitDetected(playerId, setIsCancelling);
-            eventLateChoiceRevealDetected(playerId, setIsCancelling);
+            eventExceedingLevelPointCheatDetected(battleId, playerId, setIsCancelling);
+            eventReusingUsedSlotCheatDetected(battleId, playerId, setIsCancelling);
+            eventLatePlayerSeedCommitDetected(battleId, playerId, setIsCancelling);
+            eventLateChoiceCommitDetected(battleId, playerId, setIsCancelling);
+            eventLateChoiceRevealDetected(battleId, playerId, setIsCancelling);
         }
 
         eventBattleCanceled(setIsCancelled);
@@ -502,7 +504,7 @@ export default function BattleMain(){
             setCOMChoice(getNextCOMIndex());
         }
 
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
+        setMyRandomSlotState(await getRandomSlotState(battleId, myPlayerId));
         setIsChanging(false);
         if (succeed) {
             setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
@@ -593,7 +595,7 @@ export default function BattleMain(){
             }
         }
 
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId));
+        setMyRandomSlotState(await getRandomSlotState(battleId, myPlayerId));
         setIsChanging(false);
         setLoadingStatus({isLoading: false, message: null});
     }
@@ -671,8 +673,8 @@ export default function BattleMain(){
         const _opponentState = await getPlayerState(1-myPlayerId);
         setMyState(_myState);
         if (!isChanging && !isWaiting) {
-            const _myRandomSlotState = await getRandomSlotState(myPlayerId);
-            const _opponentRandomSlotState = await getRandomSlotState(1-myPlayerId);
+            const _myRandomSlotState = await getRandomSlotState(battleId, myPlayerId);
+            const _opponentRandomSlotState = await getRandomSlotState(battleId, 1-myPlayerId);
             if (_myState === _opponentState && !(_myRandomSlotState + _opponentRandomSlotState === 1)) {
                 // 両方のステータスが同じになったらチェック終了で次に進める
                 setIsChecking(false);
@@ -705,7 +707,7 @@ export default function BattleMain(){
                 setMyCharsUsedRounds(await getCharsUsedRounds(myPlayerId));
                 setOpponentCharsUsedRounds(await getCharsUsedRounds(1-myPlayerId));
 
-                const _opponentRandomSlotState = await getRandomSlotState(1-battleInfo.myPlayerId);
+                const _opponentRandomSlotState = await getRandomSlotState(battleId, 1-battleInfo.myPlayerId);
                 if (_opponentRandomSlotState === 2) {
                     const opponentRandomSlot = await getRandomSlotCharInfo(1-myPlayerId);
                     setOpponentCharacters((character) => {
@@ -717,7 +719,7 @@ export default function BattleMain(){
                 setOpponentRandomSlotState(_opponentRandomSlotState);
             }
 
-            const _roundResults = await getRoundResults();
+            const _roundResults = await getRoundResults(battleId);
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
             if (await getPlayerState(myPlayerId) === 0) {
@@ -745,7 +747,7 @@ export default function BattleMain(){
     // バトル終了後の処理
     useEffect(() => {(async function() {
         if (battleCompleted && !isInRound) {
-            const _battleResult = await getBattleResult();
+            const _battleResult = await getBattleResult(battleId);
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Draw (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);

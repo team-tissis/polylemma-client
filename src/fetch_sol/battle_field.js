@@ -1,7 +1,7 @@
 import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract, poll } from "./utils.js";
 import { getImgURI } from "./token.js";
 import { getTypeName } from "./data.js";
-import battle from "slices/battle.js";
+// import battle from "slices/battle.js";
 
 //////////////////////////////
 /// BATTLE FIELD FUNCTIONS ///
@@ -242,12 +242,19 @@ async function getRandomSlotLevel (battleId, playerId, addressIndex) {
     return response;
 }
 
-async function getRandomSlotLevel (battleId, playerId, addressIndex) {
-    const { contract } = getContract("PLMBattleManager", addressIndex);
-    const response = await poll(() => {return contract.getRandomSlotLevelById(battleId, playerId);});
-    console.log({ getRandomSlotLevel: response });
+async function getLatestBattleFromAddr (addressIndex) {
+    const { signer, contract } = getContract("PLMBattleManager", addressIndex);
+    const myAddress = await signer.getAddress();
+    const response = await poll(() => {return contract.getLatestBattle(myAddress);});
+    console.log({ getLatestBattle: response });
     return response;
 }
+// async function getRandomSlotLevel (battleId, playerId, addressIndex) {
+//     const { contract } = getContract("PLMBattleManager", addressIndex);
+//     const response = await poll(() => {return contract.getRandomSlotLevelById(battleId, playerId);});
+//     console.log({ getRandomSlotLevel: response });
+//     return response;
+// }
 
 
 
@@ -289,6 +296,7 @@ function eventPlayerSeedCommitted (battleId, opponentPlayerId, setIsWaiting) {
     });
 }
 
+// TODO BattleMain.jsxを修正
 function eventPlayerSeedRevealed (battleId, currentRound, opponentPlayerId) {
     const { contract } = getContract("PLMBattlePlayerSeed");
     const filter = contract.filters.PlayerSeedRevealed(battleId, currentRound, opponentPlayerId, null);
@@ -439,7 +447,7 @@ function eventBattleCanceled (isCancelled) {
     contract.on(filter, () => {
         if (!isUsed) {
             isUsed = true;
-            console.log(`BattleID ${battleId}: Battle has been canceled.`);
+            // console.log(`BattleID ${battleId}: Battle has been canceled.`);
             isCancelled(true);
         }
     });
@@ -448,7 +456,7 @@ function eventBattleCanceled (isCancelled) {
 export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateOperation,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
-         forceInitBattle,
+         forceInitBattle,getLatestBattleFromAddr, 
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
          eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,

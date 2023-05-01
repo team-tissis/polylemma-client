@@ -166,7 +166,7 @@ export default function Battle() {
         // 自分が propose した時のバトル開始を検知
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
-        eventBattleStarted(myAddress, setMatched, true);
+        // eventBattleStarted(myAddress, setMatched, true);
         setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
