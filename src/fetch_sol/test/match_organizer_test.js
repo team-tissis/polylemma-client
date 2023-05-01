@@ -1,7 +1,8 @@
-import { getContract } from '../utils.js';
+import { stringToBytes32, getContract } from '../utils.js';
 import { extendSubscPeriod, getPLMCoin } from '../dealer.js';
 import { gacha } from '../gacha.js';
 import { proposeBattle, isProposed, isNotInvolved, requestChallenge, cancelProposal } from '../match_organizer.js';
+import { balanceOf } from 'fetch_sol/coin.js';
 
 function randomName () {
     const str = Math.random().toString(32);
@@ -9,12 +10,16 @@ function randomName () {
 }
 
 async function prepareForBattle () {
-    await getPLMCoin(220, 400);
-    await extendSubscPeriod();
+    const currentCoin = await balanceOf();
+    if(currentCoin == 0) {
+        await getPLMCoin(220, 400);
+        await extendSubscPeriod();
+    }
 
     const fixedSlots = [];
     for (let i = 0; i < 4; i++) {
         fixedSlots.push((await gacha(randomName()))['id']);
+        console.log(`new charactor id is coming`)
     }
     return fixedSlots;
 }
@@ -59,7 +64,8 @@ async function cancelProposals () {
 async function requestChallengeToMe (setLoadingStatus) {
     setLoadingStatus({isLoading: true, message: 'コンピュータを自分に対戦させています'})
     let addressIndex = 2;
-    for (let i = 0; i < 2; i++) {
+    const currentCOMCoin = await balanceOf(addressIndex);
+    if(currentCOMCoin == 0){
         await getPLMCoin(220, 400, addressIndex);
         await extendSubscPeriod(addressIndex);
     }

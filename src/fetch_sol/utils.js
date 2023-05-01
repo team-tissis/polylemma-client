@@ -1,17 +1,22 @@
 import { ethers } from "ethers";
-// import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
-import contractFunctions from "../json/contract_address_list_latest.json";
+import contractFunctions from "../broadcast/Polylemma.s.sol/31337/run-latest.json";
+// import contractFunctions from "../json/contract_address_list_latest.json";
 import coinArtifact from "../abi/PLMCoin.sol/PLMCoin.json";
 import dealerArtifact from "../abi/PLMDealer.sol/PLMDealer.json";
 import tokenArtifact from "../abi/PLMToken.sol/PLMToken.json";
 import dataArtifact from "../abi/PLMData.sol/PLMData.json";
 import matchOrganizerArtifact from "../abi/PLMMatchOrganizer.sol/PLMMatchOrganizer.json";
 import battleFieldArtifact from "../abi/PLMBattleField.sol/PLMBattleField.json";
+import battleManagerArtifact from "../abi/PLMBattleManager.sol/PLMBattleManager.json";
+import battleStarterArtifact from "../abi/PLMBattleStarter.sol/PLMBattleStarter.json";
+import battlePlayerSeedArtifact from "../abi/PLMBattlePlayerSeed.sol/PLMBattlePlayerSeed.json";
+import battleChoiceArtifact from "../abi/PLMBattleChoice.sol/PLMBattleChoice.json";
+
 import { ExponentialBackoff } from './backoff.ts';
 
 function getEnv() {
-    // return 'local';
-    return 'mumbai';
+    return 'local';
+    // return 'mumbai';
 }
 
 function stringToBytes32 (str) {
@@ -40,6 +45,11 @@ function getCommitString (myAddress, levelPoint, choice, blindingFactor) {
 
 // スマコンのアドレスを取得
 function getContractAddress (contractName) {
+    // broadcast/Polylemma.s.sol/31337/run-latest.json に "PLMBattleField" の登録がない
+    if(contractName == "PLMBattleField"){
+        return "0xf47D872E47d2f2E24449192EfB844e2D4d77f0DC"
+    }
+    
     const contractAddress = contractFunctions.transactions.find((v) => v.contractName === contractName).contractAddress;
     return contractAddress;
 }
@@ -51,6 +61,15 @@ function getAbi (contractName) {
     else if (contractName === "PLMData") return dataArtifact.abi;
     else if (contractName === "PLMMatchOrganizer") return matchOrganizerArtifact.abi;
     else if (contractName === "PLMBattleField") return battleFieldArtifact.abi;
+    else if (contractName === "PLMBattleManager") return battleManagerArtifact.abi;
+    else if (contractName === "PLMBattleStarter") return battleStarterArtifact.abi;
+    else if (contractName === "PLMBattlePlayerSeed") return battlePlayerSeedArtifact.abi;
+    else if (contractName === "PLMBattleChoice") return battleChoiceArtifact.abi;
+}
+
+async function getMyAddress(addressIndex) {
+    const signer = await getSigner(addressIndex)
+    return signer.getAddress()
 }
 
 function getSigner (addressIndex) {
@@ -88,7 +107,7 @@ async function connectWallet () {
 }
 
 async function poll(func) {
-    const maxAttempts = 5;
+    const maxAttempts = 1;
     const backoff = new ExponentialBackoff(maxAttempts);
     let ans;
     try {
@@ -114,4 +133,4 @@ async function poll(func) {
     return ans;
 }
 
-export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };
+export { getEnv, stringToBytes32, bytes32ToString, getRandomBytes32, getSeedString, getMyAddress, calcRandomSlotId, getCommitString, getContract, connectWallet, poll };

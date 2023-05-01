@@ -124,7 +124,7 @@ export default function MatchMake() {
         setLoadingStatus({isLoading: true, message: null});
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
-        eventBattleStarted(myAddress, setMatched, false);
+        // eventBattleStarted(myAddress, setMatched, false);
 
         setProposalAccounts(await getProposalList());
         setLoadingStatus({isLoading: false, message: null});

@@ -15,15 +15,14 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import 'css/card.css';
 import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
-import { initializeBattle } from 'slices/battle.ts';
+import { initializeBattle, setBattleId } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getContract } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import { proposeBattle, isProposed, isInBattle, isNotInvolved, cancelProposal } from 'fetch_sol/match_organizer.js';
-import { forceInitBattle, eventBattleStarted } from 'fetch_sol/battle_field.js';
+import { forceInitBattle, eventBattleStarted, getLatestBattle } from 'fetch_sol/battle_field.js';
 import { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe } from 'fetch_sol/test/match_organizer_test.js';
-
 import { useSnackbar } from 'notistack';
 import characterInfo from "assets/character_info.json";
 import LoadingDOM from 'components/applications/loading';
@@ -163,23 +162,29 @@ export default function Battle() {
         // 現在バトル申し込み中の場合は、ダイアログを表示
         setDialogOpen(await isProposed());
 
-        // 自分が propose した時のバトル開始を検知
+        // // 自分が propose した時のバトル開始を検知
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
-        eventBattleStarted(myAddress, setMatched, true);
+        const battleId = await getLatestBattle();
+        eventBattleStarted(battleId, myAddress, setMatched, true);
         setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
 
     useEffect(() => {(async function() {
         if (matched) {
+            // バトル情報を初期化
+            dispatch(initializeBattle());
+            // 自分のバトルIDをreduxに保存
+            const battleId = await getLatestBattle()
+            dispatch(setBattleId(battleId))
+
             // バトル情報ステータスを初期化する
             const message = "相手とマッチしました！";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
                 variant: 'success',
             });
-            dispatch(initializeBattle());
             navigate('/battle_main');
         }
     })();}, [matched]);

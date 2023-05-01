@@ -5,8 +5,8 @@ import reportWebVitals from 'reportWebVitals';
 import { Provider } from 'react-redux';
 import { RouterConfig } from "routes/Routes.jsx";
 import { SnackbarProvider } from 'notistack';
-import { store } from 'store.ts';
 import { balanceOf } from 'fetch_sol/coin.js';
+import { store } from 'store.ts';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
