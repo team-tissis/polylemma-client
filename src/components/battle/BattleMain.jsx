@@ -600,8 +600,7 @@ export default function BattleMain(){
                 alert("不明なエラーが発生しました。");
             }
         }
-
-        setMyRandomSlotState(await getRandomSlotState(myPlayerId, battleInfo.myPlayerId));
+        setMyRandomSlotState(await getRandomSlotState(battleInfo.battleId, battleInfo.myPlayerId));
         setIsChanging(false);
         setLoadingStatus({isLoading: false, message: null});
     }
