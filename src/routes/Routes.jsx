@@ -13,6 +13,18 @@ export const RouterConfig = ({currentCoin, setCurrentCoin}) => {
                     <Header currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
                     <HomeIndex currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
                 </>} />
+                <Route path="/training" element={<>
+                    <Header currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+                    <HomeIndex currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+                </>} />
+                <Route path="/gacha" element={<>
+                    <Header currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+                    <HomeIndex currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+                </>} />
+                <Route path="/character_book" element={<>
+                    <Header currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+                    <HomeIndex currentCoin={currentCoin} setCurrentCoin={setCurrentCoin} />
+                </>} />
                 <Route path="/battle_main" element={<>
                     <SimpleHeader />
                     <BattleMain />

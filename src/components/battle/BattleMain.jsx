@@ -8,16 +8,10 @@ import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { styled } from '@mui/material/styles';
-import Card from '@mui/material/Card';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
+import HelpIcon from '@mui/icons-material/Help';
 import { selectBattleInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
          setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
 import { useSnackbar } from 'notistack';
@@ -34,6 +28,9 @@ import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportL
          eventBattleCanceled } from 'fetch_sol/battle_field.js';
 import characterInfo from "assets/character_info.json";
 import LoadingDOM from 'components/applications/loading';
+import HelpGuid from 'components/battle/helpGuid';
+import BattleResultBoard from 'components/battle/BattleResultBoard';
+import BattleResultTag from 'components/battle/BattleResultTag';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -42,6 +39,7 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
+  
 
 function handleButtonStyle() {
     return {
@@ -51,16 +49,6 @@ function handleButtonStyle() {
         width: '24%',
         fontSize: 17,
         fontWeight: 600,
-        zIndex: 999
-    }
-}
-
-function battleResultStyle() {
-    return {
-        position: 'fixed',
-        top: 80,
-        right: 10,
-        fontSize: 20,
         zIndex: 999
     }
 }
@@ -174,20 +162,24 @@ function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLe
 
         <Box sx={{ width: '80%' }}>
             このトークンにレベルを付与する
-            <div>残りレベルポイント: { remainingLevelPoint } / { maxLevelPoint }</div>
-            <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
-                <Slider
-                    aria-label="Temperature"
-                    defaultValue={0}
-                    onChange={(e) => setLevelPoint(e.target.value)}
-                    valueLabelDisplay="auto"
-                    step={null}
-                    marks={marks}
-                    min={0}
-                    max={maxLevelPoint}
-                    disabled={isChoiceFrozen}
-                />
-            </Stack>
+            <div>残りレベルポイント: { remainingLevelPoint }</div>
+            {
+                (remainingLevelPoint != 0) && <>
+                    <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+                        <Slider
+                            aria-label="Temperature"
+                            defaultValue={0}
+                            onChange={(e) => setLevelPoint(e.target.value)}
+                            valueLabelDisplay="auto"
+                            step={null}
+                            marks={marks}
+                            min={0}
+                            max={maxLevelPoint}
+                            disabled={isChoiceFrozen}
+                        />
+                    </Stack>
+                </>
+            }
         </Box>
 
         <div>自分 <Chip label={`Lv. ${level}`} style={{marginLeft: 'auto', marginRight: 0, marginTop: 10}} /></div>
@@ -195,18 +187,6 @@ function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLe
     </Container>
     </>)
 }
-
-const UrgeWithPleasureComponent = () => (
-    <CountdownCircleTimer
-        isPlaying
-        duration={30}
-        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-        colorsTime={[7, 5, 2, 0]}
-        strokeWidth={20}
-    >
-        {({ remainingTime }) => <div style={{fontSize: 50, fontWeight: 700}}>{ remainingTime }</div>}
-    </CountdownCircleTimer>
-)
 
 export default function BattleMain(){
     const { enqueueSnackbar } = useSnackbar();
@@ -216,6 +196,9 @@ export default function BattleMain(){
     const maxRounds = 5;
 
     const battleInfo = useSelector(selectBattleInfo);
+
+    const [ helpGuidOpen, setHelpGuidOpen ] = useState(false);
+    const [ battleResultBoardOpen , setBattleResultBoardOpen ] = useState(false)
 
     const [choice, setChoice] = useState(0);
     const [levelPoint, setLevelPoint] = useState(0);
@@ -620,6 +603,8 @@ export default function BattleMain(){
         setLoadingStatus({isLoading: true, message: 'バトルに出したキャラを公開しています。'});
         setIsChanging(true);
         setIsChecking(true);
+        setLevelPoint(0);
+
         let succeed = false;
 
         const myPlayerId = battleInfo.myPlayerId;
@@ -776,10 +761,6 @@ export default function BattleMain(){
         }
     })();}, [battleCompleted, isInRound]);
 
-    function backToBattleMain(){
-        setBattleResultDialog({open: false, result: ""})
-        window.location.reload()
-    }
 
     function roundResult(){
         if (roundResults.length === 0) return <></>
@@ -811,7 +792,7 @@ export default function BattleMain(){
     }
     return(<>
     <LoadingDOM isLoading={loadingStatus.isLoading} message={loadingStatus.message}/>
-    <div variant="contained" size="large" style={ battleResultStyle() } color="primary" aria-label="add">
+    <div variant="contained" size="large" className="battle_result_btn" color="primary" aria-label="add">
         { roundResult() }
     </div>
     <Button variant="contained" size="large" color="secondary" onClick={() => handleForceInitBattle() }>
@@ -823,160 +804,63 @@ export default function BattleMain(){
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
     <div>COMとバトル: {isCOM ? "YES" : "NO"}</div>
     <div>ラウンド {round+1}</div>
-    <Grid container spacing={5} style={{margin: 5}} columns={{ xs: 10, sm: 10, md: 10 }}>
-        <Grid item xs={10} md={7}>
-            {myRandomSlotState >= 1 &&
-            <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
-                [dev]左から数えて {COMChoice} 番目のトークンが選択されました。
-                <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} level={opponentLevel}
-                           remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint} opponentRandomSlotState={opponentRandomSlotState}/>
-                <div style={{height: 100}}/>
-                [dev]レベルポイント {levelPoint}<br/>
-                [dev]保存したmyPlayerSeed: { battleInfo.myPlayerSeed }<br/>
-                [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds} level={myLevel}
-                         remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint}
-                         isChoiceFrozen={isChoiceFrozen} choice={choice} setChoice={setChoice} />
-            </Container>
-            }
-        </Grid>
-        <Grid item xs={10} md={2}>
-            {/* <div style={{textAlign: 'center', fontSize: 20, marginBottom: 30}}>残り時間</div>
-            <div style={{textAlign: 'center'}}>
-                <div style={{display: 'inlineBlock'}}>
-                    <UrgeWithPleasureComponent/>
-                </div>
-            </div> */}
-            <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
-                <Grid container>
-                    <Grid container>
-                        <Grid item xs={6} md={6}></Grid>
-                        <Grid item xs={6} md={6}>攻撃力</Grid>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={3} md={3}>ラウンド</Grid>
-                        <Grid item xs={3} md={3}>勝敗</Grid>
-                        <Grid item xs={3} md={3}>自分</Grid>
-                        <Grid item xs={3} md={3}>相手</Grid>
-                    </Grid>
-                    {roundResults.map((roundResult, index) => (
-                        index < round && <Grid container key={index}>
-                            <Grid item xs={3} md={3}>{index + 1}</Grid>
-                            <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
-                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
-                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Card>
-            {battleResult &&
-            <Card variant="outlined" style={{marginRight: 20, padding: 10}}>
-                <Grid container spacing={3}>
-                    <Grid item xs={4} md={4}>勝敗</Grid>
-                    <Grid item xs={4} md={4}>自分</Grid>
-                    <Grid item xs={4} md={4}>相手</Grid>
+    {myRandomSlotState >= 1 &&
+        <Container style={{backgroundColor: '#EDFFBE', marginBottom: '10%'}}>
+            [dev]左から数えて {COMChoice} 番目のトークンが選択されました。
+            <PlayerYou characters={opponentCharacters} charsUsedRounds={opponentCharsUsedRounds} level={opponentLevel}
+                remainingLevelPoint={opponentRemainingLevelPoint} maxLevelPoint={opponentMaxLevelPoint} opponentRandomSlotState={opponentRandomSlotState}/>
+            <div style={{height: 100}}/>
+            [dev]レベルポイント {levelPoint}<br/>
+            [dev]保存したmyPlayerSeed: { battleInfo.myPlayerSeed }<br/>
+            [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-                    <Grid item xs={4} md={4}>{battleResult.isDraw ? <>△</> : (battleInfo.myPlayerId === battleResult.winner) ? <>○</> : <>×</>}</Grid>
-                    <Grid item xs={4} md={4}>{(battleInfo.myPlayerId === battleResult.winner) ? battleResult.winnerCount : battleResult.loserCount}</Grid>
-                    <Grid item xs={4} md={4}>{(battleInfo.myPlayerId === battleResult.winner) ? battleResult.loserCount : battleResult.winnerCount}</Grid>
-                </Grid>
-            </Card>
-            }
+            <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds} level={myLevel}
+                remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint}
+                isChoiceFrozen={isChoiceFrozen} choice={choice} setChoice={setChoice} />
+        </Container>
+    }
+        
 
-            <Grid item xs={10} md={10}>
-                <h2>バトル方法</h2><hr/>
-
-                <h2>手順<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>「バトルを開始する」ボタンを押すとバトルが開始する</p>
-                <p>「勝負するキャラを確定する」ボタンを押すと各ラウンドで使用するキャラが確定する（それ以降は変更不可）</p>
-                <p>ランダムスロットを選択した場合、「ランダムスロットを公開する」ボタンを押すとランダムスロットが使用可能になる</p>
-                <p>「バトル結果を見る」ボタンを押すとバトルの実行結果が勝敗表に反映される</p>
-
-                <h2>勝敗の決定<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>攻撃力が大きい方が勝負に勝利できます。</p>
-                <p>レベル: 基本的にはレベルによってキャラの攻撃力が決まります。</p>
-                <p>絆レベル: 獲得したキャラの保有期間が長ければ長いほど、絆レベルは上昇していきます。（上限は自分のレベル数の二倍）</p>
-                <p>絆レベルが高いほど攻撃力が増加します。（ただし、必ず攻撃力が上がるわけではありません。）</p>
-                <p>属性: 炎 / 草 / 水の3種類があり、じゃんけんのような相性があります。</p>
-                <p>特性: 表示されている効果が発動され、攻撃力が上昇したりします。</p>
-                <p>その他: ランダムスロットを使うことができ、レベルポイントも追加できます。</p>
-
-                <h2>ランダムスロット<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>レベル: 使っているキャラのレベルの平均値が設定されます。</p>
-                <p>絆レベル: ありません。</p>
-
-                <h2>レベルポイント<hr style={{margin: 0, padding: 0}}/></h2>
-                <p>5 ラウンドで、合計で使っているキャラのレベルの最大値まで与えることができます。</p>
-                <p>一つのラウンドで全てのレベルポイントを使うことも可能です。</p>
-                <p>レベルポイントはレベルと同じように攻撃力に加算されます。</p>
-            </Grid>
-        </Grid>
-
-        {!isChanging && myRandomSlotState === 0 &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
-                バトルを開始する
-            </Button>
-        }
-
-        {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && myRandomSlotState >= 1 &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
-                勝負するキャラを確定する
-            </Button>
-        }
-
-        {!battleCompleted && !isChanging && !isChecking && myState === 1 && choice === 4 && myRandomSlotState === 1 &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
-                ランダムスロットを公開する
-            </Button>
-        }
-
-        {!battleCompleted && !isChanging && !isChecking && myState === 1 && (choice !== 4 || (choice === 4 && myRandomSlotState === 2)) &&
-            <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
-                バトル結果を見る
-            </Button>
-        }
-    </Grid>
-
-    <div>
-        <Dialog
-            open={battleResultDialog.open}
-            keepMounted
-            aria-describedby="alert-dialog-slide-description"
-        >
-            <DialogTitle style={{textAlign: 'center'}}>バトル結果 {battleResultDialog.result}</DialogTitle>
-            <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-            <Card variant="outlined" style={{marginRight: 20, padding: 10, lineHeight: 2}}>
-                <Grid container>
-                    <Grid container>
-                        <Grid item xs={6} md={6}></Grid>
-                        <Grid item xs={6} md={6}>攻撃力</Grid>
-                    </Grid>
-                    <Grid container>
-                        <Grid item xs={3} md={3}>ラウンド</Grid>
-                        <Grid item xs={3} md={3}>勝敗</Grid>
-                        <Grid item xs={3} md={3}>自分</Grid>
-                        <Grid item xs={3} md={3}>相手</Grid>
-                    </Grid>
-                    {roundResults.map((roundResult, index) => (
-                        index < round && <Grid container key={index}>
-                            <Grid item xs={3} md={3}>{index + 1}</Grid>
-                            <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
-                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
-                            <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Card>
-            </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-            <Button onClick={() => backToBattleMain()}>
-                ホーム画面に戻る
-            </Button>
-            </DialogActions>
-        </Dialog>
+    <div class="battle_result_dialog_btn" onClick={() => setBattleResultBoardOpen(true) }>
+        <HelpIcon  style={{ marginRight: '10px' }}/> バトル結果を見る
     </div>
+    <BattleResultBoard battleResult={battleResult} roundResults={roundResults} round={round}
+        battleInfo={battleInfo} battleResultBoardOpen={battleResultBoardOpen}
+        setBattleResultBoardOpen={setBattleResultBoardOpen} />
+
+    <div class="help_dialog_btn" onClick={() => setHelpGuidOpen(true) }>
+        <HelpIcon  style={{ marginRight: '10px' }}/> ヘルプ
+    </div>
+    <HelpGuid helpGuidOpen={helpGuidOpen} setHelpGuidOpen={setHelpGuidOpen} />
+
+    {!isChanging && myRandomSlotState === 0 &&
+        <Button variant="contained" size="large" style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleSeedCommit() }>
+            バトルを開始する
+        </Button>
+    }
+
+    {!battleCompleted && !isChanging && !isChecking && !isInRound && myState === 0 && myRandomSlotState >= 1 &&
+        <Button variant="contained" size="large"  style={ handleButtonStyle() }color="secondary" aria-label="add" onClick={() => handleChoiceCommit()}>
+            勝負するキャラを確定する
+        </Button>
+    }
+
+    {!battleCompleted && !isChanging && !isChecking && myState === 1 && choice === 4 && myRandomSlotState === 1 &&
+    
+     <Button variant="contained" size="large"   style={ handleButtonStyle() } color="info" aria-label="add" onClick={() => handleSeedReveal()}>
+            ランダムスロットを公開する
+        </Button>
+    }
+
+    {!battleCompleted && !isChanging && !isChecking && myState === 1 && (choice !== 4 || (choice === 4 && myRandomSlotState === 2)) &&
+        <Button variant="contained" size="large"  style={ handleButtonStyle() } color="primary" aria-label="add" onClick={() => handleChoiceReveal()}>
+            バトル結果を見る
+        </Button>
+    }
+    
+    {/* alertで各バトルの結果を通知 */}
+    <BattleResultTag battleResultDialog={battleResultDialog} setBattleResultDialog={setBattleResultDialog}
+        roundResults={roundResults} round={round} battleInfo={battleInfo}/>
     </>)
 }
