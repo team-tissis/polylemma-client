@@ -271,20 +271,11 @@ async function forceInitBattle (addressIndex) {
 /// FUNCTIONS ABOUT EVENT LISTENING ///
 ///////////////////////////////////////
 
-// function eventBattleStarted (battleId, myAddress, setMatched, isHome) {
-//     const { contract } = getContract("PLMBattleStarter");
-//     const filter = contract.filters.BattleStarted(battleId, isHome ? myAddress : null, isHome ? null : myAddress);
-//     contract.on(filter, (battleId, aliceAddr, bobAddr) => {
-//         setMatched(true);
-//         console.log(`BattleID ${battleId} was created. / Battle Between ${aliceAddr} and ${bobAddr} has started.`);
-//     });
-// }
 function eventBattleStarted (battleId, myAddress, setMatched, isHome) {
     const { contract } = getContract("PLMBattleStarter");
-    console.log({コントラクト: contract})
     const filter = contract.filters.BattleStarted(battleId, isHome ? myAddress : null, isHome ? null : myAddress);
     contract.on(filter, (battleId, aliceAddr, bobAddr) => {
-        setMatched(true);
+        setMatched({flag: true, myAddress: aliceAddr, opponentAddress: bobAddr});
         console.log(`BattleID ${battleId} was created. / Battle Between ${aliceAddr} and ${bobAddr} has started.`);
     });
 }

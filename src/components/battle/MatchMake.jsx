@@ -16,13 +16,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectMyCharacter } from 'slices/myCharacters.ts';
 import { useSnackbar } from 'notistack';
-import { getContract } from 'fetch_sol/utils.js';
+import { getContract, getMyAddress } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
+import { selectBattleInfo, setBattleId, setComputerInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
+    setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
 import { requestChallenge, getProposalList } from 'fetch_sol/match_organizer.js';
-import { eventBattleStarted } from 'fetch_sol/battle_field.js';
+import { eventBattleStarted, getLatestBattle } from 'fetch_sol/battle_field.js';
 import PersonIcon from '@mui/icons-material/Person';
 import LoadingDOM from 'components/applications/loading';
 
@@ -116,22 +118,27 @@ function BattleAccount({proposalAccount, setLoadingStatus}){
 
 export default function MatchMake() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [proposalAccounts, setProposalAccounts] = useState([]);
-    const [matched, setMatched] = useState(false);
+    const [matched, setMatched] = useState({flag: false, myAddress: null, opponentAddress: null});
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
     useEffect(() => {(async function() {
         setLoadingStatus({isLoading: true, message: null});
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
-        // eventBattleStarted(myAddress, setMatched, false);
+
+        const battleId = await getLatestBattle();
+        eventBattleStarted(battleId, myAddress, setMatched, false);
 
         setProposalAccounts(await getProposalList());
         setLoadingStatus({isLoading: false, message: null});
     })();}, []);
 
     useEffect(() => {(async function() {
-        if (matched) {
+        if (matched.flag) {
+            const myAddress = await getMyAddress()
+            dispatch(setComputerInfo([matched.myAddress, matched.opponentAddress, myAddress]))
             navigate('/battle_main');
         }
     })();}, [matched]);

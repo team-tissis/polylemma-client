@@ -26,8 +26,11 @@ async function prepareForBattle () {
 
 async function createCharacters (fixedSlotsOfChallengers) {
     for (let addressIndex = 3; addressIndex < 7; addressIndex++) {
-        await getPLMCoin(220, 400, addressIndex);
-        await extendSubscPeriod(addressIndex);
+        const currentCoin = await balanceOf(addressIndex);
+        if (currentCoin == 0){
+            await getPLMCoin(220, 400, addressIndex);
+            await extendSubscPeriod(addressIndex);
+        }
 
         const fixedSlotsOfChallenger = [];
         for (let i = 0; i < 4; i++) {

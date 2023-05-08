@@ -14,10 +14,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import 'css/card.css';
+import { selectBattleInfo, setBattleId, setComputerInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
+    setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
 import { selectMyCharacter, setBattleCharacters, addBattleCharacters, removeBattleCharacters, updateBattleCharacters, initializeBattleCharacters } from 'slices/myCharacters.ts';
-import { initializeBattle, setBattleId } from 'slices/battle.ts';
 import { useSelector, useDispatch } from 'react-redux';
-import { getContract } from 'fetch_sol/utils.js';
+import { getContract, getMyAddress } from 'fetch_sol/utils.js';
 import { getCurrentStamina, getStaminaPerBattle, subscIsExpired } from 'fetch_sol/dealer.js';
 import { getOwnedCharacterWithIDList } from 'fetch_sol/token.js';
 import { proposeBattle, isProposed, isInBattle, isNotInvolved, cancelProposal } from 'fetch_sol/match_organizer.js';
@@ -143,7 +144,7 @@ export default function Battle() {
     const [myOwnedCharacters, setMyOwnedCharacters] = useState([]);
     const [myBattleCharacters, setMyBattleCharacters] = useState([]);
     const [rangeValue, setRangeValue] = useState({min: 4, max: 1020});
-    const [matched, setMatched] = useState(false);
+    const [matched, setMatched] = useState({flag: false, myAddress: null, opponentAddress: null});
     const [isChanging, setIsChanging] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
@@ -172,12 +173,15 @@ export default function Battle() {
 
 
     useEffect(() => {(async function() {
-        if (matched) {
+        if (matched.flag) {
             // バトル情報を初期化
             dispatch(initializeBattle());
             // 自分のバトルIDをreduxに保存
             const battleId = await getLatestBattle()
             dispatch(setBattleId(battleId))
+
+            const myAddress = await getMyAddress()
+            dispatch(setComputerInfo([matched.opponentAddress, matched.myAddress, myAddress]))
 
             // バトル情報ステータスを初期化する
             const message = "相手とマッチしました！";

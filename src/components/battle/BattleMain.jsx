@@ -14,8 +14,8 @@ import Card from '@mui/material/Card';
 import HelpIcon from '@mui/icons-material/Help';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'assets/icons/avatar_1.png'
-import { selectBattleInfo, setBattleId, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
-         setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
+import { selectBattleInfo, setBattleId, setComputerInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
+    setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
 import { useSnackbar } from 'notistack';
 import { getEnv, getRandomBytes32 } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
@@ -196,7 +196,7 @@ export default function BattleMain(){
     const navigate = useNavigate();
 
     const maxRounds = 5;
-
+    
     const battleInfo = useSelector(selectBattleInfo);
 
     // ダイアログ管理のstate
@@ -208,7 +208,7 @@ export default function BattleMain(){
     const [levelPoint, setLevelPoint] = useState(0);
 
     // for debug
-    const [isCOM, setIsCOM] = useState(false);
+    // const [isCOM, setIsCOM] = useState(false);
     const [addressIndex, setAddressIndex] = useState(-1);
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [COMChoice, setCOMChoice] = useState(-1);
@@ -248,21 +248,21 @@ export default function BattleMain(){
     const [isCancelled, setIsCancelled] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
 
-    async function checkIsCOM() {
-        if (getEnv() === 'mumbai') return false;
-        for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
-            try {
-                const opponentPlayerId = await getPlayerIdFromAddr(_addressIndex);
-                if (opponentPlayerId === 1-battleInfo.myPlayerId) {
-                    setAddressIndex(_addressIndex);
-                    return true;
-                }
-            } catch (e) {
-                console.log(`Opponent is not addr ${_addressIndex}`);
-            }
-        }
-        return false;
-    }
+    // async function checkIsCOM() {
+    //     if (getEnv() === 'mumbai') return false;
+    //     for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
+    //         try {
+    //             const opponentPlayerId = await getPlayerIdFromAddr(_addressIndex);
+    //             if (opponentPlayerId === 1-battleInfo.myPlayerId) {
+    //                 setAddressIndex(_addressIndex);
+    //                 return true;
+    //             }
+    //         } catch (e) {
+    //             console.log(`Opponent is not addr ${_addressIndex}`);
+    //         }
+    //     }
+    //     return false;
+    // }
 
 
     useEffect(() => {(async function() {
@@ -309,8 +309,8 @@ export default function BattleMain(){
             }
         }
 
-        // COM かどうか判断
-        setIsCOM(await checkIsCOM());
+        // // COM かどうか判断
+        // setIsCOM(await checkIsCOM());
 
         // ラウンド情報取得
         const currentRound = await getCurrentRound(battleInfo.battleId);
@@ -501,11 +501,11 @@ export default function BattleMain(){
             succeed = false;
         }
 
-        if (isCOM) {
+        if (battleInfo.isCOM) {
             const _COMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(_COMPlayerSeed);
             try {
-                await commitPlayerSeed(1-myPlayerId, _COMPlayerSeed, addressIndex);
+                await commitPlayerSeed(1-myPlayerId, _COMPlayerSeed, battleInfo.comAddress);
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -560,11 +560,11 @@ export default function BattleMain(){
             }
         }
 
-        if (isCOM) {
+        if (battleInfo.isCOM) {
             const _COMblindingFactor = getRandomBytes32();
             setCOMBlindingFactor(_COMblindingFactor);
             try {
-                await _COMCommitChoice(levelPoint, COMChoice, _COMblindingFactor, addressIndex);
+                await _COMCommitChoice(levelPoint, COMChoice, _COMblindingFactor, battleInfo.comAddress);
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -641,10 +641,10 @@ export default function BattleMain(){
             }
         }
 
-        if (isCOM) {
+        if (battleInfo.isCOM) {
             if (COMChoice === 4) {
                 try {
-                    await _COMRevealPlayerSeed(COMPlayerSeed, addressIndex);
+                    await _COMRevealPlayerSeed(COMPlayerSeed, battleInfo.comAddress);
                 } catch (e) {
                     console.log({error: e});
                     if (e.message.substr(0, 18) === "transaction failed") {
@@ -655,7 +655,7 @@ export default function BattleMain(){
                 }
             }
             try {
-                await _COMRevealChoice(levelPoint, COMChoice, COMBlindingFactor, addressIndex);
+                await _COMRevealChoice(levelPoint, COMChoice, COMBlindingFactor, battleInfo.comAddress);
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -809,7 +809,7 @@ export default function BattleMain(){
         相手の操作が遅いことを報告する
     </Button>
     <div>※：バグ等でバトルがうまく進まなくなったり、マッチングができなくなったら押してください。</div>
-    <div>COMとバトル: {isCOM ? "YES" : "NO"}</div>
+    <div>COMとバトル: {battleInfo.isCOM ? "YES" : "NO"}</div>
     <div>ラウンド {round+1}</div>
 
     {myRandomSlotState >= 1 &&
