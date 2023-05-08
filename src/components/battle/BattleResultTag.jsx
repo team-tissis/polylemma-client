@@ -7,13 +7,16 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
+import { useNavigate } from 'react-router-dom';
 import DialogContentText from '@mui/material/DialogContentText';
 
 
 export default function BattleResultTag({battleResultDialog, setBattleResultDialog,  roundResults, round, battleInfo}) {
-
+    const navigate = useNavigate();
+    
     function backHome() {
         setBattleResultDialog({open: false, result: ""})
+        navigate('../');
         window.location.reload()
     }
     return (<>

@@ -266,11 +266,21 @@ export default function BattleMain(){
 
 
     useEffect(() => {(async function() {
-        console.log("L: 265")
         setLoadingStatus({isLoading: true, message: null});
         if (!(await isInBattle())) {
             dispatch(initializeBattle());
-            navigate('../');
+            // バトル終了後にダイアログで勝敗を表示する
+            const _battleResult = await getBattleResult(battleInfo.battleId);
+            setBattleResult(_battleResult);
+            if (_battleResult.isDraw) {
+                setBattleResultDialog({open: true, result: "引き分け"})
+            } else {
+                if (_battleResult.winner == 0){
+                    setBattleResultDialog({open: true, result: "勝利"})
+                } else {
+                    setBattleResultDialog({open: true, result: "敗北"})
+                }
+            }
         }
         
         // playerId を取得
@@ -454,7 +464,6 @@ export default function BattleMain(){
 
 
     async function handleSeedCommit () {
-        console.log("handleSeedCommit")
         setLoadingStatus({isLoading: true, message: 'まもなく対戦が開始されます！'});
         setIsChanging(true);
         let succeed = false;
@@ -520,7 +529,6 @@ export default function BattleMain(){
 
 
     async function handleChoiceCommit() {
-        console.log("handleChoiceCommit")
         setLoadingStatus({isLoading: true, message: 'キャラを確定しています。'});
         setIsChanging(true);
         setIsChecking(true);
@@ -578,7 +586,6 @@ export default function BattleMain(){
 
 
     async function handleSeedReveal() {
-        console.log("handleSeedReveal")
         setLoadingStatus({isLoading: true, message: 'ランダムスロットを公開しています。'});
         setIsChanging(true);
 
@@ -607,7 +614,6 @@ export default function BattleMain(){
 
 
     async function handleChoiceReveal() {
-        console.log("handleChoiceReveal")
         setLoadingStatus({isLoading: true, message: 'バトルに出したキャラを公開しています。'});
         setIsChanging(true);
         setIsChecking(true);
@@ -672,13 +678,11 @@ export default function BattleMain(){
 
     // 各処理終了時の処理
     useEffect(() => {(async function() {
-        console.log("各処理終了時の処理....")
         const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
         const _myState = await getPlayerState(battleInfo.battleId, myPlayerId);
         const _opponentState = await getPlayerState(battleInfo.battleId, 1-myPlayerId);
         setMyState(_myState);
         
-        console.log("isChanging: ", isChanging, " isWaiting: ", isWaiting)
         if (!isChanging && !isWaiting) {
             const _myRandomSlotState = await getRandomSlotState(battleInfo.battleId, myPlayerId);
             const _opponentRandomSlotState = await getRandomSlotState(battleInfo.battleId, 1-myPlayerId);
@@ -699,7 +703,6 @@ export default function BattleMain(){
     // ラウンド終了後の処理
     useEffect(() => {(async function() {
         if (completedNumRounds > 0 && myCharsUsedRounds !== undefined) {
-            console.log("ラウンド終了後の処理")
             // 相手の次の動作を待つ
             setIsWaiting(true);
 
@@ -755,7 +758,6 @@ export default function BattleMain(){
     // バトル終了後の処理
     useEffect(() => {(async function() {
         if (battleCompleted && !isInRound) {
-            console.log("バトル終了後の処理")
             const _battleResult = await getBattleResult(battleInfo.battleId);
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
