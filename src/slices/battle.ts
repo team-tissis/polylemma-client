@@ -26,6 +26,9 @@ const battleInfoSlice = createSlice({
   name: "battleInfo",
   initialState,
   reducers: {
+    setBattleId(state, action: PayloadAction<number>) {
+      state.battleId = action.payload;
+    },
     setMyPlayerId(state, action: PayloadAction<number>) {
       state.myPlayerId = action.payload;
     },
@@ -63,6 +66,7 @@ const battleInfoSlice = createSlice({
 export const selectBattleInfo = (state: RootState): IBattleInfo =>
   state.battleInfo;
 export const {
+  setBattleId, 
   setMyPlayerId,
   setMyPlayerSeed,
   setMyChoice,

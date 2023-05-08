@@ -43,6 +43,7 @@ async function requestChallenge (toBattleAddress, fixedSlotsOfChallenger, addres
     const { contract } = getContract("PLMMatchOrganizer", addressIndex);
     const response = await poll(() => {return contract.requestChallenge(toBattleAddress, fixedSlotsOfChallenger);});
     console.log({ requestChallenge: response });
+    return
     await response.wait();
 }
 

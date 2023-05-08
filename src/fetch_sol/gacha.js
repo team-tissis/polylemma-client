@@ -11,7 +11,7 @@ async function gacha (name, addressIndex) {
     const { contractAddress, contract } = getContract("PLMDealer", addressIndex);
     const coinForGacha = await getGachaFee();
     await approve(contractAddress, coinForGacha, addressIndex);
-    const response = await poll(() => {return contract.gacha(stringToBytes32(name));});
+    const response = await poll(() => {return contract.gacha([stringToBytes32(name)], 1);});
     console.log({ gacha: response });
 
     const rc = await response.wait();

@@ -1,7 +1,8 @@
-import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract, poll } from "./utils.js";
+import { bytes32ToString, getSeedString, getCommitString, calcRandomSlotId, getContract, poll, getMyAddress } from "./utils.js";
 import { getImgURI } from "./token.js";
 import { getTypeName } from "./data.js";
-import battle from "slices/battle.js";
+import { ContactSupportOutlined } from "@mui/icons-material";
+import { BigNumber } from 'bignumber.js';
 
 //////////////////////////////
 /// BATTLE FIELD FUNCTIONS ///
@@ -9,32 +10,33 @@ import battle from "slices/battle.js";
 
 async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMBattlePlayerSeed", addressIndex);
-    const myAddress = await signer.getAddress();
+    const myAddress = await getMyAddress();
     const commitString = getSeedString(myAddress, playerSeed);
-    const response = await poll(() => {return contract.commitPlayerSeed(playerId, commitString);});
+    // const response = await poll(() => {return contract.commitPlayerSeed(playerId, commitString);});
+    const response = await poll(() => {return contract.commitPlayerSeed(commitString);});
     console.log({ commitPlayerSeed: response });
     await response.wait();
 }
 
-async function revealPlayerSeed (playerId, playerSeed, addressIndex) {
+async function revealPlayerSeed (playerSeed, addressIndex) {
     const { contract } = getContract("PLMBattlePlayerSeed", addressIndex);
-    const response = await poll(() => {return contract.revealPlayerSeed(playerId, playerSeed);});
+    const response = await poll(() => {return contract.revealPlayerSeed(playerSeed);});
     console.log({ revealPlayerSeed: response });
     await response.wait();
 }
 
-async function commitChoice (playerId, levelPoint, choice, blindingFactor, addressIndex) {
+async function commitChoice (levelPoint, choice, blindingFactor, addressIndex) {
     const { signer, contract } = getContract("PLMBattleChoice", addressIndex);
     const myAddress = await signer.getAddress();
     const commitString = getCommitString(myAddress, levelPoint, choice, blindingFactor);
-    const response = await poll(() => {return contract.commitChoice(playerId, commitString);});
+    const response = await poll(() => {return contract.commitChoice(commitString);});
     console.log({ commitChoice: response });
     await response.wait();
 }
 
-async function revealChoice (playerId, levelPoint, choice, blindingFactor, addressIndex) {
-    const { contract } = getContract("PLMBattleChocie", addressIndex);
-    const response = await poll(() => {return contract.revealChoice(playerId, levelPoint, choice, blindingFactor);});
+async function revealChoice (levelPoint, choice, blindingFactor, addressIndex) {
+    const { contract } = getContract("PLMBattleChoice", addressIndex);
+    const response = await poll(() => {return contract.revealChoice(levelPoint, choice, blindingFactor);});
     console.log({ revealChoice: response });
     await response.wait();
 }
@@ -81,20 +83,22 @@ async function getPlayerState (battleId, playerId, addressIndex) {
 }
 
 async function getRemainingLevelPoint (battleId, playerId, addressIndex) {
-    const { contract } = getContract("PLMBattleManger", addressIndex);
+    const { contract } = getContract("PLMBattleManager", addressIndex);
     const response = await poll(() => {return contract.getPlayerInfoRemainingLevelPointById(battleId, playerId);});
     console.log({ getRemainingLevelPoint: response });
     return Number(response);
 }
 
-async function getNonce (battleId, playerId, addressIndex) {
+async function getNonce (addressIndex) {
     const { contract } = getContract("PLMBattleManager", addressIndex);
-    const response = await poll(() => {return contract.getNonce(battleId, playerId);});
-    console.log({ getNonce: response });
+    const myAddress = await getMyAddress();
+    // getNonce => getPlayerInfoRandomSlotNonce ?
+    const response = await poll(() => {return contract.getPlayerInfoRandomSlotNonce(myAddress);});
+    console.log({ getPlayerInfoRandomSlotNonce: response });
     return response;
 }
 
-async function getBondLevelAtBattleStart (battleId,playerId,char, addressIndex) {
+async function getBondLevelAtBattleStart (battleId, playerId, char, addressIndex) {
     const { contract } = getContract("PLMBattleManager", addressIndex);
     const response = await poll(() => {return contract.getBondLevelAtBattleStartById(battleId,playerId,char['level'], char['fromBlock']);});
     console.log({ getBondLevelAtBattleStart: response });
@@ -108,7 +112,7 @@ async function getTotalSupplyAtFromBlock (battleId, playerId, addressIndex) {
     return response;
 }
 
-async function getFixedSlotCharInfo (playerId, addressIndex) {
+async function getFixedSlotCharInfo (battleId, playerId, addressIndex) {
     const { contract } = getContract("PLMBattleStarter", addressIndex);
     // callした関数内でbattleIdを取得しているので引数に不要
     const response = await poll(() => {return contract.getFixedSlotsCharInfo(playerId);});
@@ -121,7 +125,7 @@ async function getFixedSlotCharInfo (playerId, addressIndex) {
             imgURI: await getImgURI(response[i].imgId, addressIndex),
             characterType: await getTypeName(response[i].characterTypeId, addressIndex),
             level: response[i].level,
-            bondLevel: await getBondLevelAtBattleStart(response[i]),
+            bondLevel: await getBondLevelAtBattleStart(battleId, playerId, response[i]),
             rarity: response[i].rarity,
             attributeIds: response[i].attributeIds,
             isRandomSlot: false
@@ -139,7 +143,7 @@ async function getVirtualRandomSlotCharInfo (battleId, playerId, tokenId, addres
 }
 
 async function getMyRandomSlot (battleId, playerId, playerSeed, addressIndex) {
-    const nonce = await getNonce(battleId, playerId, addressIndex);
+    const nonce = await getNonce(playerId, addressIndex);
     const mod = await getTotalSupplyAtFromBlock(battleId, playerId, addressIndex);
     const randomSlotId = calcRandomSlotId(nonce, playerSeed, mod);
     console.log({ randomSlotId: randomSlotId });
@@ -180,7 +184,7 @@ async function getRandomSlotCharInfo (battleId, playerId, addressIndex) {
 
 async function getCharsUsedRounds (battleId, playerId, addressIndex) {
     const { contract } = getContract("PLMBattleManager", addressIndex);
-    const response = await poll(() => {return contract.getPlayerInfoFiexedSlotsUsedRoundsById(battleId, playerId);});
+    const response = await poll(() => {return contract.getPlayerInfoFixedSlotsUsedRoundsById(battleId, playerId);});
     console.log({ getCharsUsedRounds: response });
     return response;
 }
@@ -207,7 +211,7 @@ async function getCurrentRound (battleId, addressIndex) {
     return response;
 }
 
-async function getMaxLevelPoint (battleId,playerId, addressIndex) {
+async function getMaxLevelPoint (battleId, playerId, addressIndex) {
     const { contract } = getContract("PLMBattleManager", addressIndex);
     const response = await poll(() => {return contract.getPlayerInfoMaxLevelPointById(battleId,playerId);});
     console.log({ getMaxLevelPoint: response });
@@ -230,6 +234,7 @@ async function getBattleResult (battleId, addressIndex) {
 
 async function getRandomSlotState (battleId, playerId, addressIndex) {
     const { contract } = getContract("PLMBattleManager", addressIndex);
+    console.log("At getPlayerInfoRandomSlotStateById battleId", battleId, " playerId ", playerId)
     const response = await poll(() => {return contract.getPlayerInfoRandomSlotStateById(battleId, playerId);});
     console.log({ getRandomSlotState: response });
     return response;
@@ -237,20 +242,19 @@ async function getRandomSlotState (battleId, playerId, addressIndex) {
 
 async function getRandomSlotLevel (battleId, playerId, addressIndex) {
     const { contract } = getContract("PLMBattleManager", addressIndex);
-    const response = await poll(() => {return contract.getRandomSlotLevelById(battleId, playerId);});
+    const response = await poll(() => {return contract.getPlayerInfoRandomSlotLevelById(battleId, playerId);});
     console.log({ getRandomSlotLevel: response });
     return response;
 }
 
-async function getRandomSlotLevel (battleId, playerId, addressIndex) {
+async function getLatestBattle (addressIndex) {
+    const { signer } = getContract("PLMBattleManager");
+    const myAddress = await signer.getAddress();
     const { contract } = getContract("PLMBattleManager", addressIndex);
-    const response = await poll(() => {return contract.getRandomSlotLevelById(battleId, playerId);});
-    console.log({ getRandomSlotLevel: response });
-    return response;
+    const response = await poll(() => {return contract.getLatestBattle(myAddress);});
+    console.log({getLatestBattle: response.toNumber()})
+    return response.toNumber();
 }
-
-
-
 
 //////////////////////////
 /// FUNCTIONS FOR DEMO ///
@@ -267,9 +271,18 @@ async function forceInitBattle (addressIndex) {
 /// FUNCTIONS ABOUT EVENT LISTENING ///
 ///////////////////////////////////////
 
-function eventBattleStarted (myAddress, setMatched, isHome) {
+// function eventBattleStarted (battleId, myAddress, setMatched, isHome) {
+//     const { contract } = getContract("PLMBattleStarter");
+//     const filter = contract.filters.BattleStarted(battleId, isHome ? myAddress : null, isHome ? null : myAddress);
+//     contract.on(filter, (battleId, aliceAddr, bobAddr) => {
+//         setMatched(true);
+//         console.log(`BattleID ${battleId} was created. / Battle Between ${aliceAddr} and ${bobAddr} has started.`);
+//     });
+// }
+function eventBattleStarted (battleId, myAddress, setMatched, isHome) {
     const { contract } = getContract("PLMBattleStarter");
-    const filter = contract.filters.BattleStarted(null, isHome ? myAddress : null, isHome ? null : myAddress);
+    console.log({コントラクト: contract})
+    const filter = contract.filters.BattleStarted(battleId, isHome ? myAddress : null, isHome ? null : myAddress);
     contract.on(filter, (battleId, aliceAddr, bobAddr) => {
         setMatched(true);
         console.log(`BattleID ${battleId} was created. / Battle Between ${aliceAddr} and ${bobAddr} has started.`);
@@ -340,9 +353,10 @@ function eventRoundCompleted (battleId, currentRound, setCompletedNumRounds) {
     });
 }
 
-function eventBattleCompleted (battleId, setBattleCompleted) {
-    const { contract } = getContract("PLMBattleChoice");
-    const filter = contract.filters.BattleCompleted(battleId);
+function eventBattleCompleted (battleId, round, setBattleCompleted) {
+    const { contract } = getContract("PLMBattleField");
+    console.log("battleId ", battleId, " round ", round)
+    const filter = contract.filters.BattleCompleted(battleId, round);
     let isUsed = false;
     contract.on(filter, (battleId, numRounds, isDraw, winner, loser, winnerCount, loserCount) => {
         if (!isUsed) {
@@ -439,7 +453,7 @@ function eventBattleCanceled (isCancelled) {
     contract.on(filter, () => {
         if (!isUsed) {
             isUsed = true;
-            console.log(`BattleID ${battleId}: Battle has been canceled.`);
+            // console.log(`BattleID ${battleId}: Battle has been canceled.`);
             isCancelled(true);
         }
     });
@@ -448,7 +462,7 @@ function eventBattleCanceled (isCancelled) {
 export { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateOperation,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
          getCharsUsedRounds, getPlayerIdFromAddr, getCurrentRound, getMaxLevelPoint, getRoundResults, getBattleResult, getRandomSlotState, getRandomSlotLevel,
-         forceInitBattle,
+         forceInitBattle, getLatestBattle, 
          eventBattleStarted, eventPlayerSeedCommitted, eventPlayerSeedRevealed, eventChoiceCommitted, eventChoiceRevealed,
          eventRoundCompleted, eventBattleCompleted,
          eventExceedingLevelPointCheatDetected, eventReusingUsedSlotCheatDetected,
