@@ -108,6 +108,8 @@ export default function HeaderDrawer({currentCoin, setCurrentCoin}) {
             console.log({error: e});
             if (e.message.substr(0, 18) === "transaction failed") {
                 alert("トランザクションが失敗しました。ガス代が安すぎる可能性があります。");
+            } else if(e?.reason.includes("charge is locked")) {
+                alert("直近でコインを追加したため、しばらくしてからPLMコインを取得してください");
             } else {
                 alert("不明なエラーが発生しました。");
             }
