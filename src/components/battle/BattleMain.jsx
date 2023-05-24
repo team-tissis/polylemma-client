@@ -55,12 +55,17 @@ function handleButtonStyle() {
     }
 }
 
-function BattleCard({character, charUsedRounds, isOpponent, isChoiceFrozen, choice, setChoice, opponentRandomSlotState}){
+function BattleCard({character, charUsedRounds, myRandomSlotState, isOpponent, isChoiceFrozen, choice, setChoice, opponentRandomSlotState}){
     const isRS = character.isRandomSlot;
     const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
     const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
     const characterType = isSecret ? null : characterInfo.characterType[character.characterType];
-    const isBattleDone = charUsedRounds === undefined ? false : charUsedRounds[character.index] > 0;
+    var isBattleDone = charUsedRounds === undefined ? false : charUsedRounds[character.index] > 0;
+    if (isRS) {
+        if (myRandomSlotState > 1) {
+            isBattleDone = true
+        }
+    }
 
     const cardColor = isSecret ? 'grey' : characterAttribute["backgroundColor"];
     const levelColor = isBattleDone ? (isOpponent ? 'gray' : 'silver')
@@ -145,7 +150,7 @@ function PlayerYou({characters, charsUsedRounds, level, remainingLevelPoint, max
     </>)
 }
 
-function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLevelPoint, setLevelPoint, isChoiceFrozen, choice, setChoice}){
+function PlayerI({characters, charsUsedRounds, level, myRandomSlotState, remainingLevelPoint, maxLevelPoint, setLevelPoint, isChoiceFrozen, choice, setChoice}){
     const marks = [];
     for (let lp = 0; lp <= remainingLevelPoint; lp++) {
         marks.push({ value: lp, label: lp });
@@ -156,7 +161,7 @@ function PlayerI({characters, charsUsedRounds, level, remainingLevelPoint, maxLe
         <Grid container spacing={{ xs: 5, md: 5 }} style={{textAlign: 'center'}} columns={{ xs: 10, sm: 10, md: 10 }}>
             {characters.map((character, index) => (
                 <Grid item xs={2} sm={2} md={2} key={index}>
-                    <BattleCard key={index} character={character} charUsedRounds={charsUsedRounds} isOpponent={false}
+                    <BattleCard key={index} character={character} charUsedRounds={charsUsedRounds} myRandomSlotState={myRandomSlotState} isOpponent={false}
                         isChoiceFrozen={isChoiceFrozen} choice={choice} setChoice={setChoice}/>
                 </Grid>
             ))}
@@ -233,6 +238,8 @@ export default function BattleMain(){
     const [isChecking, setIsChecking] = useState(false);
     const [isInRound, setIsInRound] = useState(false);
     const [isChoiceFrozen, setIsChoiceFrozen] = useState(false);
+    // seed, reveal 時に更新する
+    const [hasAction, setHasAction] = useState(0);
 
     const [myState, setMyState] = useState(-1);
     const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
@@ -264,8 +271,8 @@ export default function BattleMain(){
     //     return false;
     // }
 
-
     useEffect(() => {(async function() {
+        console.log("=======useEffect A=======")
         setLoadingStatus({isLoading: true, message: null});
         if (!(await isInBattle())) {
             dispatch(initializeBattle());
@@ -273,23 +280,31 @@ export default function BattleMain(){
             const _battleResult = await getBattleResult(battleInfo.battleId);
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
+                console.log("結果4")
                 setBattleResultDialog({open: true, result: "引き分け"})
             } else {
                 if (_battleResult.winner == 0){
+                    console.log("結果5")
                     setBattleResultDialog({open: true, result: "勝利"})
                 } else {
+                    console.log("結果6")
                     setBattleResultDialog({open: true, result: "敗北"})
                 }
             }
+            setLoadingStatus({isLoading: false, message: null});
+            return;
         }
         
+        console.log("続き")
         // playerId を取得
         const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
         dispatch(setMyPlayerId(myPlayerId));
 
         // 状態判定
         const _myState = await getPlayerState(battleInfo.battleId ,myPlayerId);
+        console.log("getCharsUsedRounds前")
         const _myCharsUsedRounds = await getCharsUsedRounds(battleInfo.battleId, myPlayerId);
+        console.log("getCharsUsedRounds後")
         if (_myState === 0 && !battleInfo.isChoiceRevealed) {
             setIsChoiceFrozen(true);
             setChoice(battleInfo.myChoice);
@@ -331,6 +346,7 @@ export default function BattleMain(){
         const myFixedSlotCharInfo = await getFixedSlotCharInfo(battleInfo.battleId, myPlayerId);
         const _myRandomSlotState = await getRandomSlotState(battleInfo.battleId, myPlayerId);
         setMyRandomSlotState(_myRandomSlotState);
+        console.log("setMyCharacters ", setMyCharacters)
         if (_myRandomSlotState >= 1) {
             // 自分の seed がコミットし終わっていたら、RS も込みでキャラを設定する
             const myRandomSlot = await getMyRandomSlot(battleInfo.battleId, myPlayerId, battleInfo.myPlayerSeed);
@@ -360,7 +376,9 @@ export default function BattleMain(){
             };
             setOpponentCharacters([...opponentFixedSlotCharInfo, opponentRandomSlot]);
         }
+        console.log("getCharsUsedRounds 2 前")
         setOpponentCharsUsedRounds(await getCharsUsedRounds(battleInfo.battleId, 1-myPlayerId));
+        console.log("getCharsUsedRounds 2 後")
         setOpponentLevel(opponentFixedSlotCharInfo.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.level;
         }, 0));
@@ -378,6 +396,8 @@ export default function BattleMain(){
         const _opponentState = await getPlayerState(battleInfo.battleId, 1-myPlayerId);
         if (_myState > _opponentState || (_myRandomSlotState === 1 && _opponentRandomSlotState === 0)) {
             // 自分の方が進んでいれば相手を待つ必要がある
+            // バトルが終了していたらダイアログを出さない
+            console.log("useEffectA 内部 相手の操作が完了するのを待っています。")
             setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
         } else if (_myState < _opponentState || (_myRandomSlotState === 0 && _opponentRandomSlotState === 1)) {
             setIsWaiting(false);
@@ -389,25 +409,29 @@ export default function BattleMain(){
 
 
     useEffect(() => {
-        console.log("対戦相手のrevealを検知する")
+        console.log("=======useEffect B=======")
+        
         // 対戦相手のrevealを検知する?
         eventPlayerSeedRevealed(battleInfo.battleId, round, 1 - battleInfo.myPlayerId, battleInfo.myPlayerSeed);
         eventBattleCompleted(battleInfo.battleId, round, setBattleCompleted);
 
-        // // reasons for cancellation
-        // for (let playerId = 0; playerId <= 1; playerId++) {
-        //     eventExceedingLevelPointCheatDetected(battleInfo.battleId, playerId, setIsCancelling);
-        //     eventReusingUsedSlotCheatDetected(battleInfo.battleId, playerId, setIsCancelling);
-        //     eventLatePlayerSeedCommitDetected(battleInfo.battleId, playerId, setIsCancelling);
-        //     eventLateChoiceCommitDetected(battleInfo.battleId, playerId, setIsCancelling);
-        //     eventLateChoiceRevealDetected(battleInfo.battleId, playerId, setIsCancelling);
-        // }
+        // reasons for cancellation
+        for (let playerId = 0; playerId <= 1; playerId++) {
+            eventExceedingLevelPointCheatDetected(battleInfo.battleId, playerId, setIsCancelling);
+            // if(choice != null) {
+            //     eventReusingUsedSlotCheatDetected(battleInfo.battleId, playerId, choice, choice, setIsCancelling);
+            //     eventLateChoiceRevealDetected(battleInfo.battleId, playerId, setIsCancelling);
+            // }
+            eventLatePlayerSeedCommitDetected(battleInfo.battleId, playerId, setIsCancelling);
+            eventLateChoiceCommitDetected(battleInfo.battleId, playerId, setIsCancelling);
+        }
 
-        // eventBattleCanceled(setIsCancelled);
+        eventBattleCanceled(setIsCancelled);
     }, []);
 
 
     useEffect(() => {
+        console.log("=======useEffect C=======")
         if (isCancelling && isCancelled) {
             alert("バトルがキャンセルされました。");
             dispatch(initializeBattle());
@@ -473,7 +497,7 @@ export default function BattleMain(){
         dispatch(setMyPlayerSeed(myPlayerSeed));
 
         try {
-            await commitPlayerSeed(myPlayerId, myPlayerSeed);
+            await commitPlayerSeed(myPlayerSeed);
             const message = "バトルが開始されました！";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
@@ -505,7 +529,7 @@ export default function BattleMain(){
             const _COMPlayerSeed = getRandomBytes32();
             setCOMPlayerSeed(_COMPlayerSeed);
             try {
-                await commitPlayerSeed(1-myPlayerId, _COMPlayerSeed, battleInfo.comAddress);
+                await commitPlayerSeed(_COMPlayerSeed, battleInfo.comAddress);
             } catch (e) {
                 console.log({error: e});
                 if (e.message.substr(0, 18) === "transaction failed") {
@@ -518,6 +542,9 @@ export default function BattleMain(){
         }
 
         setMyRandomSlotState(await getRandomSlotState(battleInfo.battleId,　myPlayerId));
+        // useEffect D を発火させるために hasAction を更新
+        setHasAction((prev) => prev + 1)
+
         setIsChanging(false);
         if (succeed) {
             setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
@@ -536,7 +563,6 @@ export default function BattleMain(){
         setIsChoiceFrozen(true);
         let succeed = false;
 
-        const myPlayerId = battleInfo.myPlayerId;
         const blindingFactor = battleInfo.isBlindingFactorUsed ? getRandomBytes32() : battleInfo.myBlindingFactor;
         dispatch(setMyBlindingFactor(blindingFactor));
         dispatch(setMyChoice(choice));
@@ -575,6 +601,9 @@ export default function BattleMain(){
             }
         }
 
+        // useEffect D を発火させるために hasAction を更新
+        setHasAction((prev) => prev + 1)
+
         setIsChanging(false);
         if (succeed) {
             setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
@@ -589,11 +618,8 @@ export default function BattleMain(){
         setLoadingStatus({isLoading: true, message: 'ランダムスロットを公開しています。'});
         setIsChanging(true);
 
-        const myPlayerId = battleInfo.myPlayerId;
-        const myPlayerSeed = battleInfo.myPlayerSeed;
-
         try {
-            await revealPlayerSeed(myPlayerSeed);
+            await revealPlayerSeed(battleInfo.myPlayerSeed);
             const message = "ランダムスロットを公開しました！";
             enqueueSnackbar(message, {
                 autoHideDuration: 1500,
@@ -608,12 +634,17 @@ export default function BattleMain(){
             }
         }
         setMyRandomSlotState(await getRandomSlotState(battleInfo.battleId, battleInfo.myPlayerId));
+
+        // useEffect D を発火させるために hasAction を更新
+        setHasAction((prev) => prev + 1)
+
         setIsChanging(false);
         setLoadingStatus({isLoading: false, message: null});
     }
 
 
     async function handleChoiceReveal() {
+        console.log("------------バトル結果を見る----------------")
         setLoadingStatus({isLoading: true, message: 'バトルに出したキャラを公開しています。'});
         setIsChanging(true);
         setIsChecking(true);
@@ -668,6 +699,12 @@ export default function BattleMain(){
         }
 
         setIsChanging(false);
+
+        // バトルが終了していたらダイアログを出さない
+        var isInBattle = await isInBattle
+        if(!isInBattle){
+            return
+        }
         if (succeed) {
             setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
         } else {
@@ -678,6 +715,7 @@ export default function BattleMain(){
 
     // 各処理終了時の処理
     useEffect(() => {(async function() {
+        console.log("=======useEffect D=======")
         const myPlayerId = battleInfo.myPlayerId == null ? await getPlayerIdFromAddr() : battleInfo.myPlayerId;
         const _myState = await getPlayerState(battleInfo.battleId, myPlayerId);
         const _opponentState = await getPlayerState(battleInfo.battleId, 1-myPlayerId);
@@ -697,11 +735,14 @@ export default function BattleMain(){
                 setIsWaiting(true);
             }
         }
+        
+    // })();}, [hasAction]);
     })();}, [isChanging, isWaiting]);
 
 
     // ラウンド終了後の処理
     useEffect(() => {(async function() {
+        console.log("=======useEffect E=======")
         if (completedNumRounds > 0 && myCharsUsedRounds !== undefined) {
             // 相手の次の動作を待つ
             setIsWaiting(true);
@@ -714,10 +755,10 @@ export default function BattleMain(){
                 setMyRemainingLevelPoint(await getRemainingLevelPoint(battleInfo.battleId, myPlayerId));
                 setOpponentRemainingLevelPoint(await getRemainingLevelPoint(battleInfo.battleId, 1-myPlayerId));
                 setLevelPoint(0);
-
+                console.log("関数発火確認　getCharsUsedRounds")
                 setMyCharsUsedRounds(await getCharsUsedRounds(battleInfo.battleId, myPlayerId));
                 setOpponentCharsUsedRounds(await getCharsUsedRounds(battleInfo.battleId, 1-myPlayerId));
-
+                console.log("関数発火確認　getCharsUsedRounds　ここまで")
                 const _opponentRandomSlotState = await getRandomSlotState(battleInfo.battleId, 1-battleInfo.myPlayerId);
                 if (_opponentRandomSlotState === 2) {
                     const opponentRandomSlot = await getRandomSlotCharInfo(battleInfo.battleId, 1-myPlayerId);
@@ -757,17 +798,26 @@ export default function BattleMain(){
 
     // バトル終了後の処理
     useEffect(() => {(async function() {
+        console.log("=======useEffect G=======")
         if (battleCompleted && !isInRound) {
             const _battleResult = await getBattleResult(battleInfo.battleId);
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Draw (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
+                if (!(await isInBattle())) {
+                    console.log("結果1")
+                    setBattleResultDialog({open: true, result: "引き分け"})
+                }
             } else {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Winner ${_battleResult.winner} (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
-                if (_battleResult.winner == 0){
-                    setBattleResultDialog({open: true, result: "勝利"})
-                } else {
-                    setBattleResultDialog({open: true, result: "敗北"})
+                if (!(await isInBattle())) {
+                    if (_battleResult.winner == 0){
+                        console.log("結果2")
+                        setBattleResultDialog({open: true, result: "勝利"})
+                    } else {
+                        console.log("結果3")
+                        setBattleResultDialog({open: true, result: "敗北"})
+                    }
                 }
             }
         }
@@ -822,7 +872,7 @@ export default function BattleMain(){
             [dev]保存したmyPlayerSeed: { battleInfo.myPlayerSeed }<br/>
             [dev]左から数えて {choice} 番目のトークンが選択されました。
 
-            <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds} level={myLevel}
+            <PlayerI characters={myCharacters} charsUsedRounds={myCharsUsedRounds} level={myLevel} myRandomSlotState={myRandomSlotState}
                 remainingLevelPoint={myRemainingLevelPoint} maxLevelPoint={myMaxLevelPoint} setLevelPoint={setLevelPoint}
                 isChoiceFrozen={isChoiceFrozen} choice={choice} setChoice={setChoice} />
         </Container>

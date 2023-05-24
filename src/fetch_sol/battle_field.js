@@ -8,7 +8,7 @@ import { BigNumber } from 'bignumber.js';
 /// BATTLE FIELD FUNCTIONS ///
 //////////////////////////////
 
-async function commitPlayerSeed (playerId, playerSeed, addressIndex) {
+async function commitPlayerSeed (playerSeed, addressIndex) {
     const { signer, contract } = getContract("PLMBattlePlayerSeed", addressIndex);
     const myAddress = await getMyAddress();
     const commitString = getSeedString(myAddress, playerSeed);
@@ -251,6 +251,7 @@ async function getLatestBattle (addressIndex) {
     const { signer } = getContract("PLMBattleManager");
     const myAddress = await signer.getAddress();
     const { contract } = getContract("PLMBattleManager", addressIndex);
+    console.log("myAddress", myAddress)
     const response = await poll(() => {return contract.getLatestBattle(myAddress);});
     console.log({getLatestBattle: response.toNumber()})
     return response.toNumber();

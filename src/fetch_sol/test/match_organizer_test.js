@@ -72,16 +72,14 @@ async function requestChallengeToMe (setLoadingStatus) {
         await getPLMCoin(220, 400, addressIndex);
         await extendSubscPeriod(addressIndex);
     }
-
     const fixedSlotsOfChallenger = [];
     for (let i = 0; i < 4; i++) {
         fixedSlotsOfChallenger.push((await gacha(randomName(), addressIndex))['id']);
     }
-
     const { signer } = getContract("PLMMatchOrganizer", 1);
     const myAddress = await signer.getAddress();
     await requestChallenge(myAddress, fixedSlotsOfChallenger, addressIndex);
     setLoadingStatus({isLoading: false, message: null})
 }
 
-export { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe };
+export { prepareForBattle, createCharacters, makeProposers, cancelProposals, requestChallengeToMe,  };
