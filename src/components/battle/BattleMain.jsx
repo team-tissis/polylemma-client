@@ -213,7 +213,6 @@ export default function BattleMain(){
     const [levelPoint, setLevelPoint] = useState(0);
 
     // for debug
-    // const [isCOM, setIsCOM] = useState(false);
     const [addressIndex, setAddressIndex] = useState(-1);
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [COMChoice, setCOMChoice] = useState(-1);
@@ -238,8 +237,6 @@ export default function BattleMain(){
     const [isChecking, setIsChecking] = useState(false);
     const [isInRound, setIsInRound] = useState(false);
     const [isChoiceFrozen, setIsChoiceFrozen] = useState(false);
-    // seed, reveal 時に更新する
-    const [hasAction, setHasAction] = useState(0);
 
     const [myState, setMyState] = useState(-1);
     const [myRandomSlotState, setMyRandomSlotState] = useState(-1);
@@ -483,7 +480,11 @@ export default function BattleMain(){
         }
 
         const _nextCOMChoice = Math.floor( Math.random() * UnusedIndexes.length );
-        return UnusedIndexes[_nextCOMChoice];
+        if (UnusedIndexes[_nextCOMChoice] == undefined) {
+            return 4
+        } else {
+            return UnusedIndexes[_nextCOMChoice];
+        }
     }
 
 
@@ -542,8 +543,6 @@ export default function BattleMain(){
         }
 
         setMyRandomSlotState(await getRandomSlotState(battleInfo.battleId,　myPlayerId));
-        // useEffect D を発火させるために hasAction を更新
-        setHasAction((prev) => prev + 1)
 
         setIsChanging(false);
         if (succeed) {
@@ -556,6 +555,7 @@ export default function BattleMain(){
 
 
     async function handleChoiceCommit() {
+        console.log("-------------勝負するキャラを確定する---------------")
         setLoadingStatus({isLoading: true, message: 'キャラを確定しています。'});
         setIsChanging(true);
         setIsChecking(true);
@@ -601,9 +601,6 @@ export default function BattleMain(){
             }
         }
 
-        // useEffect D を発火させるために hasAction を更新
-        setHasAction((prev) => prev + 1)
-
         setIsChanging(false);
         if (succeed) {
             setLoadingStatus({isLoading: true, message: '相手の操作が完了するのを待っています。'});
@@ -612,7 +609,6 @@ export default function BattleMain(){
             setLoadingStatus({isLoading: false, message: null});
         }
     }
-
 
     async function handleSeedReveal() {
         setLoadingStatus({isLoading: true, message: 'ランダムスロットを公開しています。'});
@@ -634,9 +630,6 @@ export default function BattleMain(){
             }
         }
         setMyRandomSlotState(await getRandomSlotState(battleInfo.battleId, battleInfo.myPlayerId));
-
-        // useEffect D を発火させるために hasAction を更新
-        setHasAction((prev) => prev + 1)
 
         setIsChanging(false);
         setLoadingStatus({isLoading: false, message: null});
