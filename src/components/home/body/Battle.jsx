@@ -181,7 +181,8 @@ export default function Battle() {
             dispatch(setBattleId(battleId))
 
             const myAddress = await getMyAddress()
-            dispatch(setComputerInfo([matched.opponentAddress, matched.myAddress, myAddress]))
+            // コンピュータとの対戦でないならコメントアウトする
+            // dispatch(setComputerInfo([matched.opponentAddress, matched.myAddress, myAddress]))
 
             // バトル情報ステータスを初期化する
             const message = "相手とマッチしました！";

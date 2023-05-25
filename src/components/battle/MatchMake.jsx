@@ -127,7 +127,7 @@ export default function MatchMake() {
         setLoadingStatus({isLoading: true, message: null});
         const { signer } = getContract("PLMMatchOrganizer");
         const myAddress = await signer.getAddress();
-
+        
         const battleId = await getLatestBattle();
         eventBattleStarted(battleId, myAddress, setMatched, false);
 
@@ -138,7 +138,12 @@ export default function MatchMake() {
     useEffect(() => {(async function() {
         if (matched.flag) {
             const myAddress = await getMyAddress()
-            dispatch(setComputerInfo([matched.myAddress, matched.opponentAddress, myAddress]))
+
+            const battleId = await getLatestBattle();
+            dispatch(setBattleId(battleId))
+
+            // コンピュータとの対戦でないならコメントアウトする
+            // dispatch(setComputerInfo([matched.myAddress, matched.opponentAddress, myAddress]))
             navigate('/battle_main');
         }
     })();}, [matched]);

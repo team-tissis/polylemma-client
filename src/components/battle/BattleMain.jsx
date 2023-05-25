@@ -57,7 +57,8 @@ function handleButtonStyle() {
 
 function BattleCard({character, charUsedRounds, myRandomSlotState, isOpponent, isChoiceFrozen, choice, setChoice, opponentRandomSlotState}){
     const isRS = character.isRandomSlot;
-    const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
+    const isSecret = (character.name == null) ? true : false
+    // const isSecret = isOpponent && isRS && (opponentRandomSlotState !== 2);
     const characterAttribute = isSecret ? null : characterInfo.attributes[character.attributeIds[0]];
     const characterType = isSecret ? null : characterInfo.characterType[character.characterType];
     var isBattleDone = charUsedRounds === undefined ? false : charUsedRounds[character.index] > 0;
@@ -343,7 +344,7 @@ export default function BattleMain(){
         const myFixedSlotCharInfo = await getFixedSlotCharInfo(battleInfo.battleId, myPlayerId);
         const _myRandomSlotState = await getRandomSlotState(battleInfo.battleId, myPlayerId);
         setMyRandomSlotState(_myRandomSlotState);
-        console.log("setMyCharacters ", setMyCharacters)
+
         if (_myRandomSlotState >= 1) {
             // 自分の seed がコミットし終わっていたら、RS も込みでキャラを設定する
             const myRandomSlot = await getMyRandomSlot(battleInfo.battleId, myPlayerId, battleInfo.myPlayerSeed);

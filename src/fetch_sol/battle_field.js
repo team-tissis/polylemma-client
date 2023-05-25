@@ -161,13 +161,17 @@ async function getMyRandomSlot (battleId, playerId, playerSeed, addressIndex) {
     };
 }
 
+async function getAddressRandomSlotCharInfo (battleId, playerId, addressIndex) {
+    const { contract } = getContract("PLMBattleManager", addressIndex);
+    const addr = await poll(() => {return contract.getPlayerAddressById(battleId, playerId);});
+    return addr
+}
+
 // Reveal 後に相手のランダムスロットの内容を取得する関数
 async function getRandomSlotCharInfo (battleId, playerId, addressIndex) {
-    const { managerContract } = getContract("PLMBattleManager", addressIndex);
-    const { fieldContract } = getContract("PLMBattleStarter", addressIndex);
-    const addr = await poll(() => {return managerContract.getPlayerAddressById(battleId, playerId);});
-    const response = await poll(() => {return fieldContract.getRandomSlotCharInfo(addr);});
-    console.log({ getRandomSlotCharInfo: response });
+    const addr = await getAddressRandomSlotCharInfo(battleId, playerId, addressIndex)
+    const { contract } = getContract("PLMBattleStarter", addressIndex);
+    const response = await poll(() => {return contract.getRandomSlotCharInfo(addr);});
 
     return {
         index: 4,
