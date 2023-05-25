@@ -17,7 +17,7 @@ import Icon from 'assets/icons/avatar_1.png'
 import { selectBattleInfo, setBattleId, setComputerInfo, setMyPlayerId, setMyPlayerSeed, setMyChoice, setMyLevelPoint, setChoiceUsed,
     setMyBlindingFactor, setBlindingFactorUsed, initializeBattle } from 'slices/battle.ts';
 import { useSnackbar } from 'notistack';
-import { getEnv, getRandomBytes32 } from 'fetch_sol/utils.js';
+import { getEnv, getRandomBytes32, getMyAddress } from 'fetch_sol/utils.js';
 import { isInBattle } from 'fetch_sol/match_organizer.js';
 import { commitPlayerSeed, revealPlayerSeed, commitChoice, revealChoice, reportLateOperation,
          getBattleState, getPlayerState, getRemainingLevelPoint, getFixedSlotCharInfo, getMyRandomSlot, getRandomSlotCharInfo,
@@ -214,7 +214,7 @@ export default function BattleMain(){
     const [levelPoint, setLevelPoint] = useState(0);
 
     // for debug
-    const [addressIndex, setAddressIndex] = useState(-1);
+    const [myAddress, setMyAddress] = useState();
     const [COMPlayerSeed, setCOMPlayerSeed] = useState();
     const [COMChoice, setCOMChoice] = useState(-1);
     const [COMBlindingFactor, setCOMBlindingFactor] = useState(null);
@@ -252,7 +252,7 @@ export default function BattleMain(){
     const [isCancelling, setIsCancelling] = useState(false);
     const [isCancelled, setIsCancelled] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState({isLoading: false, message: null});
-
+    
     // async function checkIsCOM() {
     //     if (getEnv() === 'mumbai') return false;
     //     for (let _addressIndex = 2; _addressIndex < 7; _addressIndex++) {
@@ -271,6 +271,8 @@ export default function BattleMain(){
 
     useEffect(() => {(async function() {
         console.log("=======useEffect A=======")
+        setMyAddress(await getMyAddress())
+
         setLoadingStatus({isLoading: true, message: null});
         if (!(await isInBattle())) {
             dispatch(initializeBattle());
@@ -278,14 +280,11 @@ export default function BattleMain(){
             const _battleResult = await getBattleResult(battleInfo.battleId);
             setBattleResult(_battleResult);
             if (_battleResult.isDraw) {
-                console.log("結果4")
                 setBattleResultDialog({open: true, result: "引き分け"})
             } else {
                 if (_battleResult.winner == 0){
-                    console.log("結果5")
                     setBattleResultDialog({open: true, result: "勝利"})
                 } else {
-                    console.log("結果6")
                     setBattleResultDialog({open: true, result: "敗北"})
                 }
             }
@@ -405,6 +404,8 @@ export default function BattleMain(){
         }
     })();}, [myState]);
 
+
+    
 
     useEffect(() => {
         console.log("=======useEffect B=======")
@@ -766,6 +767,7 @@ export default function BattleMain(){
             }
 
             const _roundResults = await getRoundResults(battleInfo.battleId);
+            console.log("ラウンド結果: ", _roundResults)
             setRoundResults(_roundResults);
             const _roundResult = _roundResults[completedNumRounds-1];
             if (await getPlayerState(battleInfo.battleId, myPlayerId) === 0) {
@@ -799,17 +801,14 @@ export default function BattleMain(){
             if (_battleResult.isDraw) {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Draw (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
                 if (!(await isInBattle())) {
-                    console.log("結果1")
                     setBattleResultDialog({open: true, result: "引き分け"})
                 }
             } else {
                 alert(`Battle Result (${_battleResult.numRounds+1} Rounds): Winner ${_battleResult.winner} (${_battleResult.winnerCount} - ${_battleResult.loserCount}).`);
                 if (!(await isInBattle())) {
                     if (_battleResult.winner == 0){
-                        console.log("結果2")
                         setBattleResultDialog({open: true, result: "勝利"})
                     } else {
-                        console.log("結果3")
                         setBattleResultDialog({open: true, result: "敗北"})
                     }
                 }
@@ -824,7 +823,7 @@ export default function BattleMain(){
         var draw_count = 0
         roundResults.map((roundResult, index) => {
             if (!roundResult.isDraw){
-                if(battleInfo.myPlayerId === roundResult.winner){
+                if(myAddress === roundResult.winner){
                     win_count += 1
                 } else {
                     lose_count += 1
@@ -908,7 +907,7 @@ export default function BattleMain(){
         </Button>
     }
     {/* alertで各バトルの結果を通知 */}
-    <BattleResultTag battleResultDialog={battleResultDialog} setBattleResultDialog={setBattleResultDialog}
+    <BattleResultTag myAddress={myAddress} battleResultDialog={battleResultDialog} setBattleResultDialog={setBattleResultDialog}
         roundResults={roundResults} round={round} battleInfo={battleInfo}/>
     </>)
 }

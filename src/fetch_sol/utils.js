@@ -110,7 +110,6 @@ function getContract (contractName, addressIndex) {
     const abi = getAbi(contractName);
     const signer = getSigner(addressIndex);
     const contract = new ethers.Contract(contractAddress, abi, signer);
-    console.log(contractAddress, signer, contract )
     return { contractAddress, signer, contract };
 }
 

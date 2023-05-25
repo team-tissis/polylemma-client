@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import DialogContentText from '@mui/material/DialogContentText';
 
 
-export default function BattleResultTag({battleResultDialog, setBattleResultDialog,  roundResults, round, battleInfo}) {
+export default function BattleResultTag({myAddress, battleResultDialog, setBattleResultDialog, roundResults, round, battleInfo}) {
     const navigate = useNavigate();
     
     function backHome() {
@@ -44,9 +44,9 @@ export default function BattleResultTag({battleResultDialog, setBattleResultDial
                         {roundResults.map((roundResult, index) => (
                             index < round && <Grid container key={index}>
                                 <Grid item xs={3} md={3}>{index + 1}</Grid>
-                                <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (battleInfo.myPlayerId === roundResult.winner) ? <>○</> : <>×</>}</Grid>
-                                <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
-                                <Grid item xs={3} md={3}>{(battleInfo.myPlayerId === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
+                                <Grid item xs={3} md={3}>{roundResult.isDraw ? <>△</> : (myAddress === roundResult.winner) ? <>○</> : <>×</>}</Grid>
+                                <Grid item xs={3} md={3}>{(myAddress === roundResult.winner) ? roundResult.winnerDamage : roundResult.loserDamage}</Grid>
+                                <Grid item xs={3} md={3}>{(myAddress === roundResult.winner) ? roundResult.loserDamage : roundResult.winnerDamage}</Grid>
                             </Grid>
                         ))}
                     </Grid>
